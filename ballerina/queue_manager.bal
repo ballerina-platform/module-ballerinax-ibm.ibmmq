@@ -31,7 +31,12 @@ public isolated class QueueManager {
         return error Error("Not implemented");
     }
 
-    public isolated function accessTopic(string topicName, string topicString, ConnectionOpenOptions options) returns Topic|Error {
-        return error Error("Not implemented");
+    public isolated function accessTopic(string topicName, string topicString, OPEN_AS_OPTION openAs, AccessTopicOptions options) returns Topic|Error {
+        return self.externAccessTopic(topicName, topicString, openAs, options);
     }
+        
+    private isolated function externAccessTopic(string topicName, string topicString, OPEN_AS_OPTION openAs, AccessTopicOptions options) returns Topic|Error =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
+    } external;
 }

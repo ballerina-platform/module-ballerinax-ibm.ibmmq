@@ -13,17 +13,37 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/jballerina.java;
 
 public type Destination distinct client object {
     remote function put(Message message) returns Error?;
 
-    remote function get() returns Message|Error?;
+    remote function get(GetMessageOptions options = {}) returns Message|Error?;
 };
 
 public type Queue distinct client object {
     *Destination;
 };
 
-public type Topic distinct client object {
+public client class Topic {
     *Destination;
+
+    remote function put(Message message) returns Error? {
+        return self.externPut(message);
+    };
+
+    remote function get(GetMessageOptions options = {}) returns Message|Error {
+        return self.externGet(options);
+    };
+
+    private isolated function externPut(Message message) returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
+
+    private isolated function externGet(GetMessageOptions options) returns Message|Error =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
 };
+

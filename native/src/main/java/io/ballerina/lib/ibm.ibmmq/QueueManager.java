@@ -20,7 +20,10 @@ package io.ballerina.lib.ibm.ibmmq;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
+import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -62,6 +65,21 @@ public class QueueManager {
                     String.format("Error occurred while initializing the connection manager: %s", e.getMessage()), e);
         }
         return null;
+    }
+
+    public static Object externAccessTopic(Environment env, BObject queueManagerObject, BString topicName,
+                                           BString topicString, Long openAs, Long options) {
+        MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
+        try {
+            MQTopic mqTopic = queueManager.accessTopic(topicName.getValue(), topicString.getValue(),
+                    openAs.intValue(), options.intValue());
+            BObject bTopic = ValueCreator.createObjectValue(ModuleUtils.getModule(), CommonUtils.BTOPIC);
+            bTopic.addNativeData(CommonUtils.TOPIC_OBJECT, mqTopic);
+            return bTopic;
+        } catch (MQException e) {
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
+        }
     }
 
     private static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations) {
