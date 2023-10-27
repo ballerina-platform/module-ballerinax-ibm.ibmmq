@@ -22,6 +22,8 @@ import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
+import io.ballerina.lib.ibm.ibmmq.utils.CommonUtils;
+import io.ballerina.lib.ibm.ibmmq.utils.ModuleUtils;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -31,8 +33,8 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.util.Hashtable;
 
-import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
-import static io.ballerina.lib.ibm.ibmmq.CommonUtils.getOptionalStringProperty;
+import static io.ballerina.lib.ibm.ibmmq.utils.CommonUtils.createError;
+import static io.ballerina.lib.ibm.ibmmq.utils.CommonUtils.getOptionalStringProperty;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.Constants.NATIVE_QUEUE_MANAGER;
 

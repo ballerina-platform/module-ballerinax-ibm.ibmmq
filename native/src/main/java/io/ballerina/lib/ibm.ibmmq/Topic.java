@@ -21,6 +21,7 @@ package io.ballerina.lib.ibm.ibmmq;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQTopic;
+import io.ballerina.lib.ibm.ibmmq.utils.CommonUtils;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -33,7 +34,7 @@ import java.util.concurrent.Executors;
 
 public class Topic {
     private static final ExecutorService topicExecutorService =
-            Executors.newCachedThreadPool(new MQThreadFactory("balx-ibm-mq-client-network-thread"));
+            Executors.newCachedThreadPool(new MQThreadFactory("balx-ibmmq-topic-client-network-thread"));
 
     private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
     private static final BString OPTIONS = StringUtils.fromString("options");

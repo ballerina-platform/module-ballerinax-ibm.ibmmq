@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.lib.ibm.ibmmq;
+package io.ballerina.lib.ibm.ibmmq.utils;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQMessage;
@@ -35,7 +35,7 @@ import java.util.Enumeration;
 import java.util.Optional;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
-import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
+import static io.ballerina.lib.ibm.ibmmq.utils.ModuleUtils.getModule;
 
 /**
  * {@code CommonUtils} contains the common utility functions for the Ballerina IBM MQ connector.
@@ -166,7 +166,7 @@ public class CommonUtils {
             propertyDescriptor.support = ((Long) descriptor.get(PD_SUPPORT)).intValue();
         }
         if (descriptor.containsKey(PD_CONTEXT)) {
-            propertyDescriptor.	context = ((Long) descriptor.get(PD_CONTEXT)).intValue();
+            propertyDescriptor.context = ((Long) descriptor.get(PD_CONTEXT)).intValue();
         }
         return propertyDescriptor;
     }
