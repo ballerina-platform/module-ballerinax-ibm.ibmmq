@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.lib.ibm.ibmmq.utils;
+package io.ballerina.lib.ibm.ibmmq;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;

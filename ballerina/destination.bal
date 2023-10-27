@@ -30,13 +30,11 @@ public client class Topic {
 
     remote function put(Message message) returns Error? =
     @java:Method {
-        name: "externPut",
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 
     remote function get(GetMessageOptions options = {}) returns Message|Error  =
     @java:Method {
-        name: "externGet",
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 };

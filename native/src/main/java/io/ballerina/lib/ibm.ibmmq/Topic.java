@@ -21,7 +21,6 @@ package io.ballerina.lib.ibm.ibmmq;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQTopic;
-import io.ballerina.lib.ibm.ibmmq.utils.CommonUtils;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -39,7 +38,7 @@ public class Topic {
     private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
     private static final BString OPTIONS = StringUtils.fromString("options");
 
-    public static Object externPut(Environment environment, BObject topicObject, BMap message) {
+    public static Object put(Environment environment, BObject topicObject, BMap message) {
         MQTopic topic = (MQTopic) topicObject.getNativeData(CommonUtils.TOPIC_OBJECT);
         MQMessage mqMessage = CommonUtils.getMqMessageFromBMessage(message);
         Future future = environment.markAsync();
@@ -54,7 +53,7 @@ public class Topic {
         return null;
     }
 
-    public static Object externGet(Environment environment, BObject topicObject, BMap<BString, Object> options) {
+    public static Object get(Environment environment, BObject topicObject, BMap<BString, Object> options) {
         MQTopic topic = (MQTopic) topicObject.getNativeData(CommonUtils.TOPIC_OBJECT);
         MQGetMessageOptions getMessageOptions = getGetMessageOptions(options);
         Future future = environment.markAsync();

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.lib.ibm.ibmmq.utils;
+package io.ballerina.lib.ibm.ibmmq;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQMessage;
@@ -35,7 +35,7 @@ import java.util.Enumeration;
 import java.util.Optional;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
-import static io.ballerina.lib.ibm.ibmmq.utils.ModuleUtils.getModule;
+import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 
 /**
  * {@code CommonUtils} contains the common utility functions for the Ballerina IBM MQ connector.
@@ -184,10 +184,10 @@ public class CommonUtils {
     public static BError createError(String errorType, String message, Throwable throwable) {
         BError cause = ErrorCreator.createError(throwable);
         BMap<BString, Object> errorDetails = ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
-        if (throwable instanceof MQException) {
-            errorDetails.put(ERROR_REASON_CODE, ((MQException) throwable).getReason());
-            errorDetails.put(ERROR_ERROR_CODE, ((MQException) throwable).getErrorCode());
-            errorDetails.put(ERROR_COMPLETION_CODE, ((MQException) throwable).getCompCode());
+        if (throwable instanceof MQException exception) {
+            errorDetails.put(ERROR_REASON_CODE, exception.getReason());
+            errorDetails.put(ERROR_ERROR_CODE, exception.getErrorCode());
+            errorDetails.put(ERROR_COMPLETION_CODE, exception.getCompCode());
         }
         return ErrorCreator.createError(
                 ModuleUtils.getModule(), errorType, StringUtils.fromString(message), cause, errorDetails);

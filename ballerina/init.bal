@@ -21,5 +21,5 @@ isolated function init() {
 }
 
 isolated function setModule() = @java:Method {
-    'class: "io.ballerina.lib.ibm.ibmmq.utils.ModuleUtils"
+    'class: "io.ballerina.lib.ibm.ibmmq.ModuleUtils"
 } external;
