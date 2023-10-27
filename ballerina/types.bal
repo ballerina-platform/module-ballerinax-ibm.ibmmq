@@ -15,6 +15,7 @@
 // under the License.
 
 public type QueueManagerConfiguration record {|
+    string name;
     string host;
     int port = 1414;
     string channel;
