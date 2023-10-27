@@ -23,12 +23,16 @@ import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQQueue;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
+import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 
 /**
  * Representation of {@link com.ibm.mq.MQQueue} with utility methods to invoke as inter-op functions.
@@ -46,7 +50,9 @@ public class Queue {
                 queue.put(mqMessage);
                 future.complete(null);
             } catch (Exception e) {
-                future.complete(e);
+                BError bError = createError(IBMMQ_ERROR,
+                        String.format("Error occurred while putting a message to the queue: %s", e.getMessage()), e);
+                future.complete(bError);
             }
         });
         return null;
@@ -62,7 +68,9 @@ public class Queue {
                 queue.get(message, getMessageOptions);
                 future.complete(CommonUtils.getBMessageFromMQMessage(message));
             } catch (Exception e) {
-                future.complete(e);
+                BError bError = createError(IBMMQ_ERROR,
+                        String.format("Error occurred while getting a message from the queue: %s", e.getMessage()), e);
+                future.complete(bError);
             }
         });
         return null;
