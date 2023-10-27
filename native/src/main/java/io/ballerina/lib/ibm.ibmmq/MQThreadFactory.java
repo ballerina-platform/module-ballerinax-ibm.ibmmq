@@ -18,11 +18,20 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
-public class MQThreadFactory implements java.util.concurrent.ThreadFactory {
+import java.util.concurrent.ThreadFactory;
+
+public class MQThreadFactory implements ThreadFactory {
+
+    private final String threadGroupName;
+
+    public MQThreadFactory(String threadGroupName) {
+        this.threadGroupName = threadGroupName;
+    }
+
     @Override
     public Thread newThread(Runnable runnable) {
         Thread ibmMqClientThread = new Thread(runnable);
-        ibmMqClientThread.setName("balx-ibm-mq-client-network-thread");
+        ibmMqClientThread.setName(threadGroupName);
         return ibmMqClientThread;
     }
 

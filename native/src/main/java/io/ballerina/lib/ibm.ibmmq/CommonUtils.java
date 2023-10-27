@@ -79,7 +79,8 @@ public class CommonUtils {
             byte[] payload = new byte[mqMessage.getDataLength()];
             mqMessage.readFully(payload);
             bMessage.put(MESSAGE_PAYLOAD, payload);
-            BMap<BString, Object> properties = ValueCreator.createRecordValue(getModule(), MESSAGE_PROPERTIES.getValue());
+            BMap<BString, Object> properties = ValueCreator.createRecordValue(getModule(),
+                    MESSAGE_PROPERTIES.getValue());
             Enumeration<String> propertyNames = mqMessage.getPropertyNames("%");
             for (String propertyName : Collections.list(propertyNames)) {
                 properties.put(StringUtils.fromString(propertyName), mqMessage.getObjectProperty(propertyName));

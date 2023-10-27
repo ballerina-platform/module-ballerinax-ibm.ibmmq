@@ -28,21 +28,15 @@ public type Queue distinct client object {
 public client class Topic {
     *Destination;
 
-    remote function put(Message message) returns Error? {
-        return self.externPut(message);
-    };
-
-    remote function get(GetMessageOptions options = {}) returns Message|Error {
-        return self.externGet(options);
-    };
-
-    private isolated function externPut(Message message) returns Error? =
+    remote function put(Message message) returns Error? =
     @java:Method {
+        name: "externPut",
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 
-    private isolated function externGet(GetMessageOptions options) returns Message|Error =
+    remote function get(GetMessageOptions options = {}) returns Message|Error  =
     @java:Method {
+        name: "externGet",
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 };

@@ -32,7 +32,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Topic {
-    private static final ExecutorService topicExecutorService = Executors.newCachedThreadPool(new MQThreadFactory());
+    private static final ExecutorService topicExecutorService =
+            Executors.newCachedThreadPool(new MQThreadFactory("balx-ibm-mq-client-network-thread"));
 
     private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
     private static final BString OPTIONS = StringUtils.fromString("options");
