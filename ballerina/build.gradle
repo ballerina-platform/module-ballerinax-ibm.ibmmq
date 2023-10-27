@@ -66,21 +66,25 @@ configurations {
     externalJars
 }
 
-// dependencies {
-//     /* SLF4J dependencies */
-//     externalJars(group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}") {
-//         transitive = false
-//     }
-//     /* JMS dependencies */
-//     externalJars(group: 'javax.jms', name: 'javax.jms-api', version: "${javaxJmsVersion}") {
-//         transitive = false
-//     }
-// }
+dependencies {
+    /* Json dependencies */
+    externalJars(group: 'org.json', name: 'json', version: "${jsonVersion}") {
+        transitive = false
+    }
+    /* IBM MQ dependencies */
+    externalJars(group: 'com.ibm.mq', name: 'com.ibm.mq.allclient', version: "${ibmMQVersion}") {
+        transitive = false
+    }
+}
 
 task updateTomlFiles {
     doLast {
+        def stdlibDependentIbmMQVersion = project.ibmMQVersion
+        def stdlibDependentJsonVersion = project.jsonVersion
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         newConfig = newConfig.replace("@toml.version@", tomlVersion)
+        newConfig = newConfig.replace("@ibmmq.version@", stdlibDependentIbmMQVersion)
+        newConfig = newConfig.replace("@json.version@", stdlibDependentJsonVersion)
         ballerinaTomlFile.text = newConfig
     }
 }

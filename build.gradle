@@ -22,6 +22,8 @@ plugins {
 }
 
 ext.ballerinaLangVersion = project.ballerinaLangVersion
+ext.ibmMQVersion = project.ibmMQVersion
+ext.jsonVersion = project.jsonVersion
 
 allprojects {
     group = project.group

@@ -17,3 +17,15 @@ groupId = "io.ballerina.stdlib"
 artifactId = "ibm.ibmmq-native"
 version = "@toml.version@"
 path = "../native/build/libs/ibm.ibmmq-native-@project.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "org.json"
+artifactId = "json"
+version = "@json.version@"
+path = "./lib/json-@json.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "com.ibm.mq"
+artifactId = "com.ibm.mq.allclient"
+version = "@ibmmq.version@"
+path = "./lib/com.ibm.mq.allclient-@ibmmq.version@.jar"
