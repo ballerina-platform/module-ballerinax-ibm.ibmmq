@@ -1,0 +1,31 @@
+[package]
+org = "ballerinax"
+name = "ibm.ibmmq"
+version = "0.0.1"
+authors = ["Ballerina"]
+keywords = ["ibm-mq"]
+repository = "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq"
+icon = "icon.png"
+license = ["Apache-2.0"]
+distribution = "2201.8.0"
+
+[platform.java17]
+graalvmCompatible = true
+
+[[platform.java17.dependency]]
+groupId = "io.ballerina.stdlib"
+artifactId = "ibm.ibmmq-native"
+version = "0.0.1"
+path = "../native/build/libs/ibm.ibmmq-native-0.0.1-SNAPSHOT.jar"
+
+[[platform.java17.dependency]]
+groupId = "org.json"
+artifactId = "json"
+version = "20231013"
+path = "./lib/json-20231013.jar"
+
+[[platform.java17.dependency]]
+groupId = "com.ibm.mq"
+artifactId = "com.ibm.mq.allclient"
+version = "9.3.4.0"
+path = "./lib/com.ibm.mq.allclient-9.3.4.0.jar"
