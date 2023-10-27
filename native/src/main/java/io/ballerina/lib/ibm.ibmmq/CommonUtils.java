@@ -28,6 +28,8 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Optional;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
@@ -47,8 +49,9 @@ public class CommonUtils {
     private static final BString ERROR_COMPLETION_CODE = StringUtils.fromString("ErrorDetails");
     private static final BString MESSAGE_PAYLOAD = StringUtils.fromString("payload");
     private static final BString MESSAGE_PROPERTIES = StringUtils.fromString("properties");
+    private static final String BMESSAGE_NAME = "Message";
 
-    public static MQMessage getMqMessage(BMap<BString, Object> bMessage) {
+    public static MQMessage getMqMessageFromMessage(BMap<BString, Object> bMessage) {
         byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
         BMap<BString, Object> properties = (BMap<BString, Object>) bMessage.getMapValue(MESSAGE_PROPERTIES);
 
@@ -67,7 +70,26 @@ public class CommonUtils {
                         String.format("Error occurred while setting message properties: %s", e.getMessage()), e);
             }
         }
-        return new MQMessage();
+        return mqMessage;
+    }
+
+    public static BMap<BString, Object> getBMessageFromMQMessage(MQMessage mqMessage) {
+        BMap<BString, Object> bMessage = ValueCreator.createRecordValue(getModule(), BMESSAGE_NAME);
+        try {
+            byte[] payload = new byte[mqMessage.getDataLength()];
+            mqMessage.readFully(payload);
+            bMessage.put(MESSAGE_PAYLOAD, payload);
+            BMap<BString, Object> properties = ValueCreator.createRecordValue(getModule(), MESSAGE_PROPERTIES.getValue());
+            Enumeration<String> propertyNames = mqMessage.getPropertyNames("%");
+            for (String propertyName : Collections.list(propertyNames)) {
+                properties.put(StringUtils.fromString(propertyName), mqMessage.getObjectProperty(propertyName));
+            }
+            bMessage.put(MESSAGE_PROPERTIES, properties);
+            return bMessage;
+        } catch (MQException | IOException e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Error occurred while reading the message: %s", e.getMessage()), e);
+        }
     }
 
     public static BError createError(String errorType, String message, Throwable throwable) {

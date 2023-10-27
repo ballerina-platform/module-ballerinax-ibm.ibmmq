@@ -39,7 +39,7 @@ public class Topic {
 
     public static Object externPut(Environment environment, BObject topicObject, BMap message) {
         MQTopic topic = (MQTopic) topicObject.getNativeData(CommonUtils.TOPIC_OBJECT);
-        MQMessage mqMessage = CommonUtils.getMqMessage(message);
+        MQMessage mqMessage = CommonUtils.getMqMessageFromMessage(message);
         Future future = environment.markAsync();
         topicExecutorService.execute(() -> {
             try {
@@ -60,7 +60,7 @@ public class Topic {
             try {
                 MQMessage message = new MQMessage();
                 topic.get(message, getMessageOptions);
-                future.complete(message);
+                future.complete(CommonUtils.getBMessageFromMQMessage(message));
             } catch (Exception e) {
                 future.complete(e);
             }
