@@ -67,7 +67,7 @@ public class QueueManager {
         return null;
     }
 
-    public static Object externAccessTopic(Environment env, BObject queueManagerObject, BString topicName,
+    public static Object accessTopic(Environment env, BObject queueManagerObject, BString topicName,
                                            BString topicString, Long openAs, Long options) {
         MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
         try {
