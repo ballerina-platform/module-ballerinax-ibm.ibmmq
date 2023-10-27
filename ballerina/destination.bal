@@ -33,7 +33,7 @@ public client class Topic {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 
-    remote function get(GetMessageOptions options = {}) returns Message|Error  =
+    remote function get(*GetMessageOptions options) returns Message|Error  =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;

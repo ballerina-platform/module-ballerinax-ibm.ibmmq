@@ -37,12 +37,12 @@ public enum ConnectionOpenOptions {
 public type AccessTopicOptions MQOO_ALTERNATE_USER_AUTHORITY|MQOO_BIND_AS_Q_DEF|MQOO_FAIL_IF_QUIESCING|MQOO_OUTPUT|MQOO_PASS_ALL_CONTEXT|MQOO_PASS_IDENTITY_CONTEXT|MQOO_SET_ALL_CONTEXT|MQOO_SET_IDENTITY_CONTEXT;
 
 public type GetMessageOptions record {|
-    GM_OPTIONS options = MQGMO_NO_SYNCPOINT;
+    GM_OPTIONS gmOptions = MQGMO_NO_SYNCPOINT;
     int waitInterval = 0;    
 |};
 
 public type Property record {|
-    map<anydata> descriptor?;
+    map<int> descriptor?;
     boolean|byte|byte[]|decimal|float|int|string value;
 |};
 

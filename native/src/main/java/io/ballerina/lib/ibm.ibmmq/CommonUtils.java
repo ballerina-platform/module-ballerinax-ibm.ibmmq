@@ -21,6 +21,7 @@ package io.ballerina.lib.ibm.ibmmq;
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPropertyDescriptor;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -61,7 +62,6 @@ public class CommonUtils {
     private static final BString PD_CONTEXT = StringUtils.fromString("context");
     private static final BString PROPERTY_VALUE = StringUtils.fromString("value");
     private static final BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
-
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
 
@@ -172,7 +172,8 @@ public class CommonUtils {
     }
 
     private static BMap populateDescriptorFromMQPropertyDescriptor(MQPropertyDescriptor propertyDescriptor) {
-        BMap<BString, Object> descriptor = ValueCreator.createMapValue();
+        BMap<BString, Object> descriptor = ValueCreator.createMapValue(TypeCreator
+                .createMapType(PredefinedTypes.TYPE_INT));
         descriptor.put(PD_VERSION, propertyDescriptor.version);
         descriptor.put(PD_COPY_OPTIONS, propertyDescriptor.copyOptions);
         descriptor.put(PD_OPTIONS, propertyDescriptor.options);
