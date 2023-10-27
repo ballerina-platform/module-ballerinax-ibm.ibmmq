@@ -32,7 +32,8 @@ public isolated class QueueManager {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
 
-    public isolated function accessTopic(string topicName, string topicString, OPEN_TOPIC_OPTION openTopicOption, AccessTopicOptions options) returns Topic|Error =
+    public isolated function accessTopic(string topicName, string topicString, OPEN_TOPIC_OPTION openTopicOption,
+            AccessTopicOptions options) returns Topic|Error =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
