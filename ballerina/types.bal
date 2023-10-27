@@ -14,6 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public type GM_OPTIONS MQGMO_WAIT|MQGMO_NO_WAIT|MQGMO_SYNCPOINT|MQGMO_NO_SYNCPOINT|MQGMO_BROWSE_FIRST|MQGMO_BROWSE_MSG_UNDER_CURSOR|MQGMO_MSG_UNDER_CURSOR|MQGMO_LOCK|MQGMO_UNLOCK|MQGMO_ACCEPT_TRUNCATED_MSG|MQGMO_BROWSE_NEXT|MQGMO_ACCEPT_TRUNCATED_MSG|MQGMO_FAIL_IF_QUIESCING|MQGMO_CONVERT;
+
+public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
+
 public type QueueManagerConfiguration record {|
     string name;
     string host;
@@ -24,15 +28,22 @@ public type QueueManagerConfiguration record {|
 |};
 
 public enum ConnectionOpenOptions {
-    MQOO_OUTPUT = "MQOO_OUTPUT",
+    // MQOO_OUTPUT = "MQOO_OUTPUT",
     MQOO_INPUT_AS_Q_DEF = "MQOO_INPUT_AS_Q_DEF",
     MQOO_INPUT_EXCLUSIVE = "MQOO_INPUT_EXCLUSIVE",
     MQOO_INPUT_SHARED = "MQOO_INPUT_SHARED"
 }
 
+public type AccessTopicOptions MQOO_ALTERNATE_USER_AUTHORITY|MQOO_BIND_AS_Q_DEF|MQOO_FAIL_IF_QUIESCING|MQOO_OUTPUT|MQOO_PASS_ALL_CONTEXT|MQOO_PASS_IDENTITY_CONTEXT|MQOO_SET_ALL_CONTEXT|MQOO_SET_IDENTITY_CONTEXT;
+
+public type GetMessageOptions record {|
+    GM_OPTIONS gmOptions = MQGMO_NO_SYNCPOINT;
+    int waitInterval = 0;    
+|};
+
 public type Property record {|
-    map<anydata> descriptor;
-    boolean|byte|byte[]|decimal|float|int|string property;
+    map<int> descriptor?;
+    boolean|byte|byte[]|decimal|float|int|string value;
 |};
 
 public type Message record {|

@@ -14,4 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Error distinct error;
+public type Error distinct error<ErrorDetails>;
+  
+# The error details type for the module.
+#
+# + reasonCode - The reason code for the error
+# + errorCode - The error code for the error
+# + completionCode - The completion code for the error
+public type ErrorDetails record {|
+  int reasonCode?;
+  string errorCode?;
+  int completionCode?;
+|};
