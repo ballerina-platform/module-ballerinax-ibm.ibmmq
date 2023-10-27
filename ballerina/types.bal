@@ -14,8 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type QueueManager distinct object {
-    function accessQueue(string queueName, ConnectionOpenOptions options) returns Queue;
+public type QueueManagerConfiguration record {|
+    string host;
+    int port = 1414;
+    string channel;
+    string userID?;
+    string password?;
+|};
 
-    function accessTopic(string topicName, string topicString, ConnectionOpenOptions options) returns Topic;
-};
+public enum ConnectionOpenOptions {
+    MQOO_OUTPUT = "MQOO_OUTPUT",
+    MQOO_INPUT_AS_Q_DEF = "MQOO_INPUT_AS_Q_DEF",
+    MQOO_INPUT_EXCLUSIVE = "MQOO_INPUT_EXCLUSIVE",
+    MQOO_INPUT_SHARED = "MQOO_INPUT_SHARED"
+}
+
+public type Property record {|
+    map<anydata> descriptor;
+    boolean|byte|byte[]|decimal|float|int|string property;
+|};
+
+public type Message record {|
+    map<Property> properties;
+    byte[] payload;
+|};

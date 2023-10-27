@@ -14,8 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type QueueManager distinct object {
-    function accessQueue(string queueName, ConnectionOpenOptions options) returns Queue;
+public type Destination distinct client object {
+    remote function put(Message message) returns Error?;
 
-    function accessTopic(string topicName, string topicString, ConnectionOpenOptions options) returns Topic;
+    remote function get() returns Message|Error?;
+};
+
+public type Queue distinct client object {
+    *Destination;
+};
+
+public type Topic distinct client object {
+    *Destination;
 };

@@ -14,8 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type QueueManager distinct object {
-    function accessQueue(string queueName, ConnectionOpenOptions options) returns Queue;
-
-    function accessTopic(string topicName, string topicString, ConnectionOpenOptions options) returns Topic;
-};
+public type Error distinct error;
