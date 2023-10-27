@@ -18,7 +18,7 @@ import ballerina/jballerina.java;
 public type Destination distinct client object {
     remote function put(Message message) returns Error?;
 
-    remote function get(GetMessageOptions options = {}) returns Message|Error?;
+    remote function get(*GetMessageOptions options) returns Message|Error?;
 };
 
 public type Queue distinct client object {
