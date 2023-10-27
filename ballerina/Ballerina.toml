@@ -1,0 +1,19 @@
+[package]
+org = "ballerinax"
+name = "ibm.ibmmq"
+version = "0.0.1"
+authors = ["Ballerina"]
+keywords = ["ibm-mq"]
+repository = "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq"
+icon = "icon.png"
+license = ["Apache-2.0"]
+distribution = "2201.8.0"
+
+[platform.java17]
+graalvmCompatible = true
+
+[[platform.java17.dependency]]
+groupId = "io.ballerina.stdlib"
+artifactId = "ibm.ibmmq-native"
+version = "0.0.1"
+path = "../native/build/libs/ibm.ibmmq-native-0.0.1-SNAPSHOT.jar"
