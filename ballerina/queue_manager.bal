@@ -14,8 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type QueueManager distinct object {
-    function accessQueue(string queueName, ConnectionOpenOptions options) returns Queue;
+import ballerina/jballerina.java;
 
-    function accessTopic(string topicName, string topicString, ConnectionOpenOptions options) returns Topic;
-};
+public isolated class QueueManager {
+
+    public isolated function init(*QueueManagerConfiguration configurations) returns Error? {
+        check self.externInit(configurations);
+    }
+
+    isolated function externInit(QueueManagerConfiguration configurations) returns Error? = @java:Method {
+        name: "init",
+        'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
+    } external;
+
+    public isolated function accessQueue(string queueName, ConnectionOpenOptions options) returns Queue|Error {
+        return error Error("Not implemented");
+    }
+
+    public isolated function accessTopic(string topicName, string topicString, ConnectionOpenOptions options) returns Topic|Error {
+        return error Error("Not implemented");
+    }
+}

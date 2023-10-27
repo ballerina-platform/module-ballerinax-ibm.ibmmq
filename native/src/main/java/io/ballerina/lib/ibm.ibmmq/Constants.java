@@ -16,7 +16,12 @@
  * under the License.
  */
 
-module io.ballerina.lib.ibm.ibmmq {
-    requires io.ballerina.runtime;
-    requires com.ibm.mq.javax;
+package io.ballerina.lib.ibm.ibmmq;
+
+public interface Constants {
+    // Error names for IBM MQ package
+    public static final String IBMMQ_ERROR = "Error";
+
+    // Native properties in respective ballerina objects
+    public static final String NATIVE_QUEUE_MANAGER = "queueManager";
 }
