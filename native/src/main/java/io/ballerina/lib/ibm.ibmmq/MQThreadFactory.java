@@ -34,5 +34,4 @@ public class MQThreadFactory implements ThreadFactory {
         ibmMqClientThread.setName(threadGroupName);
         return ibmMqClientThread;
     }
-
 }

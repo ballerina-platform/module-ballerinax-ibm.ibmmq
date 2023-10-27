@@ -24,4 +24,6 @@ public interface Constants {
 
     // Native properties in respective ballerina objects
     public static final String NATIVE_QUEUE_MANAGER = "queueManager";
+
+    public static final String NATIVE_TOPIC = "topic";
 }

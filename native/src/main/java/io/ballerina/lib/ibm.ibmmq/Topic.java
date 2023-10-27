@@ -39,7 +39,7 @@ public class Topic {
     private static final BString OPTIONS = StringUtils.fromString("options");
 
     public static Object put(Environment environment, BObject topicObject, BMap message) {
-        MQTopic topic = (MQTopic) topicObject.getNativeData(CommonUtils.TOPIC_OBJECT);
+        MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
         MQMessage mqMessage = CommonUtils.getMqMessageFromBMessage(message);
         Future future = environment.markAsync();
         topicExecutorService.execute(() -> {
@@ -54,7 +54,7 @@ public class Topic {
     }
 
     public static Object get(Environment environment, BObject topicObject, BMap<BString, Object> options) {
-        MQTopic topic = (MQTopic) topicObject.getNativeData(CommonUtils.TOPIC_OBJECT);
+        MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
         MQGetMessageOptions getMessageOptions = getGetMessageOptions(options);
         Future future = environment.markAsync();
         topicExecutorService.execute(() -> {

@@ -43,9 +43,6 @@ import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
  */
 public class CommonUtils {
 
-    public static final String BTOPIC = "TOPIC";
-    public static final String TOPIC_OBJECT = "TOPIC_OBJECT";
-
     private static final String ERROR_DETAILS = "ErrorDetails";
     private static final BString ERROR_REASON_CODE = StringUtils.fromString("reasonCode");
     private static final BString ERROR_ERROR_CODE = StringUtils.fromString("errorCode");
@@ -101,10 +98,10 @@ public class CommonUtils {
             BMap<BString, Object> property = ValueCreator.createRecordValue(getModule(), BPROPERTY);
             MQPropertyDescriptor propertyDescriptor = new MQPropertyDescriptor();
             Object propertyObject = mqMessage.getObjectProperty(propertyName, propertyDescriptor);
-            if (propertyObject instanceof Integer) {
-                property.put(PROPERTY_VALUE, ((Integer) propertyObject).longValue());
-            } else if (propertyObject instanceof String) {
-                property.put(PROPERTY_VALUE, StringUtils.fromString((String) propertyObject));
+            if (propertyObject instanceof Integer intProperty) {
+                property.put(PROPERTY_VALUE, intProperty.longValue());
+            } else if (propertyObject instanceof String stringProperty) {
+                property.put(PROPERTY_VALUE, StringUtils.fromString(stringProperty));
             } else {
                 property.put(PROPERTY_VALUE, propertyObject);
             }
@@ -134,20 +131,20 @@ public class CommonUtils {
             propertyDescriptor = getMQPropertyDescriptor(properties.getMapValue(PROPERTY_DESCRIPTOR));
         }
         Object value = property.get(PROPERTY_VALUE);
-        if (value instanceof Long) {
-            mqMessage.setIntProperty(key.getValue(), propertyDescriptor, ((Long) properties.get(key)).intValue());
-        } else if (value instanceof Boolean) {
-            mqMessage.setBooleanProperty(key.getValue(), propertyDescriptor, ((Boolean) properties.get(key)));
-        } else if (value instanceof Byte) {
-            mqMessage.setByteProperty(key.getValue(), propertyDescriptor, (Byte) properties.get(key));
-        } else if (value instanceof byte[]) {
-            mqMessage.setBytesProperty(key.getValue(), propertyDescriptor, ((byte[]) properties.get(key)));
-        } else if (value instanceof Float) {
-            mqMessage.setFloatProperty(key.getValue(), propertyDescriptor, (Float) properties.get(key));
-        } else if (value instanceof Double) {
-            mqMessage.setDoubleProperty(key.getValue(), propertyDescriptor, (Double) properties.get(key));
-        } else if (value instanceof BString) {
-            mqMessage.setStringProperty(key.getValue(), propertyDescriptor, ((BString) properties.get(key)).getValue());
+        if (value instanceof Long longValue) {
+            mqMessage.setIntProperty(key.getValue(), propertyDescriptor, longValue.intValue());
+        } else if (value instanceof Boolean booleanValue) {
+            mqMessage.setBooleanProperty(key.getValue(), propertyDescriptor, booleanValue);
+        } else if (value instanceof Byte byteValue) {
+            mqMessage.setByteProperty(key.getValue(), propertyDescriptor, byteValue);
+        } else if (value instanceof byte[] bytesValue) {
+            mqMessage.setBytesProperty(key.getValue(), propertyDescriptor, bytesValue);
+        } else if (value instanceof Float floatValue) {
+            mqMessage.setFloatProperty(key.getValue(), propertyDescriptor, floatValue);
+        } else if (value instanceof Double doubleValue) {
+            mqMessage.setDoubleProperty(key.getValue(), propertyDescriptor, doubleValue);
+        } else if (value instanceof BString stringValue) {
+            mqMessage.setStringProperty(key.getValue(), propertyDescriptor, stringValue.getValue());
         }
     }
 

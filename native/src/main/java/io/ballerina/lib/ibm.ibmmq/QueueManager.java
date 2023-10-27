@@ -22,7 +22,6 @@ import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
@@ -46,6 +45,7 @@ public class QueueManager {
     private static final BString CHANNEL = StringUtils.fromString("channel");
     private static final BString USER_ID = StringUtils.fromString("userID");
     private static final BString PASSWORD = StringUtils.fromString("password");
+    private static final String BTOPIC = "Topic";
 
     /**
      * Creates a JMS connection with the provided configurations.
@@ -67,14 +67,14 @@ public class QueueManager {
         return null;
     }
 
-    public static Object accessTopic(Environment env, BObject queueManagerObject, BString topicName,
-                                           BString topicString, Long openAs, Long options) {
+    public static Object accessTopic(BObject queueManagerObject, BString topicName,
+                                           BString topicString, Long openTopicOption, Long options) {
         MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
         try {
             MQTopic mqTopic = queueManager.accessTopic(topicName.getValue(), topicString.getValue(),
-                    openAs.intValue(), options.intValue());
-            BObject bTopic = ValueCreator.createObjectValue(ModuleUtils.getModule(), CommonUtils.BTOPIC);
-            bTopic.addNativeData(CommonUtils.TOPIC_OBJECT, mqTopic);
+                    openTopicOption.intValue(), options.intValue());
+            BObject bTopic = ValueCreator.createObjectValue(ModuleUtils.getModule(), BTOPIC);
+            bTopic.addNativeData(Constants.NATIVE_TOPIC, mqTopic);
             return bTopic;
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
