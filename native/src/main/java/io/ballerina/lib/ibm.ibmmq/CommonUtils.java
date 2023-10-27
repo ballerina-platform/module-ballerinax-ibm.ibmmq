@@ -19,6 +19,7 @@
 package io.ballerina.lib.ibm.ibmmq;
 
 import com.ibm.mq.MQException;
+import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPropertyDescriptor;
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -59,6 +60,8 @@ public class CommonUtils {
     private static final BString PD_CONTEXT = StringUtils.fromString("context");
     private static final BString PROPERTY_VALUE = StringUtils.fromString("value");
     private static final BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
+    private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
+    private static final BString OPTIONS = StringUtils.fromString("options");
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
 
@@ -177,6 +180,15 @@ public class CommonUtils {
         descriptor.put(PD_SUPPORT, propertyDescriptor.support);
         descriptor.put(PD_CONTEXT, propertyDescriptor.context);
         return descriptor;
+    }
+
+    public static MQGetMessageOptions getGetMessageOptions(BMap<BString, Object> bOptions) {
+        int waitInterval = bOptions.getIntValue(WAIT_INTERVAL).intValue();
+        int options = bOptions.getIntValue(OPTIONS).intValue();
+        MQGetMessageOptions getMessageOptions = new MQGetMessageOptions();
+        getMessageOptions.waitInterval = waitInterval;
+        getMessageOptions.options = options;
+        return getMessageOptions;
     }
 
     public static BError createError(String errorType, String message, Throwable throwable) {

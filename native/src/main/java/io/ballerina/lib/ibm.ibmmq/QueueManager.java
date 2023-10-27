@@ -50,7 +50,7 @@ public class QueueManager {
     private static final String BQUEUE = "Queue";
 
     /**
-     * Creates a JMS connection with the provided configurations.
+     * Creates a IBM MQ queue manager with the provided configurations.
      *
      * @param queueManager Ballerina queue-manager object
      * @param configurations IBM MQ connection configurations
