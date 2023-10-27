@@ -42,8 +42,8 @@ public type GetMessageOptions record {|
 |};
 
 public type Property record {|
-    map<anydata> descriptor;
-    boolean|byte|byte[]|decimal|float|int|string property;
+    map<anydata> descriptor?;
+    boolean|byte|byte[]|decimal|float|int|string value;
 |};
 
 public type Message record {|
