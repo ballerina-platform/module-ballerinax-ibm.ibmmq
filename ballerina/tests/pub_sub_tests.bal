@@ -33,7 +33,7 @@ function pubSubMultipleMessagesInOrderTest() returns error? {
 }
 
 @test:Config {}
-function subscribeWithFiniteTimeout() returns error? {
+function subscribeWithFiniteTimeoutTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic subTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
     Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
@@ -47,7 +47,7 @@ function subscribeWithFiniteTimeout() returns error? {
 }
 
 @test:Config {}
-function subscribeWithoutPublish() returns error? {
+function subscribeWithoutPublishTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic subTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
     Message|Error result = subTopic->get(waitInterval = 5, gmOptions = MQGMO_NO_WAIT);
@@ -63,7 +63,7 @@ function subscribeWithoutPublish() returns error? {
 }
 
 @test:Config {}
-function publishToNonExistingTopic() returns error? {
+function publishToNonExistingTopicTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic|Error result = queueManager.accessTopic("dev", "NON.EXISTING.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
     if result is Error {
@@ -77,7 +77,7 @@ function publishToNonExistingTopic() returns error? {
 }
 
 @test:Config {}
-function subscribeToNonExistingTopic() returns error? {
+function subscribeToNonExistingTopicTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic|Error result = queueManager.accessTopic("dev", "NON.EXISTING.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
     if result is Error {
@@ -91,7 +91,7 @@ function subscribeToNonExistingTopic() returns error? {
 }
 
 @test:Config {}
-function subscribeWithInvalidTopicName() returns error? {
+function subscribeWithInvalidTopicNameTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic|Error result = queueManager.accessTopic("dev", "INVALID TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
     if result is Error {
@@ -105,7 +105,7 @@ function subscribeWithInvalidTopicName() returns error? {
 }
 
 @test:Config {}
-function publishWithInvalidTopicName() returns error? {
+function publishWithInvalidTopicNameTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic|Error result = queueManager.accessTopic("dev", "INVALID TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
     if result is Error {
@@ -119,7 +119,7 @@ function publishWithInvalidTopicName() returns error? {
 }
 
 @test:Config {}
-function accessTopicAfterQMDisconnect() returns error? {
+function accessTopicAfterQMDisconnectTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     check queueManager.disconnect();
     Topic|Error result = queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
@@ -134,7 +134,7 @@ function accessTopicAfterQMDisconnect() returns error? {
 }
 
 @test:Config {}
-function putToTopicAfterTopicClose() returns error? {
+function putToTopicAfterTopicCloseTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
     check pubTopic->close();
@@ -153,7 +153,7 @@ function putToTopicAfterTopicClose() returns error? {
 }
 
 @test:Config {}
-function putToTopicAfterQMDisconnect() returns error? {
+function putToTopicAfterQMDisconnectTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
     check queueManager.disconnect();
