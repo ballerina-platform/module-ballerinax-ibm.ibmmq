@@ -20,7 +20,7 @@ package io.ballerina.lib.ibm.ibmmq;
 
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
-import com.ibm.mq.MQTopic;
+import com.ibm.mq.MQQueue;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BError;
@@ -35,41 +35,41 @@ import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 
 /**
- * Representation of {@link com.ibm.mq.MQTopic} with utility methods to invoke as inter-op functions.
+ * Representation of {@link com.ibm.mq.MQQueue} with utility methods to invoke as inter-op functions.
  */
-public class Topic {
-    private static final ExecutorService topicExecutorService = Executors.newCachedThreadPool(
-            new MQThreadFactory("balx-ibmmq-topic-client-network-thread"));
+public class Queue {
+    private static final ExecutorService QUEUE_EXECUTOR_SERVICE = Executors.newCachedThreadPool(
+            new MQThreadFactory("balx-ibmmq-queue-client-network-thread"));
 
-    public static Object put(Environment environment, BObject topicObject, BMap message) {
-        MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
+    public static Object put(Environment environment, BObject queueObject, BMap<BString, Object> message) {
+        MQQueue queue = (MQQueue) queueObject.getNativeData(Constants.NATIVE_QUEUE);
         MQMessage mqMessage = CommonUtils.getMqMessageFromBMessage(message);
         Future future = environment.markAsync();
-        topicExecutorService.execute(() -> {
+        QUEUE_EXECUTOR_SERVICE.execute(() -> {
             try {
-                topic.put(mqMessage);
+                queue.put(mqMessage);
                 future.complete(null);
             } catch (Exception e) {
                 BError bError = createError(IBMMQ_ERROR,
-                        String.format("Error occurred while putting a message to the topic: %s", e.getMessage()), e);
+                        String.format("Error occurred while putting a message to the queue: %s", e.getMessage()), e);
                 future.complete(bError);
             }
         });
         return null;
     }
 
-    public static Object get(Environment environment, BObject topicObject, BMap<BString, Object> options) {
-        MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
+    public static Object get(Environment environment, BObject queueObject, BMap<BString, Object> options) {
+        MQQueue queue = (MQQueue) queueObject.getNativeData(Constants.NATIVE_QUEUE);
         MQGetMessageOptions getMessageOptions = CommonUtils.getGetMessageOptions(options);
         Future future = environment.markAsync();
-        topicExecutorService.execute(() -> {
+        QUEUE_EXECUTOR_SERVICE.execute(() -> {
             try {
                 MQMessage message = new MQMessage();
-                topic.get(message, getMessageOptions);
+                queue.get(message, getMessageOptions);
                 future.complete(CommonUtils.getBMessageFromMQMessage(message));
             } catch (Exception e) {
                 BError bError = createError(IBMMQ_ERROR,
-                        String.format("Error occurred while getting a message from the topic: %s", e.getMessage()), e);
+                        String.format("Error occurred while getting a message from the queue: %s", e.getMessage()), e);
                 future.complete(bError);
             }
         });

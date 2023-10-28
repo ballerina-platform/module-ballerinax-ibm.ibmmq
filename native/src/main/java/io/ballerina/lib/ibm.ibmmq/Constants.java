@@ -23,7 +23,7 @@ public interface Constants {
     public static final String IBMMQ_ERROR = "Error";
 
     // Native properties in respective ballerina objects
-    public static final String NATIVE_QUEUE_MANAGER = "queueManager";
-
-    public static final String NATIVE_TOPIC = "topic";
+    String NATIVE_QUEUE_MANAGER = "queueManager";
+    String NATIVE_TOPIC = "topic";
+    String NATIVE_QUEUE = "queue";
 }

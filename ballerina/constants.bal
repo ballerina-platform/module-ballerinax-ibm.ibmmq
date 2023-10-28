@@ -18,6 +18,12 @@
 public const OPEN_AS_SUBSCRIPTION = 1;
 public const OPEN_AS_PUBLICATION = 2;
 
+// Options that control the opening of the queue for a consumer.
+public const MQOO_BROWSE = 8;
+public const MQOO_INPUT_AS_Q_DEF = 1;
+public const MQOO_INPUT_EXCLUSIVE = 4;
+public const MQOO_INPUT_SHARED = 2;
+
 // Options that control the opening of the topic for either publication or subscription.
 public const MQOO_ALTERNATE_USER_AUTHORITY = 4096;
 public const MQOO_BIND_AS_Q_DEF = 0;

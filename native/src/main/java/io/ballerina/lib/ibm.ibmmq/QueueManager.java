@@ -19,6 +19,7 @@
 package io.ballerina.lib.ibm.ibmmq;
 
 import com.ibm.mq.MQException;
+import com.ibm.mq.MQQueue;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
@@ -46,9 +47,10 @@ public class QueueManager {
     private static final BString USER_ID = StringUtils.fromString("userID");
     private static final BString PASSWORD = StringUtils.fromString("password");
     private static final String BTOPIC = "Topic";
+    private static final String BQUEUE = "Queue";
 
     /**
-     * Creates a JMS connection with the provided configurations.
+     * Creates a IBM MQ queue manager with the provided configurations.
      *
      * @param queueManager Ballerina queue-manager object
      * @param configurations IBM MQ connection configurations
@@ -67,21 +69,6 @@ public class QueueManager {
         return null;
     }
 
-    public static Object accessTopic(BObject queueManagerObject, BString topicName,
-                                           BString topicString, Long openTopicOption, Long options) {
-        MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
-        try {
-            MQTopic mqTopic = queueManager.accessTopic(topicName.getValue(), topicString.getValue(),
-                    openTopicOption.intValue(), options.intValue());
-            BObject bTopic = ValueCreator.createObjectValue(ModuleUtils.getModule(), BTOPIC);
-            bTopic.addNativeData(Constants.NATIVE_TOPIC, mqTopic);
-            return bTopic;
-        } catch (MQException e) {
-            return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
-        }
-    }
-
     private static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations) {
         Hashtable<String, Object> properties = new Hashtable<>();
         String host = configurations.getStringValue(HOST).getValue();
@@ -95,5 +82,33 @@ public class QueueManager {
         getOptionalStringProperty(configurations, PASSWORD)
                 .ifPresent(password -> properties.put(MQConstants.PASSWORD_PROPERTY, password));
         return properties;
+    }
+
+    public static Object accessQueue(BObject queueManagerObject, BString queueName, Long options) {
+        MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
+        try {
+            MQQueue mqQueue = queueManager.accessQueue(queueName.getValue(), options.intValue());
+            BObject bQueue = ValueCreator.createObjectValue(ModuleUtils.getModule(), BQUEUE);
+            bQueue.addNativeData(Constants.NATIVE_TOPIC, mqQueue);
+            return bQueue;
+        } catch (MQException e) {
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while accessing queue: %s", e.getMessage()), e);
+        }
+    }
+
+    public static Object accessTopic(BObject queueManagerObject, BString topicName,
+                                     BString topicString, Long openTopicOption, Long options) {
+        MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
+        try {
+            MQTopic mqTopic = queueManager.accessTopic(topicName.getValue(), topicString.getValue(),
+                    openTopicOption.intValue(), options.intValue());
+            BObject bTopic = ValueCreator.createObjectValue(ModuleUtils.getModule(), BTOPIC);
+            bTopic.addNativeData(Constants.NATIVE_TOPIC, mqTopic);
+            return bTopic;
+        } catch (MQException e) {
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
+        }
     }
 }
