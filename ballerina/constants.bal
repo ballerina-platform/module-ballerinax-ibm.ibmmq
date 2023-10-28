@@ -33,6 +33,7 @@ public const MQOO_PASS_ALL_CONTEXT = 512;
 public const MQOO_PASS_IDENTITY_CONTEXT = 256;
 public const MQOO_SET_ALL_CONTEXT = 2048;
 public const MQOO_SET_IDENTITY_CONTEXT = 1024;
+public const MQSO_CREATE = 2;
 
 // Options related to the the get message in a topic.
 public const MQGMO_WAIT = 1;

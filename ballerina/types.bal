@@ -28,11 +28,11 @@ public type QueueManagerConfiguration record {|
 |};
 
 public type AccessQueueOptions MQOO_OUTPUT|MQOO_BROWSE|MQOO_INPUT_AS_Q_DEF|MQOO_INPUT_EXCLUSIVE|MQOO_INPUT_SHARED;
-public type AccessTopicOptions MQOO_ALTERNATE_USER_AUTHORITY|MQOO_BIND_AS_Q_DEF|MQOO_FAIL_IF_QUIESCING|MQOO_OUTPUT|MQOO_PASS_ALL_CONTEXT|MQOO_PASS_IDENTITY_CONTEXT|MQOO_SET_ALL_CONTEXT|MQOO_SET_IDENTITY_CONTEXT;
+public type AccessTopicOptions MQOO_ALTERNATE_USER_AUTHORITY|MQOO_BIND_AS_Q_DEF|MQOO_FAIL_IF_QUIESCING|MQOO_OUTPUT|MQOO_PASS_ALL_CONTEXT|MQOO_PASS_IDENTITY_CONTEXT|MQOO_SET_ALL_CONTEXT|MQOO_SET_IDENTITY_CONTEXT|MQSO_CREATE;
 
 public type GetMessageOptions record {|
-    GM_OPTIONS gmOptions = MQGMO_NO_SYNCPOINT;
-    int waitInterval = 0;    
+    GM_OPTIONS gmOptions = MQGMO_WAIT;
+    int waitInterval = -1;    
 |};
 
 public type Property record {|
@@ -41,6 +41,6 @@ public type Property record {|
 |};
 
 public type Message record {|
-    map<Property> properties;
+    map<Property> properties?;
     byte[] payload;
 |};

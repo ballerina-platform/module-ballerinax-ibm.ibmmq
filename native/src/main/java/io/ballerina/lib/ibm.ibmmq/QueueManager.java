@@ -74,7 +74,7 @@ public class QueueManager {
         String host = configurations.getStringValue(HOST).getValue();
         properties.put(MQConstants.HOST_NAME_PROPERTY, host);
         Long port = configurations.getIntValue(PORT);
-        properties.put(MQConstants.PORT_PROPERTY, port);
+        properties.put(MQConstants.PORT_PROPERTY, port.intValue());
         String channel = configurations.getStringValue(CHANNEL).getValue();
         properties.put(MQConstants.CHANNEL_PROPERTY, channel);
         getOptionalStringProperty(configurations, USER_ID)
