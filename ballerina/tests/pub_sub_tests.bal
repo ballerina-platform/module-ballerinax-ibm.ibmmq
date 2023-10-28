@@ -13,7 +13,6 @@ function basicPublisherSubscriberTest() returns error? {
     test:assertEquals(string:fromBytes(message.payload), "Hello World");
 }
 
-
 function getMessageFromTopic(Topic topic) returns Message|Error {
     return topic->get();
 }
