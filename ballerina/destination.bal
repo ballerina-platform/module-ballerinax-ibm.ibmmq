@@ -18,7 +18,9 @@ import ballerina/jballerina.java;
 public type Destination distinct client object {
     remote function put(Message message) returns Error?;
 
-    remote function get(*GetMessageOptions options) returns Message|Error?;
+    remote function get(*GetMessageOptions options) returns Message|Error;
+
+    remote function close() returns Error?;
 };
 
 public isolated client class Queue {
@@ -33,6 +35,11 @@ public isolated client class Queue {
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Queue"
     } external;
+
+    remote function close() returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
 }
 
 public isolated client class Topic {
@@ -43,7 +50,12 @@ public isolated client class Topic {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 
-    remote function get(*GetMessageOptions options) returns Message|Error  =
+    remote function get(*GetMessageOptions options) returns Message|Error =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
+
+    remote function close() returns Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;

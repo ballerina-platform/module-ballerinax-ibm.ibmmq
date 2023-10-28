@@ -111,4 +111,15 @@ public class QueueManager {
                     String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
         }
     }
+
+    public static Object disconnect(BObject queueManagerObject) {
+        MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
+        try {
+            queueManager.disconnect();
+            return null;
+        } catch (MQException e) {
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while disconnecting queue manager: %s", e.getMessage()), e);
+        }
+    }
 }

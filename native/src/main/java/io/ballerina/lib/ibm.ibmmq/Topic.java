@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
+import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQTopic;
@@ -70,6 +71,22 @@ public class Topic {
             } catch (Exception e) {
                 BError bError = createError(IBMMQ_ERROR,
                         String.format("Error occurred while getting a message from the topic: %s", e.getMessage()), e);
+                future.complete(bError);
+            }
+        });
+        return null;
+    }
+
+    public static Object close(Environment env, BObject topicObject) {
+        MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
+        Future future = env.markAsync();
+        topicExecutorService.execute(() -> {
+            try {
+                topic.close();
+                future.complete(null);
+            } catch (MQException e) {
+                BError bError = createError(IBMMQ_ERROR,
+                        String.format("Error occurred while closing the topic: %s", e.getMessage()), e);
                 future.complete(bError);
             }
         });
