@@ -20,6 +20,10 @@ package io.ballerina.lib.ibm.ibmmq;
 
 import java.util.concurrent.ThreadFactory;
 
+
+/**
+ * A {@link ThreadFactory} object that creates new threads on demand for IBM MQ queue or topic actions.
+ */
 public class MQThreadFactory implements ThreadFactory {
 
     private final String threadGroupName;
