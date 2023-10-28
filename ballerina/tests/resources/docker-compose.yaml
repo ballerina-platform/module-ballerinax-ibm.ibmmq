@@ -3,6 +3,7 @@ version: "3.9"
 services:
   mq:
     image: icr.io/ibm-messaging/mq:latest
+    container_name: ibmmq-test
     ports:
       - "1414:1414"
       - "9443:9443"
