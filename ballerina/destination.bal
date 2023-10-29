@@ -38,7 +38,7 @@ public isolated client class Queue {
 
     remote function close() returns Error? =
     @java:Method {
-        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+        'class: "io.ballerina.lib.ibm.ibmmq.Queue"
     } external;
 }
 
