@@ -19,54 +19,57 @@ import ballerina/test;
 @test:Config {}
 function basicPublisherSubscriberTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
-    Topic subTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
-    Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
-    check pubTopic->put({
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->put({
         payload: "Hello World".toBytes()
     });
-    Message message = check subTopic->get();
+    Message message = check subscriber->get();
     test:assertEquals(string:fromBytes(message.payload), "Hello World");
-    check subTopic->close();
+    check subscriber->close();
+    check publisher->close();
     check queueManager.disconnect();
 }
 
 @test:Config {}
 function pubSubMultipleMessagesInOrderTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
-    Topic subTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
-    Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
     foreach int i in 0 ... 4 {
-        check pubTopic->put({
+        check publisher->put({
             payload: i.toString().toBytes()
         });
     }
     foreach int i in 0 ... 4 {
-        Message message = check subTopic->get(waitInterval = 2);
+        Message message = check subscriber->get(waitInterval = 2);
         test:assertEquals(string:fromBytes(message.payload), i.toString());
     }
-    check subTopic->close();
+    check subscriber->close();
+    check publisher->close();
     check queueManager.disconnect();
 }
 
 @test:Config {}
 function subscribeWithFiniteTimeoutTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
-    Topic subTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
-    Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
-    check pubTopic->put({
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->put({
         payload: "Hello World".toBytes()
     });
-    Message message = check subTopic->get(waitInterval = 5);
+    Message message = check subscriber->get(waitInterval = 5);
     test:assertEquals(string:fromBytes(message.payload), "Hello World");
-    check subTopic->close();
+    check subscriber->close();
+    check publisher->close();
     check queueManager.disconnect();
 }
 
 @test:Config {}
 function subscribeWithoutPublishTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
-    Topic subTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
-    Message|Error result = subTopic->get(waitInterval = 5, gmOptions = MQGMO_NO_WAIT);
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Message|Error result = subscriber->get(waitInterval = 5, gmOptions = MQGMO_NO_WAIT);
     if result is Error {
         test:assertEquals(result.message(), "Error occurred while getting a message from the topic: MQJE001: Completion Code '2', Reason '2033'.");
         test:assertEquals(result.detail().reasonCode, 2033);
@@ -74,7 +77,7 @@ function subscribeWithoutPublishTest() returns error? {
     } else {
         test:assertFail("Expected an error");
     }
-    check subTopic->close();
+    check subscriber->close();
     check queueManager.disconnect();
 }
 
@@ -152,9 +155,9 @@ function accessTopicAfterQMDisconnectTest() returns error? {
 @test:Config {}
 function putToTopicAfterTopicCloseTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
-    Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
-    check pubTopic->close();
-    Error? result = pubTopic->put({
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->close();
+    Error? result = publisher->put({
         payload: "Hello World".toBytes()
     });
     if result is Error {
@@ -171,9 +174,9 @@ function putToTopicAfterTopicCloseTest() returns error? {
 @test:Config {}
 function putToTopicAfterQMDisconnectTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
-    Topic pubTopic = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
     check queueManager.disconnect();
-    Error? result = pubTopic->put({
+    Error? result = publisher->put({
         payload: "Hello World".toBytes()
     });
     if result is Error {
