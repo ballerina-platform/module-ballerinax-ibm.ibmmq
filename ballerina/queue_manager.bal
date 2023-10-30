@@ -22,7 +22,7 @@ public isolated class QueueManager {
         check self.externInit(configurations);
     }
 
-    private isolated function externInit(QueueManagerConfiguration configurations) returns Error? = @java:Method {
+    isolated function externInit(QueueManagerConfiguration configurations) returns Error? = @java:Method {
         name: "init",
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
