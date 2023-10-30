@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
+import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQQueue;
@@ -70,6 +71,22 @@ public class Queue {
             } catch (Exception e) {
                 BError bError = createError(IBMMQ_ERROR,
                         String.format("Error occurred while getting a message from the queue: %s", e.getMessage()), e);
+                future.complete(bError);
+            }
+        });
+        return null;
+    }
+
+    public static Object close(Environment env, BObject queueObject) {
+        MQQueue queue = (MQQueue) queueObject.getNativeData(Constants.NATIVE_QUEUE);
+        Future future = env.markAsync();
+        QUEUE_EXECUTOR_SERVICE.execute(() -> {
+            try {
+                queue.close();
+                future.complete(null);
+            } catch (MQException e) {
+                BError bError = createError(IBMMQ_ERROR,
+                        String.format("Error occurred while closing the queue: %s", e.getMessage()), e);
                 future.complete(bError);
             }
         });
