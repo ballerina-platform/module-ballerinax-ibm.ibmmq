@@ -37,4 +37,9 @@ public isolated class QueueManager {
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
+
+    public isolated function disconnect() returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
+    } external;
 }
