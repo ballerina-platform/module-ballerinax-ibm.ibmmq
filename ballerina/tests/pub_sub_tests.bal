@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/test;
 
 @test:Config {}
@@ -24,8 +23,12 @@ function basicPublisherSubscriberTest() returns error? {
     check publisher->put({
         payload: "Hello World".toBytes()
     });
-    Message message = check subscriber->get();
-    test:assertEquals(string:fromBytes(message.payload), "Hello World");
+    Message? message = check subscriber->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+    } else {
+        test:assertFail("Expected a value for message");
+    }
     check subscriber->close();
     check publisher->close();
     check queueManager.disconnect();
@@ -42,8 +45,12 @@ function pubSubMultipleMessagesInOrderTest() returns error? {
         });
     }
     foreach int i in 0 ... 4 {
-        Message message = check subscriber->get(waitInterval = 2);
-        test:assertEquals(string:fromBytes(message.payload), i.toString());
+        Message? message = check subscriber->get(waitInterval = 2);
+        if message !is () {
+            test:assertEquals(string:fromBytes(message.payload), i.toString());
+        } else {
+            test:assertFail("Expected a value for message");
+        }
     }
     check subscriber->close();
     check publisher->close();
@@ -58,8 +65,12 @@ function subscribeWithFiniteTimeoutTest() returns error? {
     check publisher->put({
         payload: "Hello World".toBytes()
     });
-    Message message = check subscriber->get(waitInterval = 5);
-    test:assertEquals(string:fromBytes(message.payload), "Hello World");
+    Message? message = check subscriber->get(waitInterval = 5);
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+    } else {
+        test:assertFail("Expected a value for message");
+    }
     check subscriber->close();
     check publisher->close();
     check queueManager.disconnect();
@@ -69,14 +80,8 @@ function subscribeWithFiniteTimeoutTest() returns error? {
 function subscribeWithoutPublishTest() returns error? {
     QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
-    Message|Error result = subscriber->get(waitInterval = 5, gmOptions = MQGMO_NO_WAIT);
-    if result is Error {
-        test:assertEquals(result.message(), "Error occurred while getting a message from the topic: MQJE001: Completion Code '2', Reason '2033'.");
-        test:assertEquals(result.detail().reasonCode, 2033);
-        test:assertEquals(result.detail().completionCode, 2);
-    } else {
-        test:assertFail("Expected an error");
-    }
+    Message|Error? result = subscriber->get(waitInterval = 5);
+    test:assertTrue(result is ());
     check subscriber->close();
     check queueManager.disconnect();
 }
