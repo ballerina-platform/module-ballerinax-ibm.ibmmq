@@ -79,7 +79,6 @@ public class CommonUtils {
         if (Objects.nonNull(properties)) {
             populateMQProperties(properties, mqMessage);
         }
-        populateMQProperties(properties, mqMessage);
         return mqMessage;
     }
 
