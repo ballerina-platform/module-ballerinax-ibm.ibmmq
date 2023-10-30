@@ -189,7 +189,7 @@ public class CommonUtils {
         int waitInterval = bOptions.getIntValue(WAIT_INTERVAL).intValue();
         int options = bOptions.getIntValue(OPTIONS).intValue();
         MQGetMessageOptions getMessageOptions = new MQGetMessageOptions();
-        getMessageOptions.waitInterval = waitInterval;
+        getMessageOptions.waitInterval = waitInterval * 1000;
         getMessageOptions.options = options;
         return getMessageOptions;
     }

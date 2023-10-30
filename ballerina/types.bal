@@ -32,7 +32,7 @@ public type AccessTopicOptions MQOO_ALTERNATE_USER_AUTHORITY|MQOO_BIND_AS_Q_DEF|
 
 public type GetMessageOptions record {|
     GM_OPTIONS gmOptions = MQGMO_NO_WAIT;
-    int waitInterval = 0;    
+    int waitInterval = 10;    
 |};
 
 public type Property record {|
