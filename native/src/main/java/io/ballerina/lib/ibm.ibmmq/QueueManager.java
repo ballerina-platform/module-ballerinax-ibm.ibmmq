@@ -89,7 +89,7 @@ public class QueueManager {
         try {
             MQQueue mqQueue = queueManager.accessQueue(queueName.getValue(), options.intValue());
             BObject bQueue = ValueCreator.createObjectValue(ModuleUtils.getModule(), BQUEUE);
-            bQueue.addNativeData(Constants.NATIVE_TOPIC, mqQueue);
+            bQueue.addNativeData(Constants.NATIVE_QUEUE, mqQueue);
             return bQueue;
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
