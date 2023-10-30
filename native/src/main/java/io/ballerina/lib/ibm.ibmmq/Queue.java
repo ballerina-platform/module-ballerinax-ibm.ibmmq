@@ -22,6 +22,7 @@ import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQQueue;
+import com.ibm.mq.constants.CMQC;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BError;
@@ -50,7 +51,7 @@ public class Queue {
             try {
                 queue.put(mqMessage);
                 future.complete(null);
-            } catch (Exception e) {
+            } catch (MQException e) {
                 BError bError = createError(IBMMQ_ERROR,
                         String.format("Error occurred while putting a message to the queue: %s", e.getMessage()), e);
                 future.complete(bError);
@@ -68,10 +69,15 @@ public class Queue {
                 MQMessage message = new MQMessage();
                 queue.get(message, getMessageOptions);
                 future.complete(CommonUtils.getBMessageFromMQMessage(message));
-            } catch (Exception e) {
-                BError bError = createError(IBMMQ_ERROR,
-                        String.format("Error occurred while getting a message from the queue: %s", e.getMessage()), e);
-                future.complete(bError);
+            } catch (MQException e) {
+                if (e.reasonCode == CMQC.MQRC_NO_MSG_AVAILABLE) {
+                    future.complete(null);
+                } else {
+                    BError bError = createError(IBMMQ_ERROR,
+                            String.format("Error occurred while getting a message from the queue: %s",
+                                    e.getMessage()), e);
+                    future.complete(bError);
+                }
             }
         });
         return null;
