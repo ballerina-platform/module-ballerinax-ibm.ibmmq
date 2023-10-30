@@ -26,7 +26,8 @@ public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 public type AccessQueueOptions MQOO_OUTPUT|MQOO_BROWSE|MQOO_INPUT_AS_Q_DEF|MQOO_INPUT_EXCLUSIVE|MQOO_INPUT_SHARED;
 
 # Options which can be provided when accessing an IBM MQ topic.
-public type AccessTopicOptions MQOO_ALTERNATE_USER_AUTHORITY|MQOO_BIND_AS_Q_DEF|MQOO_FAIL_IF_QUIESCING|MQOO_OUTPUT|MQOO_PASS_ALL_CONTEXT|MQOO_PASS_IDENTITY_CONTEXT|MQOO_SET_ALL_CONTEXT|MQOO_SET_IDENTITY_CONTEXT;
+public type AccessTopicOptions MQOO_ALTERNATE_USER_AUTHORITY|MQOO_BIND_AS_Q_DEF|MQOO_FAIL_IF_QUIESCING|MQOO_OUTPUT|
+    MQOO_PASS_ALL_CONTEXT|MQOO_PASS_IDENTITY_CONTEXT|MQOO_SET_ALL_CONTEXT|MQOO_SET_IDENTITY_CONTEXT|MQSO_CREATE;
 
 # IBM MQ queue manager configurations.
 #
@@ -48,11 +49,11 @@ public type QueueManagerConfiguration record {|
 # IBM MQ get message options.
 #
 # + gmOptions - Get message option 
-# + waitInterval - The maximum time (in milliseconds) that an `get` call waits for a suitable message to 
+# + waitInterval - The maximum time (in seconds) that an `get` call waits for a suitable message to 
 #                   arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
 public type GetMessageOptions record {|
-    GM_OPTIONS gmOptions = MQGMO_NO_SYNCPOINT;
-    int waitInterval = 0;
+    GM_OPTIONS gmOptions = MQGMO_NO_WAIT;
+    int waitInterval = 10;
 |};
 
 # Represents an IBM MQ message property.
@@ -69,6 +70,6 @@ public type Property record {|
 # + properties - Message properties
 # + payload - Message payload
 public type Message record {|
-    map<Property> properties;
+    map<Property> properties?;
     byte[] payload;
 |};

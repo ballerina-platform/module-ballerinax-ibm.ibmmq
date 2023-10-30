@@ -74,7 +74,7 @@ public class QueueManager {
         String host = configurations.getStringValue(HOST).getValue();
         properties.put(MQConstants.HOST_NAME_PROPERTY, host);
         Long port = configurations.getIntValue(PORT);
-        properties.put(MQConstants.PORT_PROPERTY, port);
+        properties.put(MQConstants.PORT_PROPERTY, port.intValue());
         String channel = configurations.getStringValue(CHANNEL).getValue();
         properties.put(MQConstants.CHANNEL_PROPERTY, channel);
         getOptionalStringProperty(configurations, USER_ID)
@@ -110,5 +110,16 @@ public class QueueManager {
             return createError(IBMMQ_ERROR,
                     String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
         }
+    }
+
+    public static Object disconnect(BObject queueManagerObject) {
+        MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
+        try {
+            queueManager.disconnect();
+        } catch (MQException e) {
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while disconnecting queue manager: %s", e.getMessage()), e);
+        }
+        return null;
     }
 }

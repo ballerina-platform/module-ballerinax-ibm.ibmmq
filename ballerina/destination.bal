@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/jballerina.java;
 
 # IBM MQ destination client type.
@@ -20,6 +21,8 @@ public type Destination distinct client object {
     remote function put(Message message) returns Error?;
 
     remote function get(*GetMessageOptions options) returns Message|Error?;
+
+    remote function close() returns Error?;
 };
 
 # IBM MQ Queue client.
@@ -41,6 +44,11 @@ public isolated client class Queue {
     # + return - An `ibmmq:Message` if there is any message in the queue, `()` if there 
     #           is no message or else `ibmmq:Error` if the operation fails
     remote function get(*GetMessageOptions options) returns Message|Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Queue"
+    } external;
+
+    remote function close() returns Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Queue"
     } external;
@@ -68,5 +76,9 @@ public isolated client class Topic {
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
-};
 
+    remote function close() returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
+};

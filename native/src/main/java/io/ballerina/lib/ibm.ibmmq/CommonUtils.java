@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BString;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
@@ -61,7 +62,7 @@ public class CommonUtils {
     private static final BString PROPERTY_VALUE = StringUtils.fromString("value");
     private static final BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
     private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
-    private static final BString OPTIONS = StringUtils.fromString("options");
+    private static final BString OPTIONS = StringUtils.fromString("gmOptions");
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
 
@@ -75,7 +76,9 @@ public class CommonUtils {
                     String.format("Error occurred while populating payload: %s", e.getMessage()), e);
         }
         BMap<BString, Object> properties = (BMap<BString, Object>) bMessage.getMapValue(MESSAGE_PROPERTIES);
-        populateMQProperties(properties, mqMessage);
+        if (Objects.nonNull(properties)) {
+            populateMQProperties(properties, mqMessage);
+        }
         return mqMessage;
     }
 
@@ -84,7 +87,7 @@ public class CommonUtils {
         try {
             byte[] payload = new byte[mqMessage.getDataLength()];
             mqMessage.readFully(payload);
-            bMessage.put(MESSAGE_PAYLOAD, payload);
+            bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
             bMessage.put(MESSAGE_PROPERTY, getBProperties(mqMessage));
             return bMessage;
         } catch (MQException | IOException e) {
@@ -186,7 +189,7 @@ public class CommonUtils {
         int waitInterval = bOptions.getIntValue(WAIT_INTERVAL).intValue();
         int options = bOptions.getIntValue(OPTIONS).intValue();
         MQGetMessageOptions getMessageOptions = new MQGetMessageOptions();
-        getMessageOptions.waitInterval = waitInterval;
+        getMessageOptions.waitInterval = waitInterval * 1000;
         getMessageOptions.options = options;
         return getMessageOptions;
     }
@@ -196,7 +199,7 @@ public class CommonUtils {
         BMap<BString, Object> errorDetails = ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
         if (throwable instanceof MQException exception) {
             errorDetails.put(ERROR_REASON_CODE, exception.getReason());
-            errorDetails.put(ERROR_ERROR_CODE, exception.getErrorCode());
+            errorDetails.put(ERROR_ERROR_CODE, StringUtils.fromString(exception.getErrorCode()));
             errorDetails.put(ERROR_COMPLETION_CODE, exception.getCompCode());
         }
         return ErrorCreator.createError(

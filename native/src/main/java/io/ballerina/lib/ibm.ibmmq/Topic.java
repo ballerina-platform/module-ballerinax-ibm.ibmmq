@@ -18,9 +18,11 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
+import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQTopic;
+import com.ibm.mq.constants.CMQC;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BError;
@@ -67,9 +69,30 @@ public class Topic {
                 MQMessage message = new MQMessage();
                 topic.get(message, getMessageOptions);
                 future.complete(CommonUtils.getBMessageFromMQMessage(message));
-            } catch (Exception e) {
+            } catch (MQException e) {
+                if (e.reasonCode == CMQC.MQRC_NO_MSG_AVAILABLE) {
+                    future.complete(null);
+                } else {
+                    BError bError = createError(IBMMQ_ERROR,
+                            String.format("Error occurred while getting a message from the topic: %s", e.getMessage()),
+                            e);
+                    future.complete(bError);
+                }
+            }
+        });
+        return null;
+    }
+
+    public static Object close(Environment env, BObject topicObject) {
+        MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
+        Future future = env.markAsync();
+        topicExecutorService.execute(() -> {
+            try {
+                topic.close();
+                future.complete(null);
+            } catch (MQException e) {
                 BError bError = createError(IBMMQ_ERROR,
-                        String.format("Error occurred while getting a message from the topic: %s", e.getMessage()), e);
+                        String.format("Error occurred while closing the topic: %s", e.getMessage()), e);
                 future.complete(bError);
             }
         });

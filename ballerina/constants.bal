@@ -17,7 +17,7 @@
 # Open topic as a subscription.
 public const int OPEN_AS_SUBSCRIPTION = 1;
 
-    # Open topic as a publication.
+# Open topic as a publication.
 public const int OPEN_AS_PUBLICATION = 2;
 
 # Open the queue to browse messages.
@@ -100,3 +100,6 @@ public const int MQGMO_FAIL_IF_QUIESCING = 8192;
 
 # Requests the application data to be converted.
 public const int MQGMO_CONVERT = 16384;
+
+# Subscribe Option create
+public const int MQSO_CREATE = 2;
