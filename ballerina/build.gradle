@@ -102,51 +102,51 @@ task commitTomlFiles {
     }
 }
 
-// task startActiveMQServer() {
-//    doLast {
-//        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-//            def stdOut = new ByteArrayOutputStream()
-//            exec {
-//                commandLine 'sh', '-c', "docker ps --filter name=activemq-test"
-//                standardOutput = stdOut
-//            }
-//            if (!stdOut.toString().contains("activemq-test")) {
-//                println "Starting ActiveMQ server."
-//                exec {
-//                    commandLine 'sh', '-c', "docker-compose -f tests/resources/docker-compose.yaml up -d"
-//                    standardOutput = stdOut
-//                }
-//                println stdOut.toString()
-//                sleep(5 * 1000)
-//            } else {
-//                println "ActiveMQ server is already running."
-//            }
-//        }
-//    }
-// }
+ task startIBMMQServer() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=ibmmq-test"
+                standardOutput = stdOut
+            }
+            if (!stdOut.toString().contains("ibmmq-test")) {
+                println "Starting IBMMQ server."
+                exec {
+                    commandLine 'sh', '-c', "docker-compose -f tests/resources/docker-compose.yaml up -d"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(5 * 1000)
+            } else {
+                println "IBMMQ server is already running."
+            }
+        }
+    }
+ }
 
-// task stopActiveMQServer() {
-//    doLast {
-//        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-//            def stdOut = new ByteArrayOutputStream()
-//            exec {
-//                commandLine 'sh', '-c', "docker ps --filter name=activemq-test"
-//                standardOutput = stdOut
-//            }
-//            if (stdOut.toString().contains("activemq-test")) {
-//                println "Stopping ActiveMQ server."
-//                exec {
-//                    commandLine 'sh', '-c', "docker-compose -f tests/resources/docker-compose.yaml rm -svf"
-//                    standardOutput = stdOut
-//                }
-//                println stdOut.toString()
-//                sleep(5 * 1000)
-//            } else {
-//                println "ActiveMQ server is not started."
-//            }
-//        }
-//    }
-// }
+ task stopIBMMQServer() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=ibmmq-test"
+                standardOutput = stdOut
+            }
+            if (stdOut.toString().contains("ibmmq-test")) {
+                println "Stopping IBMMQ server."
+                exec {
+                    commandLine 'sh', '-c', "docker-compose -f tests/resources/docker-compose.yaml rm -svf"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(5 * 1000)
+            } else {
+                println "IBMMQ server is not started."
+            }
+        }
+    }
+ }
 
 publishing {
     publications {
@@ -168,8 +168,8 @@ publishing {
 
 updateTomlFiles.dependsOn copyStdlibs
 
-// test.dependsOn startActiveMQServer
-// build.finalizedBy stopActiveMQServer
+ test.dependsOn startIBMMQServer
+ build.finalizedBy stopIBMMQServer
 
 build.dependsOn ":ibm.ibmmq-native:build"
 build.dependsOn "generatePomFileForMavenPublication"

@@ -62,7 +62,7 @@ public class CommonUtils {
     private static final BString PROPERTY_VALUE = StringUtils.fromString("value");
     private static final BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
     private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
-    private static final BString OPTIONS = StringUtils.fromString("gmOptions");
+    private static final BString OPTIONS = StringUtils.fromString("options");
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
 

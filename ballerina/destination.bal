@@ -20,7 +20,7 @@ import ballerina/jballerina.java;
 public type Destination distinct client object {
     remote function put(Message message) returns Error?;
 
-    remote function get(*GetMessageOptions options) returns Message|Error?;
+    remote function get(*GetMessageOptions getMessageOptions) returns Message|Error?;
 
     remote function close() returns Error?;
 };
@@ -40,10 +40,10 @@ public isolated client class Queue {
 
     # Retrieves a message from an IBM MQ queue.
     # 
-    # + options - Options to control message retrieval
+    # + getMessageOptions - Options to control message retrieval
     # + return - An `ibmmq:Message` if there is any message in the queue, `()` if there 
     #           is no message or else `ibmmq:Error` if the operation fails
-    remote function get(*GetMessageOptions options) returns Message|Error? =
+    remote function get(*GetMessageOptions getMessageOptions) returns Message|Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Queue"
     } external;
@@ -69,10 +69,10 @@ public isolated client class Topic {
 
     # Retrieves a message from an IBM MQ topic.
     # 
-    # + options - Options to control message retrieval
+    # + getMessageOptions - Options to control message retrieval
     # + return - An `ibmmq:Message` if there is any message in the queue, `()` if there 
     #           is no message or else `ibmmq:Error` if the operation fails
-    remote function get(*GetMessageOptions options) returns Message|Error?  =
+    remote function get(*GetMessageOptions getMessageOptions) returns Message|Error?  =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;

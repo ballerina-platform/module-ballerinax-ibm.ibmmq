@@ -36,11 +36,11 @@ public type QueueManagerConfiguration record {|
 
 # IBM MQ get message options.
 #
-# + gmOptions - Get message option 
+# + options - Get message option 
 # + waitInterval - The maximum time (in seconds) that an `get` call waits for a suitable message to 
 #                   arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
 public type GetMessageOptions record {|
-    int gmOptions = MQGMO_NO_WAIT;
+    int options = MQGMO_NO_WAIT;
     int waitInterval = 10;
 |};
 
