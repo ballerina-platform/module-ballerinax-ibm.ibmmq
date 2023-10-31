@@ -9,9 +9,6 @@ icon = "icon.png"
 license = ["Apache-2.0"]
 distribution = "2201.8.0"
 
-[platform.java17]
-graalvmCompatible = true
-
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "ibm.ibmmq-native"
