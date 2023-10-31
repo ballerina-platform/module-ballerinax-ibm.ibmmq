@@ -3,7 +3,6 @@
 [![Build](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/actions/workflows/build-timestamped-master.yml)
 [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerinax-ibm.ibmmq/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerinax-ibm.ibmmq)
 [![Trivy](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/actions/workflows/trivy-scan.yml)
-[![GraalVM Check](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/actions/workflows/build-with-bal-test-graalvm.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/actions/workflows/build-with-bal-test-graalvm.yml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-ibm.ibmmq.svg)](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/commits/main)
 
 The `ballerinax/ibm.ibmmq` library provides an API to connect to an IBM MQ server using Ballerina.
