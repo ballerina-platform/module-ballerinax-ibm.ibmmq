@@ -41,13 +41,16 @@ public isolated client class Queue {
     # Retrieves a message from an IBM MQ queue.
     # 
     # + getMessageOptions - Options to control message retrieval
-    # + return - An `ibmmq:Message` if there is any message in the queue, `()` if there 
+    # + return - An `ibmmq:Message` if there is a message in the queue, `()` if there 
     #           is no message or else `ibmmq:Error` if the operation fails
     remote function get(*GetMessageOptions getMessageOptions) returns Message|Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Queue"
     } external;
 
+    # Closes the IBM MQ queue object. No further operations on this object are permitted after it is closed.
+    # 
+    # + return - An `ibmmq:Error` if the operation fails or else `()`
     remote function close() returns Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Queue"
@@ -70,13 +73,16 @@ public isolated client class Topic {
     # Retrieves a message from an IBM MQ topic.
     # 
     # + getMessageOptions - Options to control message retrieval
-    # + return - An `ibmmq:Message` if there is any message in the queue, `()` if there 
+    # + return - An `ibmmq:Message` if there is a message in the topic, `()` if there 
     #           is no message or else `ibmmq:Error` if the operation fails
     remote function get(*GetMessageOptions getMessageOptions) returns Message|Error?  =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 
+    # Closes the IBM MQ topic object. No further operations on this object are permitted after it is closed.
+    # 
+    # + return - An `ibmmq:Error` if the operation fails or else `()`
     remote function close() returns Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
