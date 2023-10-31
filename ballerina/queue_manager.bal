@@ -16,8 +16,16 @@
 
 import ballerina/jballerina.java;
 
+# Represents an IBM MQ queue manager.
 public isolated class QueueManager {
 
+    # Initialize an IBM MQ queue manager.
+    # ```ballerina
+    # ibmmq:QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    # ```
+    #
+    # + configurations - The configurations to be used when initializing the IBM MQ queue manager
+    # + return - The `ibmmq:QueueManager` or an `ibmmq:Error` if the initialization failed
     public isolated function init(*QueueManagerConfiguration configurations) returns Error? {
         check self.externInit(configurations);
     }
@@ -27,13 +35,33 @@ public isolated class QueueManager {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
 
-    public isolated function accessQueue(string queueName, AccessQueueOptions options) returns Queue|Error =
+    # Establishes access to an IBM MQ queue on this queue manager.
+    # ```ballerina
+    # ibmmq:Queue queue = check queueManager.accessQueue("queue1", ibmmq:MQOO_OUTPUT);
+    # ```
+    # 
+    # + queueName - Name of the queue
+    # + options - The options which control the opening of the queue
+    # + return - The `ibmmq:Queue` object or an `ibmmq:Error` if the operation failed
+    public isolated function accessQueue(string queueName, int options) returns Queue|Error =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
 
+    # Establishes access to an IBM MQ topic on this queue manager.
+    # ```ballerina
+    # ibmmq:Topic topic = check queueManager.accessTopic(
+    #   "dev", "DEV.BASE.TOPIC", ibmmq:OPEN_AS_PUBLICATION, ibmmq:MQOO_OUTPUT
+    # );
+    # ```
+    # 
+    # + topicName - The topic string to publish or subscribe against
+    # + topicString - The name of the topic object as defined on the local queue manager
+    # + openTopicOption - Indicates whether the topic is being opened for either publication or subscription
+    # + options - Options that control the opening of the topic for either publication or subscription
+    # + return - The `ibmmq:Topic` object or an `ibmmq:Error` if the operation failed
     public isolated function accessTopic(string topicName, string topicString, OPEN_TOPIC_OPTION openTopicOption,
-            AccessTopicOptions options) returns Topic|Error =
+            int options) returns Topic|Error =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;

@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents a IBM MQ distinct error.
 public type Error distinct error<ErrorDetails>;
   
-# The error details type for the module.
+# The error details type for the IBM MQ module.
 #
 # + reasonCode - The reason code for the error
 # + errorCode - The error code for the error
