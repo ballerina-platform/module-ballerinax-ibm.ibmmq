@@ -26,7 +26,7 @@ public type QueueManagerConfiguration record {|
 |};
 
 public type GetMessageOptions record {|
-    int gmOptions = MQGMO_NO_WAIT;
+    int options = MQGMO_NO_WAIT;
     int waitInterval = 10;    
 |};
 
