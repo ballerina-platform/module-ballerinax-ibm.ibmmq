@@ -14,16 +14,50 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
+
 public type Destination distinct client object {
     remote function put(Message message) returns Error?;
 
-    remote function get() returns Message|Error?;
+    remote function get(*GetMessageOptions getMessageOptions) returns Message|Error?;
+
+    remote function close() returns Error?;
 };
 
-public type Queue distinct client object {
+public isolated client class Queue {
     *Destination;
-};
 
-public type Topic distinct client object {
+    remote function put(Message message) returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Queue"
+    } external;
+
+    remote function get(*GetMessageOptions getMessageOptions) returns Message|Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Queue"
+    } external;
+
+    remote function close() returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Queue"
+    } external;
+}
+
+public isolated client class Topic {
     *Destination;
+
+    remote function put(Message message) returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
+
+    remote function get(*GetMessageOptions getMessageOptions) returns Message|Error?  =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
+
+    remote function close() returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
 };

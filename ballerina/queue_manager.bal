@@ -27,11 +27,19 @@ public isolated class QueueManager {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
 
-    public isolated function accessQueue(string queueName, ConnectionOpenOptions options) returns Queue|Error {
-        return error Error("Not implemented");
-    }
+    public isolated function accessQueue(string queueName, int options) returns Queue|Error =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
+    } external;
 
-    public isolated function accessTopic(string topicName, string topicString, ConnectionOpenOptions options) returns Topic|Error {
-        return error Error("Not implemented");
-    }
+    public isolated function accessTopic(string topicName, string topicString, OPEN_TOPIC_OPTION openTopicOption,
+            int options) returns Topic|Error =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
+    } external;
+
+    public isolated function disconnect() returns Error? =
+    @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
+    } external;
 }

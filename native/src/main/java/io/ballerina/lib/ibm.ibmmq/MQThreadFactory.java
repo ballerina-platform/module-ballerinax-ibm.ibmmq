@@ -18,12 +18,24 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
-public interface Constants {
-    // Error names for IBM MQ package
-    public static final String IBMMQ_ERROR = "Error";
+import java.util.concurrent.ThreadFactory;
 
-    // Native properties in respective ballerina objects
-    String NATIVE_QUEUE_MANAGER = "queueManager";
-    String NATIVE_TOPIC = "topic";
-    String NATIVE_QUEUE = "queue";
+
+/**
+ * A {@link ThreadFactory} object that creates new threads on demand for IBM MQ queue or topic actions.
+ */
+public class MQThreadFactory implements ThreadFactory {
+
+    private final String threadGroupName;
+
+    public MQThreadFactory(String threadGroupName) {
+        this.threadGroupName = threadGroupName;
+    }
+
+    @Override
+    public Thread newThread(Runnable runnable) {
+        Thread ibmMqClientThread = new Thread(runnable);
+        ibmMqClientThread.setName(threadGroupName);
+        return ibmMqClientThread;
+    }
 }

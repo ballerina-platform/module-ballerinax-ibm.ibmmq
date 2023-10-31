@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
+
 public type QueueManagerConfiguration record {|
     string name;
     string host;
@@ -23,19 +25,17 @@ public type QueueManagerConfiguration record {|
     string password?;
 |};
 
-public enum ConnectionOpenOptions {
-    MQOO_OUTPUT = "MQOO_OUTPUT",
-    MQOO_INPUT_AS_Q_DEF = "MQOO_INPUT_AS_Q_DEF",
-    MQOO_INPUT_EXCLUSIVE = "MQOO_INPUT_EXCLUSIVE",
-    MQOO_INPUT_SHARED = "MQOO_INPUT_SHARED"
-}
+public type GetMessageOptions record {|
+    int options = MQGMO_NO_WAIT;
+    int waitInterval = 10;    
+|};
 
 public type Property record {|
-    map<anydata> descriptor;
-    boolean|byte|byte[]|decimal|float|int|string property;
+    map<int> descriptor?;
+    boolean|byte|byte[]|decimal|float|int|string value;
 |};
 
 public type Message record {|
-    map<Property> properties;
+    map<Property> properties?;
     byte[] payload;
 |};
