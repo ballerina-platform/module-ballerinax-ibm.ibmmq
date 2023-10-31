@@ -20,7 +20,7 @@ import ballerina/test;
     groups: ["ibmmqQueue"]
 }
 function basicQueueProducerConsumerTest() returns error? {
-    QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
     check producer->put({
@@ -41,7 +41,7 @@ function basicQueueProducerConsumerTest() returns error? {
     groups: ["ibmmqQueue"]
 }
 function pubSubMultipleMessagesQueueProducerConsumerTest() returns error? {
-    QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
     foreach int i in 0 ... 4 {
@@ -66,7 +66,7 @@ function pubSubMultipleMessagesQueueProducerConsumerTest() returns error? {
     groups: ["ibmmqQueue"]
 }
 function consumerWithoutProducingMessageTest() returns error? {
-    QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
     Message|Error? result = consumer->get(options = MQGMO_WAIT, waitInterval = 5);
     test:assertTrue(result is ());
@@ -78,7 +78,7 @@ function consumerWithoutProducingMessageTest() returns error? {
     groups: ["ibmmqQueue"]
 }
 function produceToNonExistingQueueTest() returns error? {
-    QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue|Error result = queueManager.accessQueue("NON.EXISTING.QUEUE", MQOO_OUTPUT);
     if result is Error {
         test:assertEquals(result.message(), "Error occurred while accessing queue: MQJE001: Completion Code '2', Reason '2085'.");
@@ -94,7 +94,7 @@ function produceToNonExistingQueueTest() returns error? {
     groups: ["ibmmqQueue"]
 }
 function consumerConnectToNonExistingQueueTest() returns error? {
-    QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue|Error result = queueManager.accessQueue("NON.EXISTING.QUEUE", MQOO_INPUT_AS_Q_DEF);
     if result is Error {
         test:assertEquals(result.message(), "Error occurred while accessing queue: MQJE001: Completion Code '2', Reason '2085'.");
@@ -110,7 +110,7 @@ function consumerConnectToNonExistingQueueTest() returns error? {
     groups: ["ibmmqQueue"]
 }
 function produceWithInvalidQueueNameTest() returns error? {
-    QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue|Error result = queueManager.accessQueue("INVALID QUEUE", MQOO_INPUT_AS_Q_DEF);
     if result is Error {
         test:assertEquals(result.message(), "Error occurred while accessing queue: MQJE001: Completion Code '2', Reason '2085'.");
@@ -126,7 +126,7 @@ function produceWithInvalidQueueNameTest() returns error? {
     groups: ["ibmmqQueue"]
 }
 function consumeFromAnInvalidQueueNameTest() returns error? {
-    QueueManager queueManager = check new QueueManager(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    QueueManager queueManager = check new(name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue|Error result = queueManager.accessQueue("INVALID QUEUE", MQOO_INPUT_AS_Q_DEF);
     if result is Error {
         test:assertEquals(result.message(), "Error occurred while accessing queue: MQJE001: Completion Code '2', Reason '2085'.");
