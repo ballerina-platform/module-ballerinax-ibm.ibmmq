@@ -9,14 +9,11 @@ icon = "icon.png"
 license = ["Apache-2.0"]
 distribution = "2201.8.0"
 
-[platform.java17]
-graalvmCompatible = true
-
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "ibm.ibmmq-native"
 version = "0.1.0"
-path = "../native/build/libs/ibm.ibmmq-native-0.1.0-SNAPSHOT.jar"
+path = "../native/build/libs/ibm.ibmmq-native-0.1.0.jar"
 
 [[platform.java17.dependency]]
 groupId = "org.json"
