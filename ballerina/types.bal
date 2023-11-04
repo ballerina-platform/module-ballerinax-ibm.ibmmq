@@ -17,6 +17,9 @@
 # Options which can be provided when opening an IBM MQ topic.
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
+# Header types that are provided in the IBM MQ message.
+public type Header MQRFH2;
+
 # IBM MQ queue manager configurations.
 #
 # + name - Name of the queue manager
@@ -38,7 +41,7 @@ public type QueueManagerConfiguration record {|
 #
 # + options - Get message option 
 # + waitInterval - The maximum time (in seconds) that a `get` call waits for a suitable message to 
-#                   arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
+# arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
 public type GetMessageOptions record {|
     int options = MQGMO_NO_WAIT;
     int waitInterval = 10;
@@ -50,14 +53,69 @@ public type GetMessageOptions record {|
 # + value - Property value
 public type Property record {|
     map<int> descriptor?;
-    boolean|byte|byte[]|decimal|float|int|string value;
+    boolean|byte|byte[]|float|int|string value;
 |};
 
 # Represents an IBM MQ message.
 #
-# + properties - Message properties
+# + properties - Message properties  
+# + headers - Headers to be sent in the message  
+# + format - Format associated with the header
+# + messageId - Message identifier
+# + correlationId - Correlation identifier
+# + expiry - Message lifetime
+# + priority - Message priority
+# + persistence - Message persistence
+# + messageType - Message type
+# + putApplicationType - Type of application that put the message
+# + replyToQueueName - Name of reply queue
+# + replyToQueueManagerName - Name of reply queue manager
 # + payload - Message payload
 public type Message record {|
     map<Property> properties?;
+    Header[] headers?;
+    string format?;
+    string messageId?;
+    string correlationId?;
+    int expiry?;
+    int priority?;
+    int persistence?;
+    int messageType?;
+    int putApplicationType?;
+    string replyToQueueName?;
+    string replyToQueueManagerName?;
     byte[] payload;
+|};
+
+# Header record representing the MQRFH2 structure.
+#
+# + flags - Flag of the header
+# + folderStrings - Contents of the variable part of the structure
+# + nameValueCCSID - Coded character set for the NameValue data
+# + nameValueData - NameValueData variable-length field
+# + strucId - Structure identifier
+# + strucLength - Length of the structure
+# + version - Structure version number
+# + fieldValues - Table containing all occurrences of field values matching 
+#                 the specified field name in the folder
+public type MQRFH2 record {|
+    int flags = 0;
+    string[] folderStrings = [];
+    int nameValueCCSID = 0;
+    byte[] nameValueData = [];
+    string strucId = "RFH ";
+    int strucLength = 36;
+    int version = 2;
+    table<MQRFH2Field> key(folder, 'field) fieldValues = table [];
+|};
+
+# Record defining a field in the MQRFH2 record.
+#
+# + folder - The name of the folder containing the field
+# + 'field - The field name
+# + value - The field value
+public type MQRFH2Field record {|
+    readonly string folder;
+    readonly string 'field;
+    int|float|byte|byte[]|string value;
 |};

@@ -22,22 +22,38 @@ import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPropertyDescriptor;
+import com.ibm.mq.headers.MQCIH;
+import com.ibm.mq.headers.MQDH;
+import com.ibm.mq.headers.MQDLH;
+import com.ibm.mq.headers.MQDataException;
+import com.ibm.mq.headers.MQHeaderList;
+import com.ibm.mq.headers.MQIIH;
+import com.ibm.mq.headers.MQRFH;
+import com.ibm.mq.headers.MQRFH2;
+import com.ibm.mq.headers.MQRMH;
+import com.ibm.mq.headers.MQSAPH;
+import com.ibm.mq.headers.MQTM;
+import com.ibm.mq.headers.MQWIH;
+import com.ibm.mq.headers.MQXQH;
+import com.ibm.mq.headers.pcf.MQEPH;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2FIELD_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 
 /**
@@ -51,6 +67,7 @@ public class CommonUtils {
     private static final BString ERROR_COMPLETION_CODE = StringUtils.fromString("completionCode");
     private static final BString MESSAGE_PAYLOAD = StringUtils.fromString("payload");
     private static final BString MESSAGE_PROPERTIES = StringUtils.fromString("properties");
+    private static final BString MESSAGE_HEADERS = StringUtils.fromString("headers");
     private static final BString MESSAGE_PROPERTY = StringUtils.fromString("property");
     private static final String BPROPERTY = "Property";
     private static final String BMESSAGE_NAME = "Message";
@@ -63,32 +80,76 @@ public class CommonUtils {
     private static final BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
     private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
     private static final BString OPTIONS = StringUtils.fromString("options");
+    private static final BString FIELD_VALUES_FIELD = StringUtils.fromString("fieldValues");
+    private static final BString FOLDER_STRINGS_FIELD = StringUtils.fromString("folderStrings");
+    private static final BString FLAGS_FIELD = StringUtils.fromString("flags");
+    private static final BString VERSION_FIELD = StringUtils.fromString("version");
+    private static final BString NAME_VALUE_CCSID_FIELD = StringUtils.fromString("nameValueCCSID");
+    private static final BString NAME_VALUE_DATA_FIELD = StringUtils.fromString("nameValueData");
+    private static final BString STRUC_ID_FIELD = StringUtils.fromString("strucId");
+    private static final BString STRUC_LENGTH_FIELD = StringUtils.fromString("strucLength");
+    private static final BString FOLDER_FIELD = StringUtils.fromString("folder");
+    private static final BString FIELD_FIELD = StringUtils.fromString("field");
+    private static final BString VALUE_FIELD = StringUtils.fromString("value");
+    private static final BString FORMAT_FIELD = StringUtils.fromString("format");
+    private static final BString MESSAGE_ID_FIELD = StringUtils.fromString("messageId");
+    private static final BString CORRELATION_ID_FIELD = StringUtils.fromString("correlationId");
+    private static final BString EXPIRY_FIELD = StringUtils.fromString("expiry");
+    private static final BString PRIORITY_FIELD = StringUtils.fromString("priority");
+    private static final BString PERSISTENCE_FIELD = StringUtils.fromString("persistence");
+    private static final BString MESSAGE_TYPE_FIELD = StringUtils.fromString("messageType");
+    private static final BString PUT_APPLICATION_TYPE_FIELD = StringUtils.fromString("putApplicationType");
+    private static final BString REPLY_TO_QUEUE_NAME_FIELD = StringUtils.fromString("replyToQueueName");
+    private static final BString REPLY_TO_QM_NAME_FIELD = StringUtils.fromString("replyToQueueManagerName");
+    private static final String MQRFH2_RECORD_NAME = "MQRFH2";
+    private static final String NATIVE_UTILS_OBJECT_NAME = "NativeUtils";
+    private static final String ADD_FIELDS_TO_TABLE_FUNCTION_NAME = "addMQRFH2FieldsToTable";
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
 
     public static MQMessage getMqMessageFromBMessage(BMap<BString, Object> bMessage) {
-        byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
         MQMessage mqMessage = new MQMessage();
+        BMap<BString, Object> properties = (BMap<BString, Object>) bMessage.getMapValue(MESSAGE_PROPERTIES);
+        if (Objects.nonNull(properties)) {
+            populateMQProperties(properties, mqMessage);
+        }
+        BArray headers = bMessage.getArrayValue(MESSAGE_HEADERS);
+        if (Objects.nonNull(headers)) {
+            try {
+                populateMQHeaders(headers, mqMessage);
+            } catch (IOException e) {
+                throw createError(IBMMQ_ERROR,
+                        String.format("Error occurred while writing headers: %s", e.getMessage()), e);
+            }
+        }
+        byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
+        assignOptionalFieldsToMqMessage(bMessage, mqMessage);
         try {
             mqMessage.write(payload);
         } catch (IOException e) {
             throw createError(IBMMQ_ERROR,
                     String.format("Error occurred while populating payload: %s", e.getMessage()), e);
         }
-        BMap<BString, Object> properties = (BMap<BString, Object>) bMessage.getMapValue(MESSAGE_PROPERTIES);
-        if (Objects.nonNull(properties)) {
-            populateMQProperties(properties, mqMessage);
-        }
         return mqMessage;
     }
 
-    public static BMap<BString, Object> getBMessageFromMQMessage(MQMessage mqMessage) {
+    public static BMap<BString, Object> getBMessageFromMQMessage(Runtime runtime, MQMessage mqMessage) {
         BMap<BString, Object> bMessage = ValueCreator.createRecordValue(getModule(), BMESSAGE_NAME);
         try {
-            byte[] payload = new byte[mqMessage.getDataLength()];
-            mqMessage.readFully(payload);
-            bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
+            bMessage.put(MESSAGE_HEADERS, getBHeaders(runtime, mqMessage));
             bMessage.put(MESSAGE_PROPERTY, getBProperties(mqMessage));
+            bMessage.put(FORMAT_FIELD, StringUtils.fromString(mqMessage.format));
+            bMessage.put(MESSAGE_ID_FIELD, StringUtils.fromString(new String(mqMessage.messageId)));
+            bMessage.put(CORRELATION_ID_FIELD, StringUtils.fromString(new String(mqMessage.correlationId)));
+            bMessage.put(EXPIRY_FIELD, mqMessage.expiry);
+            bMessage.put(PRIORITY_FIELD, mqMessage.priority);
+            bMessage.put(PERSISTENCE_FIELD, mqMessage.persistence);
+            bMessage.put(MESSAGE_TYPE_FIELD, mqMessage.messageType);
+            bMessage.put(PUT_APPLICATION_TYPE_FIELD, mqMessage.putApplicationType);
+            bMessage.put(REPLY_TO_QUEUE_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueName));
+            bMessage.put(REPLY_TO_QM_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueManagerName));
+            byte[] payload = mqMessage.readStringOfByteLength(mqMessage.getDataLength()).getBytes();
+            bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
             return bMessage;
         } catch (MQException | IOException e) {
             throw createError(IBMMQ_ERROR,
@@ -108,6 +169,8 @@ public class CommonUtils {
                 property.put(PROPERTY_VALUE, intProperty.longValue());
             } else if (propertyObject instanceof String stringProperty) {
                 property.put(PROPERTY_VALUE, StringUtils.fromString(stringProperty));
+            } else if (propertyObject instanceof byte[] bytesProperty) {
+                property.put(PROPERTY_VALUE, ValueCreator.createArrayValue(bytesProperty));
             } else {
                 property.put(PROPERTY_VALUE, propertyObject);
             }
@@ -174,6 +237,90 @@ public class CommonUtils {
         return propertyDescriptor;
     }
 
+    private static void assignOptionalFieldsToMqMessage(BMap<BString, Object> bMessage, MQMessage mqMessage) {
+        if (bMessage.containsKey(FORMAT_FIELD)) {
+            mqMessage.format = bMessage.getStringValue(FORMAT_FIELD).getValue();
+        }
+        if (bMessage.containsKey(MESSAGE_ID_FIELD)) {
+            mqMessage.messageId = bMessage.getStringValue(MESSAGE_ID_FIELD).getValue().getBytes();
+        }
+        if (bMessage.containsKey(CORRELATION_ID_FIELD)) {
+            mqMessage.correlationId = bMessage.getStringValue(CORRELATION_ID_FIELD).getValue().getBytes();
+        }
+        if (bMessage.containsKey(EXPIRY_FIELD)) {
+            mqMessage.expiry = bMessage.getIntValue(EXPIRY_FIELD).intValue();
+        }
+        if (bMessage.containsKey(PRIORITY_FIELD)) {
+            mqMessage.priority = bMessage.getIntValue(PRIORITY_FIELD).intValue();
+        }
+        if (bMessage.containsKey(PERSISTENCE_FIELD)) {
+            mqMessage.persistence = bMessage.getIntValue(PERSISTENCE_FIELD).intValue();
+        }
+        if (bMessage.containsKey(MESSAGE_TYPE_FIELD)) {
+            mqMessage.messageType = bMessage.getIntValue(MESSAGE_TYPE_FIELD).intValue();
+        }
+        if (bMessage.containsKey(PUT_APPLICATION_TYPE_FIELD)) {
+            mqMessage.putApplicationType = bMessage.getIntValue(PUT_APPLICATION_TYPE_FIELD).intValue();
+        }
+        if (bMessage.containsKey(REPLY_TO_QUEUE_NAME_FIELD)) {
+            mqMessage.replyToQueueName = bMessage.getStringValue(REPLY_TO_QUEUE_NAME_FIELD).getValue();
+        }
+        if (bMessage.containsKey(REPLY_TO_QM_NAME_FIELD)) {
+            mqMessage.replyToQueueManagerName = bMessage.getStringValue(REPLY_TO_QM_NAME_FIELD).getValue();
+        }
+    }
+
+    private static void populateMQHeaders(BArray bHeaders, MQMessage mqMessage) throws IOException {
+        MQHeaderList headerList = new MQHeaderList();
+        for (int i = 0; i < bHeaders.size(); i++) {
+            BMap<BString, Object> bHeader = (BMap) bHeaders.get(i);
+            headerList.add(createMQRFH2HeaderFromBHeader(bHeader));
+        }
+        try {
+            headerList.write(mqMessage);
+        } catch (IOException e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Error occurred while putting a message to the topic: %s", e.getMessage()), e);
+        }
+    }
+
+    private static MQRFH2 createMQRFH2HeaderFromBHeader(BMap<BString, Object> bHeader) throws IOException {
+        MQRFH2 header = new MQRFH2();
+        header.setFlags(bHeader.getIntValue(FLAGS_FIELD).intValue());
+        BArray folderStringsArray = bHeader.getArrayValue(FOLDER_STRINGS_FIELD);
+        header.setFolderStrings(folderStringsArray.getStringArray());
+        header.setNameValueCCSID(bHeader.getIntValue(NAME_VALUE_CCSID_FIELD).intValue());
+        header.setNameValueData(bHeader.getArrayValue(NAME_VALUE_DATA_FIELD).getBytes());
+        BTable fieldTable = (BTable) bHeader.get(FIELD_VALUES_FIELD);
+        BIterator fieldTableIterator = fieldTable.getIterator();
+        while (fieldTableIterator.hasNext()) {
+            setFieldValueToMQRFH2Header(fieldTableIterator, header);
+        }
+        return header;
+    }
+
+    private static void setFieldValueToMQRFH2Header(BIterator fieldTableIterator, MQRFH2 header) throws IOException {
+        BMap<BString, Object> bField = (BMap<BString, Object>) ((BArray) fieldTableIterator.next()).get(1);
+        String folder = bField.getStringValue(FOLDER_FIELD).getValue();
+        String field = bField.getStringValue(FIELD_FIELD).getValue();
+        Object value = bField.get(VALUE_FIELD);
+        if (value instanceof Long longValue) {
+            header.setIntFieldValue(folder, field, longValue.intValue());
+        } else if (value instanceof Boolean booleanValue) {
+            header.setFieldValue(folder, field, booleanValue);
+        } else if (value instanceof Byte byteValue) {
+            header.setByteFieldValue(folder, field, byteValue);
+        } else if (value instanceof byte[] bytesValue) {
+            header.setFieldValue(folder, field, bytesValue);
+        } else if (value instanceof Float floatValue) {
+            header.setFloatFieldValue(folder, field, floatValue);
+        } else if (value instanceof Double doubleValue) {
+            header.setFloatFieldValue(folder, field, doubleValue.floatValue());
+        } else if (value instanceof BString stringValue) {
+            header.setFieldValue(folder, field, stringValue.getValue());
+        }
+    }
+
     private static BMap populateDescriptorFromMQPropertyDescriptor(MQPropertyDescriptor propertyDescriptor) {
         BMap<BString, Object> descriptor = ValueCreator.createMapValue(TypeCreator
                 .createMapType(PredefinedTypes.TYPE_INT));
@@ -192,6 +339,205 @@ public class CommonUtils {
         getMessageOptions.waitInterval = waitInterval * 1000;
         getMessageOptions.options = options;
         return getMessageOptions;
+    }
+
+    private static Object getBHeaders(Runtime runtime, MQMessage mqMessage) {
+        ArrayList<BMap<BString, Object>> bHeaders = new ArrayList<>();
+        try {
+            readHeadersFromMQMessage(runtime, bHeaders, HeaderType.MQRFH2, mqMessage);
+        } catch (IOException e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Error occurred while reading headers: %s", e.getMessage()), e);
+        }
+        if (bHeaders.isEmpty()) {
+            return null;
+        }
+        BArray headerArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(bHeaders.get(0).getType()));
+        for (BMap<BString, Object> header : bHeaders) {
+            headerArray.append(header);
+        }
+        return headerArray;
+    }
+
+    private static void readHeadersFromMQMessage(Runtime runtime, ArrayList<BMap<BString, Object>> headers,
+                                                 HeaderType type, MQMessage msg) throws IOException {
+        int dataOffset = msg.getDataOffset();
+        switch (type) {
+            case MQRFH2: {
+                MQRFH2 mqrfh2 = new MQRFH2();
+                try {
+                    mqrfh2.read(msg);
+                    headers.add(getBHeaderFromMQRFH2(runtime, mqrfh2));
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQDLH: {
+                MQDLH dlh = new MQDLH();
+                try {
+                    // Only MQRFH2 headers is supported at the moment. Other headers are read here
+                    // to move the cursor to the payload value.
+                    dlh.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQRFH: {
+                MQRFH mqrfh = new MQRFH();
+                try {
+                    mqrfh.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQCIH: {
+                MQCIH mqcih = new MQCIH();
+                try {
+                    mqcih.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQIIH: {
+                MQIIH mqiih = new MQIIH();
+                try {
+                    mqiih.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQTM: {
+                MQTM mqtm = new MQTM();
+                try {
+                    mqtm.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQRMH: {
+                MQRMH mqrmh = new MQRMH();
+                try {
+                    mqrmh.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQSAPH: {
+                MQSAPH mqsaph = new MQSAPH();
+                try {
+                    mqsaph.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQWIH: {
+                MQWIH mqwih = new MQWIH();
+                try {
+                    mqwih.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQXQH: {
+                MQXQH mqxqh = new MQXQH();
+                try {
+                    mqxqh.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQDH: {
+                MQDH mqdh = new MQDH();
+                try {
+                    mqdh.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                }
+            }
+            case MQEPH: {
+                MQEPH mqeph = new MQEPH();
+                try {
+                    mqeph.read(msg);
+                    break;
+                } catch (MQDataException e) {
+                    msg.seek(dataOffset);
+                    return;
+                }
+            }
+        }
+        readHeadersFromMQMessage(runtime, headers, HeaderType.MQRFH2, msg);
+    }
+
+    private static BMap<BString, Object> getBHeaderFromMQRFH2(Runtime runtime, MQRFH2 mqrfh2) throws IOException {
+        BMap<BString, Object> header = ValueCreator.createRecordValue(getModule(), MQRFH2_RECORD_NAME);
+        header.put(FLAGS_FIELD, mqrfh2.getFlags());
+        BArray folderStringArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
+        String[] folderStrings = mqrfh2.getFolderStrings();
+        for (String folderString : folderStrings) {
+            folderStringArray.append(StringUtils.fromString(folderString));
+        }
+        header.put(FOLDER_STRINGS_FIELD, folderStringArray);
+        header.put(NAME_VALUE_CCSID_FIELD, mqrfh2.getNameValueCCSID());
+        header.put(NAME_VALUE_DATA_FIELD, ValueCreator.createArrayValue(mqrfh2.getNameValueData()));
+        header.put(STRUC_ID_FIELD, StringUtils.fromString(mqrfh2.getStrucId()));
+        header.put(STRUC_LENGTH_FIELD, mqrfh2.getStrucLength());
+        header.put(VERSION_FIELD, mqrfh2.getVersion());
+        BTable fieldValuesTable = getBHeaderFieldValuesFromMQMessage(runtime, mqrfh2);
+        header.put(FIELD_VALUES_FIELD, fieldValuesTable);
+        return header;
+    }
+
+    private static BTable getBHeaderFieldValuesFromMQMessage(Runtime runtime, MQRFH2 mqrfh2) throws IOException {
+        BArray fieldArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(TypeCreator
+                .createRecordType(MQRFH2FIELD_RECORD_NAME, getModule(), 0, false, 0)));
+        MQRFH2.Element[] folders = mqrfh2.getFolders();
+        int i = 0;
+        for (MQRFH2.Element folder : folders) {
+            MQRFH2.Element[] children = folder.getChildren();
+            for (MQRFH2.Element child : children) {
+                BMap<BString, Object> field = ValueCreator.createRecordValue(getModule(), MQRFH2FIELD_RECORD_NAME);
+                field.put(FOLDER_FIELD, StringUtils.fromString(folder.getName()));
+                field.put(FIELD_FIELD, StringUtils.fromString(child.getName()));
+                field.put(VALUE_FIELD, getBValueForMQObjectValue(child.getValue()));
+                fieldArray.add(i, field);
+                i = i + 1;
+            }
+        }
+        BObject nativeUtilsObject = ValueCreator.createObjectValue(getModule(), NATIVE_UTILS_OBJECT_NAME);
+        CountDownLatch latch = new CountDownLatch(1);
+        HeaderFieldValuesCallback headerFieldValuesCallback = new HeaderFieldValuesCallback(latch);
+        runtime.invokeMethodAsyncConcurrently(nativeUtilsObject, ADD_FIELDS_TO_TABLE_FUNCTION_NAME, null,
+                null, headerFieldValuesCallback, null, PredefinedTypes.TYPE_ANY, fieldArray, true);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Error occurred while adding MQRFH2 fields: %s", e.getMessage()), e);
+        }
+        return headerFieldValuesCallback.getHeaderValueTable();
+    }
+
+    private static Object getBValueForMQObjectValue(Object value) {
+        if (value instanceof Integer intValue) {
+            return intValue.longValue();
+        } else if (value instanceof String stringValue) {
+            return StringUtils.fromString(stringValue);
+        } else if (value instanceof byte[] bytesValue) {
+            return ValueCreator.createArrayValue(bytesValue);
+        } else {
+            return value;
+        }
     }
 
     public static BError createError(String errorType, String message, Throwable throwable) {

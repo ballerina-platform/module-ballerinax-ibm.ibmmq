@@ -18,14 +18,20 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
-public interface Constants {
-    // Error names for IBM MQ package
-    public static final String IBMMQ_ERROR = "Error";
-
-    // Native properties in respective ballerina objects
-    String NATIVE_QUEUE_MANAGER = "queueManager";
-    String NATIVE_TOPIC = "topic";
-    String NATIVE_QUEUE = "queue";
-
-    String MQRFH2FIELD_RECORD_NAME = "MQRFH2Field";
+/**
+ * Enum for the header types supported by IBM MQ.
+ */
+public enum HeaderType {
+    MQCIH,
+    MQDH,
+    MQDLH,
+    MQIIH,
+    MQRFH,
+    MQRFH2,
+    MQRMH,
+    MQSAPH,
+    MQTM,
+    MQWIH,
+    MQXQH,
+    MQEPH
 }

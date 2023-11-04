@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
 
 @test:Config {
@@ -214,5 +215,61 @@ function putToTopicAfterQMDisconnectTest() returns error? {
     } else {
         test:assertFail("Expected an error");
     }
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqTopic"]
+}
+function publishSubscribeWithHeadersTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->put({
+        payload: "Hello World".toBytes(),
+        headers: [
+            {
+                flags: 12,
+                fieldValues: table [
+                    {
+                        folder: "mcd",
+                        'field: "Msd",
+                        value: "TestMcdValue"
+                    },
+                    {
+                        folder: "jms",
+                        'field: "Dlv",
+                        value: 134
+                    }
+                ]
+            }
+        ]
+    });
+    Message? message = check subscriber->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+        Header[]? headers = message.headers;
+        if headers is () {
+            return;
+        }
+        test:assertEquals(headers[0].flags, 12);
+        MQRFH2Field[] fieldArray = headers[0].fieldValues.toArray();
+        test:assertTrue(headers[0].fieldValues.hasKey(["mcd", "Msd"]));
+        test:assertTrue(headers[0].fieldValues.hasKey(["jms", "Dlv"]));
+        test:assertEquals(fieldArray[0], {
+            folder: "mcd",
+            'field: "Msd",
+            value: "TestMcdValue"
+        });
+        test:assertEquals(fieldArray[1], {
+            folder: "jms",
+            'field: "Dlv",
+            value: 134
+        });
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check subscriber->close();
+    check publisher->close();
     check queueManager.disconnect();
 }
