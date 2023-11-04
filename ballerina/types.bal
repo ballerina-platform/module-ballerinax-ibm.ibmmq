@@ -75,8 +75,8 @@ public type Message record {|
     map<Property> properties?;
     Header[] headers?;
     string format?;
-    string messageId?;
-    string correlationId?;
+    byte[] messageId?;
+    byte[] correlationId?;
     int expiry?;
     int priority?;
     int persistence?;

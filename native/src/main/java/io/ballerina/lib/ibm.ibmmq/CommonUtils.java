@@ -42,9 +42,16 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -139,8 +146,8 @@ public class CommonUtils {
             bMessage.put(MESSAGE_HEADERS, getBHeaders(runtime, mqMessage));
             bMessage.put(MESSAGE_PROPERTY, getBProperties(mqMessage));
             bMessage.put(FORMAT_FIELD, StringUtils.fromString(mqMessage.format));
-            bMessage.put(MESSAGE_ID_FIELD, StringUtils.fromString(new String(mqMessage.messageId)));
-            bMessage.put(CORRELATION_ID_FIELD, StringUtils.fromString(new String(mqMessage.correlationId)));
+            bMessage.put(MESSAGE_ID_FIELD, ValueCreator.createArrayValue(mqMessage.messageId));
+            bMessage.put(CORRELATION_ID_FIELD, ValueCreator.createArrayValue(mqMessage.correlationId));
             bMessage.put(EXPIRY_FIELD, mqMessage.expiry);
             bMessage.put(PRIORITY_FIELD, mqMessage.priority);
             bMessage.put(PERSISTENCE_FIELD, mqMessage.persistence);
@@ -148,7 +155,8 @@ public class CommonUtils {
             bMessage.put(PUT_APPLICATION_TYPE_FIELD, mqMessage.putApplicationType);
             bMessage.put(REPLY_TO_QUEUE_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueName));
             bMessage.put(REPLY_TO_QM_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueManagerName));
-            byte[] payload = mqMessage.readStringOfByteLength(mqMessage.getDataLength()).getBytes();
+            byte[] payload = mqMessage.readStringOfByteLength(mqMessage.getDataLength())
+                    .getBytes(StandardCharsets.UTF_8);
             bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
             return bMessage;
         } catch (MQException | IOException e) {
@@ -242,10 +250,10 @@ public class CommonUtils {
             mqMessage.format = bMessage.getStringValue(FORMAT_FIELD).getValue();
         }
         if (bMessage.containsKey(MESSAGE_ID_FIELD)) {
-            mqMessage.messageId = bMessage.getStringValue(MESSAGE_ID_FIELD).getValue().getBytes();
+            mqMessage.messageId = bMessage.getArrayValue(MESSAGE_ID_FIELD).getBytes();
         }
         if (bMessage.containsKey(CORRELATION_ID_FIELD)) {
-            mqMessage.correlationId = bMessage.getStringValue(CORRELATION_ID_FIELD).getValue().getBytes();
+            mqMessage.correlationId = bMessage.getArrayValue(CORRELATION_ID_FIELD).getBytes();
         }
         if (bMessage.containsKey(EXPIRY_FIELD)) {
             mqMessage.expiry = bMessage.getIntValue(EXPIRY_FIELD).intValue();
@@ -373,6 +381,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQDLH: {
                 MQDLH dlh = new MQDLH();
                 try {
@@ -384,6 +393,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQRFH: {
                 MQRFH mqrfh = new MQRFH();
                 try {
@@ -393,6 +403,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQCIH: {
                 MQCIH mqcih = new MQCIH();
                 try {
@@ -402,6 +413,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQIIH: {
                 MQIIH mqiih = new MQIIH();
                 try {
@@ -411,6 +423,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQTM: {
                 MQTM mqtm = new MQTM();
                 try {
@@ -420,6 +433,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQRMH: {
                 MQRMH mqrmh = new MQRMH();
                 try {
@@ -429,6 +443,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQSAPH: {
                 MQSAPH mqsaph = new MQSAPH();
                 try {
@@ -438,6 +453,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQWIH: {
                 MQWIH mqwih = new MQWIH();
                 try {
@@ -447,6 +463,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQXQH: {
                 MQXQH mqxqh = new MQXQH();
                 try {
@@ -456,6 +473,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQDH: {
                 MQDH mqdh = new MQDH();
                 try {
@@ -465,6 +483,7 @@ public class CommonUtils {
                     msg.seek(dataOffset);
                 }
             }
+            /*-fallthrough*/
             case MQEPH: {
                 MQEPH mqeph = new MQEPH();
                 try {
@@ -482,7 +501,8 @@ public class CommonUtils {
     private static BMap<BString, Object> getBHeaderFromMQRFH2(Runtime runtime, MQRFH2 mqrfh2) throws IOException {
         BMap<BString, Object> header = ValueCreator.createRecordValue(getModule(), MQRFH2_RECORD_NAME);
         header.put(FLAGS_FIELD, mqrfh2.getFlags());
-        BArray folderStringArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
+        BArray folderStringArray = ValueCreator.createArrayValue(TypeCreator
+                .createArrayType(PredefinedTypes.TYPE_STRING));
         String[] folderStrings = mqrfh2.getFolderStrings();
         for (String folderString : folderStrings) {
             folderStringArray.append(StringUtils.fromString(folderString));
