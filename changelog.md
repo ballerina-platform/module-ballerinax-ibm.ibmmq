@@ -6,4 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- [Added support `MQRFH2` headers in `ibmmq:Message`](https://github.com/ballerina-platform/ballerina-standard-library/issues/5730)
+
+## [0.1.0] - 2023-10-31
+
+### Added
 - [Introduce ballerina `ibm.ibmmq` package](https://github.com/ballerina-platform/ballerina-standard-library/issues/5084)
