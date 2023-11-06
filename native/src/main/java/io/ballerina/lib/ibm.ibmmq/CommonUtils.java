@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -67,28 +68,40 @@ public class CommonUtils {
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
 
     public static MQMessage getMqMessageFromBMessage(BMap<BString, Object> bMessage) {
-        byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
         MQMessage mqMessage = new MQMessage();
+        BMap<BString, Object> properties = (BMap<BString, Object>) bMessage.getMapValue(MESSAGE_PROPERTIES);
+        if (Objects.nonNull(properties)) {
+            populateMQProperties(properties, mqMessage);
+        }
+        byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
+        assignOptionalFieldsToMqMessage(bMessage, mqMessage);
         try {
             mqMessage.write(payload);
         } catch (IOException e) {
             throw createError(IBMMQ_ERROR,
                     String.format("Error occurred while populating payload: %s", e.getMessage()), e);
         }
-        BMap<BString, Object> properties = (BMap<BString, Object>) bMessage.getMapValue(MESSAGE_PROPERTIES);
-        if (Objects.nonNull(properties)) {
-            populateMQProperties(properties, mqMessage);
-        }
         return mqMessage;
     }
 
-    public static BMap<BString, Object> getBMessageFromMQMessage(MQMessage mqMessage) {
+    public static BMap<BString, Object> getBMessageFromMQMessage(Runtime runtime, MQMessage mqMessage) {
         BMap<BString, Object> bMessage = ValueCreator.createRecordValue(getModule(), BMESSAGE_NAME);
         try {
-            byte[] payload = new byte[mqMessage.getDataLength()];
-            mqMessage.readFully(payload);
-            bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
+            bMessage.put(MESSAGE_HEADERS, getBHeaders(runtime, mqMessage));
             bMessage.put(MESSAGE_PROPERTY, getBProperties(mqMessage));
+            bMessage.put(FORMAT_FIELD, StringUtils.fromString(mqMessage.format));
+            bMessage.put(MESSAGE_ID_FIELD, ValueCreator.createArrayValue(mqMessage.messageId));
+            bMessage.put(CORRELATION_ID_FIELD, ValueCreator.createArrayValue(mqMessage.correlationId));
+            bMessage.put(EXPIRY_FIELD, mqMessage.expiry);
+            bMessage.put(PRIORITY_FIELD, mqMessage.priority);
+            bMessage.put(PERSISTENCE_FIELD, mqMessage.persistence);
+            bMessage.put(MESSAGE_TYPE_FIELD, mqMessage.messageType);
+            bMessage.put(PUT_APPLICATION_TYPE_FIELD, mqMessage.putApplicationType);
+            bMessage.put(REPLY_TO_QUEUE_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueName));
+            bMessage.put(REPLY_TO_QM_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueManagerName));
+            byte[] payload = mqMessage.readStringOfByteLength(mqMessage.getDataLength())
+                    .getBytes(StandardCharsets.UTF_8);
+            bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
             return bMessage;
         } catch (MQException | IOException e) {
             throw createError(IBMMQ_ERROR,
@@ -151,6 +164,39 @@ public class CommonUtils {
             mqMessage.setDoubleProperty(key.getValue(), propertyDescriptor, doubleValue);
         } else if (value instanceof BString stringValue) {
             mqMessage.setStringProperty(key.getValue(), propertyDescriptor, stringValue.getValue());
+        }
+    }
+
+    private static void assignOptionalFieldsToMqMessage(BMap<BString, Object> bMessage, MQMessage mqMessage) {
+        if (bMessage.containsKey(FORMAT_FIELD)) {
+            mqMessage.format = bMessage.getStringValue(FORMAT_FIELD).getValue();
+        }
+        if (bMessage.containsKey(MESSAGE_ID_FIELD)) {
+            mqMessage.messageId = bMessage.getArrayValue(MESSAGE_ID_FIELD).getBytes();
+        }
+        if (bMessage.containsKey(CORRELATION_ID_FIELD)) {
+            mqMessage.correlationId = bMessage.getArrayValue(CORRELATION_ID_FIELD).getBytes();
+        }
+        if (bMessage.containsKey(EXPIRY_FIELD)) {
+            mqMessage.expiry = bMessage.getIntValue(EXPIRY_FIELD).intValue();
+        }
+        if (bMessage.containsKey(PRIORITY_FIELD)) {
+            mqMessage.priority = bMessage.getIntValue(PRIORITY_FIELD).intValue();
+        }
+        if (bMessage.containsKey(PERSISTENCE_FIELD)) {
+            mqMessage.persistence = bMessage.getIntValue(PERSISTENCE_FIELD).intValue();
+        }
+        if (bMessage.containsKey(MESSAGE_TYPE_FIELD)) {
+            mqMessage.messageType = bMessage.getIntValue(MESSAGE_TYPE_FIELD).intValue();
+        }
+        if (bMessage.containsKey(PUT_APPLICATION_TYPE_FIELD)) {
+            mqMessage.putApplicationType = bMessage.getIntValue(PUT_APPLICATION_TYPE_FIELD).intValue();
+        }
+        if (bMessage.containsKey(REPLY_TO_QUEUE_NAME_FIELD)) {
+            mqMessage.replyToQueueName = bMessage.getStringValue(REPLY_TO_QUEUE_NAME_FIELD).getValue();
+        }
+        if (bMessage.containsKey(REPLY_TO_QM_NAME_FIELD)) {
+            mqMessage.replyToQueueManagerName = bMessage.getStringValue(REPLY_TO_QM_NAME_FIELD).getValue();
         }
     }
 
