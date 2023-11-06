@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Options which can be provided when opening an IBM MQ topic.
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
@@ -25,6 +27,7 @@ public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 # + channel - IBM MQ channel  
 # + userID - IBM MQ userId  
 # + password - IBM MQ user password
+# + secureSocket - Configurations related to SSL/TLS encryption
 public type QueueManagerConfiguration record {|
     string name;
     string host;
@@ -32,7 +35,47 @@ public type QueueManagerConfiguration record {|
     string channel;
     string userID?;
     string password?;
+    SecureSocket secureSocket?;
 |};
+
+# Configurations for secure communication with the IBM MQ server.
+#
+# + cert - Configurations associated with crypto:TrustStore or single certificate file that the client trusts
+# + key - Configurations associated with crypto:KeyStore or combination of certificate and private key of the client
+# + protocol - SSL/TLS protocol related options
+# + ciphers - List of ciphers to be used. By default, all the available cipher suites are supported
+# + provider - Name of the security provider used for SSL connections. The default value is the default security provider
+# of the JVM
+public type SecureSocket record {|
+    crypto:TrustStore|string cert;
+    record {|
+        crypto:KeyStore keyStore;
+        string keyPassword?;
+    |}|CertKey key?;
+    record {|
+        Protocol name;
+        string[] versions?;
+    |} protocol?;
+    string[] ciphers?;
+    string provider?;
+|};
+
+# Represents a combination of certificate, private key, and private key password if encrypted.
+#
+# + certFile - A file containing the certificate
+# + keyFile - A file containing the private key in PKCS8 format
+# + keyPassword - Password of the private key if it is encrypted
+public type CertKey record {|
+    string certFile;
+    string keyFile;
+    string keyPassword?;
+|};
+
+# Represents protocol options.
+public enum Protocol {
+    SSL,
+    TLS
+}
 
 # IBM MQ get message options.
 #
