@@ -98,16 +98,6 @@ public class CommonUtils {
     private static final BString FOLDER_FIELD = StringUtils.fromString("folder");
     private static final BString FIELD_FIELD = StringUtils.fromString("field");
     private static final BString VALUE_FIELD = StringUtils.fromString("value");
-    private static final BString FORMAT_FIELD = StringUtils.fromString("format");
-    private static final BString MESSAGE_ID_FIELD = StringUtils.fromString("messageId");
-    private static final BString CORRELATION_ID_FIELD = StringUtils.fromString("correlationId");
-    private static final BString EXPIRY_FIELD = StringUtils.fromString("expiry");
-    private static final BString PRIORITY_FIELD = StringUtils.fromString("priority");
-    private static final BString PERSISTENCE_FIELD = StringUtils.fromString("persistence");
-    private static final BString MESSAGE_TYPE_FIELD = StringUtils.fromString("messageType");
-    private static final BString PUT_APPLICATION_TYPE_FIELD = StringUtils.fromString("putApplicationType");
-    private static final BString REPLY_TO_QUEUE_NAME_FIELD = StringUtils.fromString("replyToQueueName");
-    private static final BString REPLY_TO_QM_NAME_FIELD = StringUtils.fromString("replyToQueueManagerName");
     private static final String MQRFH2_RECORD_NAME = "MQRFH2";
     private static final String NATIVE_UTILS_OBJECT_NAME = "NativeUtils";
     private static final String ADD_FIELDS_TO_TABLE_FUNCTION_NAME = "addMQRFH2FieldsToTable";
