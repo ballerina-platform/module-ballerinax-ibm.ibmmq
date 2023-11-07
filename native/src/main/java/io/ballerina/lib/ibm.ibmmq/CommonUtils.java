@@ -27,12 +27,12 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Objects;
@@ -64,6 +64,16 @@ public class CommonUtils {
     private static final BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
     private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
     private static final BString OPTIONS = StringUtils.fromString("options");
+    private static final BString FORMAT_FIELD = StringUtils.fromString("format");
+    private static final BString MESSAGE_ID_FIELD = StringUtils.fromString("messageId");
+    private static final BString CORRELATION_ID_FIELD = StringUtils.fromString("correlationId");
+    private static final BString EXPIRY_FIELD = StringUtils.fromString("expiry");
+    private static final BString PRIORITY_FIELD = StringUtils.fromString("priority");
+    private static final BString PERSISTENCE_FIELD = StringUtils.fromString("persistence");
+    private static final BString MESSAGE_TYPE_FIELD = StringUtils.fromString("messageType");
+    private static final BString PUT_APPLICATION_TYPE_FIELD = StringUtils.fromString("putApplicationType");
+    private static final BString REPLY_TO_QUEUE_NAME_FIELD = StringUtils.fromString("replyToQueueName");
+    private static final BString REPLY_TO_QM_NAME_FIELD = StringUtils.fromString("replyToQueueManagerName");
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
 
@@ -84,21 +94,20 @@ public class CommonUtils {
         return mqMessage;
     }
 
-    public static BMap<BString, Object> getBMessageFromMQMessage(Runtime runtime, MQMessage mqMessage) {
+    public static BMap<BString, Object> getBMessageFromMQMessage(MQMessage mqMessage) {
         BMap<BString, Object> bMessage = ValueCreator.createRecordValue(getModule(), BMESSAGE_NAME);
         try {
-            bMessage.put(MESSAGE_HEADERS, getBHeaders(runtime, mqMessage));
             bMessage.put(MESSAGE_PROPERTY, getBProperties(mqMessage));
             bMessage.put(FORMAT_FIELD, StringUtils.fromString(mqMessage.format));
             bMessage.put(MESSAGE_ID_FIELD, ValueCreator.createArrayValue(mqMessage.messageId));
-            bMessage.put(CORRELATION_ID_FIELD, ValueCreator.createArrayValue(mqMessage.correlationId));
+            bMessage.put(CORRELATION_ID_FIELD, ValueCreator.createArrayValue((mqMessage.correlationId)));
             bMessage.put(EXPIRY_FIELD, mqMessage.expiry);
             bMessage.put(PRIORITY_FIELD, mqMessage.priority);
             bMessage.put(PERSISTENCE_FIELD, mqMessage.persistence);
             bMessage.put(MESSAGE_TYPE_FIELD, mqMessage.messageType);
             bMessage.put(PUT_APPLICATION_TYPE_FIELD, mqMessage.putApplicationType);
-            bMessage.put(REPLY_TO_QUEUE_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueName));
-            bMessage.put(REPLY_TO_QM_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueManagerName));
+            bMessage.put(REPLY_TO_QUEUE_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueName.strip()));
+            bMessage.put(REPLY_TO_QM_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueManagerName.strip()));
             byte[] payload = mqMessage.readStringOfByteLength(mqMessage.getDataLength())
                     .getBytes(StandardCharsets.UTF_8);
             bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
@@ -172,10 +181,10 @@ public class CommonUtils {
             mqMessage.format = bMessage.getStringValue(FORMAT_FIELD).getValue();
         }
         if (bMessage.containsKey(MESSAGE_ID_FIELD)) {
-            mqMessage.messageId = bMessage.getArrayValue(MESSAGE_ID_FIELD).getBytes();
+            mqMessage.messageId = bMessage.getArrayValue(MESSAGE_ID_FIELD).getByteArray();
         }
         if (bMessage.containsKey(CORRELATION_ID_FIELD)) {
-            mqMessage.correlationId = bMessage.getArrayValue(CORRELATION_ID_FIELD).getBytes();
+            mqMessage.correlationId = bMessage.getArrayValue(CORRELATION_ID_FIELD).getByteArray();
         }
         if (bMessage.containsKey(EXPIRY_FIELD)) {
             mqMessage.expiry = bMessage.getIntValue(EXPIRY_FIELD).intValue();

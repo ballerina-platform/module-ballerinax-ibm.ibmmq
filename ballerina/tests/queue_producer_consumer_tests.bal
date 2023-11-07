@@ -13,7 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/test;
+import ballerina/time;
 
 @test:Config {
     groups: ["ibmmqQueue"]
@@ -134,5 +136,45 @@ function consumeFromAnInvalidQueueNameTest() returns error? {
     } else {
         test:assertFail("Expected an error");
     }
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue"]
+}
+function produceAndConsumerMessageWithAdditionalPropertiesTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
+    Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
+    time:Utc timeNow = time:utcNow();
+    check producer->put({
+        payload: "Hello World".toBytes(),
+        correlationId: "1234".toBytes(),
+        expiry: timeNow[0],
+        format: "mqformat",
+        messageId: "test-id".toBytes(),
+        messageType: 2,
+        persistence: 0,
+        priority: 4,
+        putApplicationType: 28,
+        replyToQueueManagerName: "QM1",
+        replyToQueueName: "DEV.QUEUE.1"
+    });
+    Message? message = check consumer->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+        test:assertEquals(message.expiry, timeNow[0]);
+        test:assertEquals(message.format, "mqformat");
+        test:assertEquals(message.messageType, 2);
+        test:assertEquals(message.persistence, 0);
+        test:assertEquals(message.priority, 4);
+        test:assertEquals(message.putApplicationType, 28);
+        test:assertEquals(message.replyToQueueManagerName, "QM1");
+        test:assertEquals(message.replyToQueueName, "DEV.QUEUE.1");
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check producer->close();
+    check consumer->close();
     check queueManager.disconnect();
 }
