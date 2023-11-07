@@ -55,6 +55,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -98,7 +99,9 @@ public class CommonUtils {
     private static final BString FOLDER_FIELD = StringUtils.fromString("folder");
     private static final BString FIELD_FIELD = StringUtils.fromString("field");
     private static final BString VALUE_FIELD = StringUtils.fromString("value");
+    private static final BString NAME_VALUE_PAIRS_FIELD = StringUtils.fromString("nameValuePairs");
     private static final String MQRFH2_RECORD_NAME = "MQRFH2";
+    private static final String MQRFH_RECORD_NAME = "MQRFH";
     private static final String NATIVE_UTILS_OBJECT_NAME = "NativeUtils";
     private static final String ADD_FIELDS_TO_TABLE_FUNCTION_NAME = "addMQRFH2FieldsToTable";
 
@@ -112,12 +115,7 @@ public class CommonUtils {
         }
         BArray headers = bMessage.getArrayValue(MESSAGE_HEADERS);
         if (Objects.nonNull(headers)) {
-            try {
-                populateMQHeaders(headers, mqMessage);
-            } catch (IOException e) {
-                throw createError(IBMMQ_ERROR,
-                        String.format("Error occurred while writing headers: %s", e.getMessage()), e);
-            }
+            populateMQHeaders(headers, mqMessage);
         }
         byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
         try {
@@ -224,11 +222,17 @@ public class CommonUtils {
         return propertyDescriptor;
     }
 
-    private static void populateMQHeaders(BArray bHeaders, MQMessage mqMessage) throws IOException {
+    private static void populateMQHeaders(BArray bHeaders, MQMessage mqMessage) {
         MQHeaderList headerList = new MQHeaderList();
         for (int i = 0; i < bHeaders.size(); i++) {
             BMap<BString, Object> bHeader = (BMap) bHeaders.get(i);
-            headerList.add(createMQRFH2HeaderFromBHeader(bHeader));
+            HeaderType headerType = HeaderType.valueOf(bHeader.getType().getName());
+            switch (headerType) {
+                case MQRFH2 -> headerList.add(createMQRFH2HeaderFromBHeader(bHeader));
+                case MQRFH -> headerList.add(createMQRFHHeaderFromBHeader(bHeader));
+                default -> throw createError(IBMMQ_ERROR,
+                        String.format("Error occurred while populating headers: Unsupported header type"), null);
+            }
         }
         try {
             headerList.write(mqMessage);
@@ -238,11 +242,31 @@ public class CommonUtils {
         }
     }
 
-    private static MQRFH2 createMQRFH2HeaderFromBHeader(BMap<BString, Object> bHeader) throws IOException {
+    private static MQRFH createMQRFHHeaderFromBHeader(BMap<BString, Object> bHeader) {
+        MQRFH header = new MQRFH();
+        header.setFlags(bHeader.getIntValue(FLAGS_FIELD).intValue());
+        BMap<BString, Object> nameValuePairsMap = (BMap<BString, Object>) bHeader.getMapValue(NAME_VALUE_PAIRS_FIELD);
+        for (BString key : nameValuePairsMap.getKeys()) {
+            try {
+                header.addNameValuePair(key.getValue(), nameValuePairsMap.getStringValue(key).getValue());
+            } catch (IOException e) {
+                throw createError(IBMMQ_ERROR, String
+                        .format("Error occurred while adding key pair values to MQRFH header: %s", e.getMessage()), e);
+            }
+        }
+        return header;
+    }
+
+    private static MQRFH2 createMQRFH2HeaderFromBHeader(BMap<BString, Object> bHeader) {
         MQRFH2 header = new MQRFH2();
         header.setFlags(bHeader.getIntValue(FLAGS_FIELD).intValue());
         BArray folderStringsArray = bHeader.getArrayValue(FOLDER_STRINGS_FIELD);
-        header.setFolderStrings(folderStringsArray.getStringArray());
+        try {
+            header.setFolderStrings(folderStringsArray.getStringArray());
+        } catch (IOException e) {
+            throw createError(IBMMQ_ERROR, String
+                    .format("Error occurred while setting folder string to MQRFH2 header: %s", e.getMessage()), e);
+        }
         header.setNameValueCCSID(bHeader.getIntValue(NAME_VALUE_CCSID_FIELD).intValue());
         header.setNameValueData(bHeader.getArrayValue(NAME_VALUE_DATA_FIELD).getBytes());
         BTable fieldTable = (BTable) bHeader.get(FIELD_VALUES_FIELD);
@@ -253,29 +277,34 @@ public class CommonUtils {
         return header;
     }
 
-    private static void setFieldValueToMQRFH2Header(BIterator fieldTableIterator, MQRFH2 header) throws IOException {
+    private static void setFieldValueToMQRFH2Header(BIterator fieldTableIterator, MQRFH2 header) {
         BMap<BString, Object> bField = (BMap<BString, Object>) ((BArray) fieldTableIterator.next()).get(1);
         String folder = bField.getStringValue(FOLDER_FIELD).getValue();
         String field = bField.getStringValue(FIELD_FIELD).getValue();
         Object value = bField.get(VALUE_FIELD);
-        if (value instanceof Long longValue) {
-            header.setLongFieldValue(folder, field, longValue.intValue());
-        } else if (value instanceof Integer intValue) {
-            header.setIntFieldValue(folder, field, intValue);
-        } else if (value instanceof Boolean booleanValue) {
-            header.setFieldValue(folder, field, booleanValue);
-        } else if (value instanceof Byte byteValue) {
-            header.setByteFieldValue(folder, field, byteValue);
-        } else if (value instanceof byte[] bytesValue) {
-            header.setFieldValue(folder, field, bytesValue);
-        } else if (value instanceof Float floatValue) {
-            header.setFloatFieldValue(folder, field, floatValue);
-        } else if (value instanceof Double doubleValue) {
-            header.setFloatFieldValue(folder, field, doubleValue.floatValue());
-        } else if (value instanceof BString stringValue) {
-            header.setFieldValue(folder, field, stringValue.getValue());
-        } else {
-            header.setFieldValue(folder, field, value);
+        try {
+            if (value instanceof Long longValue) {
+                header.setLongFieldValue(folder, field, longValue.intValue());
+            } else if (value instanceof Integer intValue) {
+                header.setIntFieldValue(folder, field, intValue);
+            } else if (value instanceof Boolean booleanValue) {
+                header.setFieldValue(folder, field, booleanValue);
+            } else if (value instanceof Byte byteValue) {
+                header.setByteFieldValue(folder, field, byteValue);
+            } else if (value instanceof byte[] bytesValue) {
+                header.setFieldValue(folder, field, bytesValue);
+            } else if (value instanceof Float floatValue) {
+                header.setFloatFieldValue(folder, field, floatValue);
+            } else if (value instanceof Double doubleValue) {
+                header.setFloatFieldValue(folder, field, doubleValue.floatValue());
+            } else if (value instanceof BString stringValue) {
+                header.setFieldValue(folder, field, stringValue.getValue());
+            } else {
+                header.setFieldValue(folder, field, value);
+            }
+        } catch (IOException e) {
+            throw createError(IBMMQ_ERROR, String
+                    .format("Error occurred while setting field values to MQRFH2 header: %s", e.getMessage()), e);
         }
     }
 
@@ -348,6 +377,7 @@ public class CommonUtils {
                 MQRFH mqrfh = new MQRFH();
                 try {
                     mqrfh.read(msg);
+                    headers.add(getBHeaderFromMQRFH(mqrfh));
                     break;
                 } catch (MQDataException e) {
                     msg.seek(dataOffset);
@@ -466,6 +496,30 @@ public class CommonUtils {
         BTable fieldValuesTable = getBHeaderFieldValuesFromMQMessage(runtime, mqrfh2);
         header.put(FIELD_VALUES_FIELD, fieldValuesTable);
         return header;
+    }
+
+    private static BMap<BString, Object> getBHeaderFromMQRFH(MQRFH mqrfh) {
+        BMap<BString, Object> header = ValueCreator.createRecordValue(getModule(), MQRFH_RECORD_NAME);
+        header.put(FLAGS_FIELD, mqrfh.getFlags());
+        header.put(STRUC_ID_FIELD, StringUtils.fromString(mqrfh.getStrucId()));
+        header.put(STRUC_LENGTH_FIELD, mqrfh.getStrucLength());
+        header.put(VERSION_FIELD, mqrfh.getVersion());
+        header.put(NAME_VALUE_PAIRS_FIELD, getBNameValuePairsFromMQRFH(mqrfh));
+        return header;
+    }
+
+    private static BMap<BString, Object> getBNameValuePairsFromMQRFH(MQRFH mqrfh) {
+        BMap<BString, Object> nameValuePairs = ValueCreator.createMapValue();
+        try {
+            for (MQRFH.NameValuePair nameValuePair : (List<MQRFH.NameValuePair>) mqrfh.getNameValuePairs()) {
+                nameValuePairs.put(StringUtils.fromString(nameValuePair.getName()),
+                        StringUtils.fromString(nameValuePair.getValue()));
+            }
+        } catch (IOException e) {
+            throw createError(IBMMQ_ERROR, String
+                    .format("Error occurred while adding name value pairs to MQRFH header: %s", e.getMessage()), e);
+        }
+        return nameValuePairs;
     }
 
     private static BTable getBHeaderFieldValuesFromMQMessage(Runtime runtime, MQRFH2 mqrfh2) throws IOException {

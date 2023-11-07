@@ -18,7 +18,7 @@
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
 # Header types that are provided in the IBM MQ message.
-public type Header MQRFH2;
+public type Header MQRFH2|MQRFH;
 
 # IBM MQ queue manager configurations.
 #
@@ -69,21 +69,18 @@ public type Message record {|
 
 # Header record representing the MQRFH2 structure.
 #
-# + flags - Flag of the header
 # + folderStrings - Contents of the variable part of the structure
 # + nameValueCCSID - Coded character set for the NameValue data
 # + nameValueData - NameValueData variable-length field
-# + strucId - Structure identifier
 # + strucLength - Length of the structure
 # + version - Structure version number
 # + fieldValues - Table containing all occurrences of field values matching 
 #                 the specified field name in the folder
 public type MQRFH2 record {|
-    int flags = 0;
+    *MQRHeader;
     string[] folderStrings = [];
     int nameValueCCSID = 1208;
     byte[] nameValueData = [];
-    string strucId = "RFH ";
     int strucLength = 36;
     int version = 2;
     table<MQRFH2Field> key(folder, 'field) fieldValues = table [];
@@ -98,4 +95,29 @@ public type MQRFH2Field record {|
     readonly string folder;
     readonly string 'field;
     boolean|byte|byte[]|float|int|string value;
+|};
+
+# Header record representing the MQRFH structure.
+#
+# + strucLength - Length of the structure
+# + version - Structure version number
+# + nameValuePairs - Related name-value pairs
+public type MQRFH record {|
+    *MQRHeader;
+    int strucLength = 32;
+    int version = 1;
+    map<string> nameValuePairs = {};
+|};
+
+# Record defining the common fields in headers.
+#
+# + flags - Flag of the header 
+# + strucId - Structure identifier
+# + strucLength - Length of the structure
+# + version - Structure version number
+public type MQRHeader record {|
+    int flags = 0;
+    string strucId = "RFH ";
+    int strucLength;
+    int version;
 |};
