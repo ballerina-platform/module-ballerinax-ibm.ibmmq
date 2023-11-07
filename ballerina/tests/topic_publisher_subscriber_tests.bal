@@ -270,7 +270,7 @@ function publishSubscribeWithHeadersTest() returns error? {
         }
 
         test:assertEquals(headers[1].flags, 13);
-        header = headers[0];
+        header = headers[1];
         if header is MQRFH2 {
             table<MQRFH2Field> key(folder, 'field) fieldTable = header.fieldValues;
             test:assertEquals(fieldTable.get(["mqps", "Sud"]), {folder: "mqps", 'field: "Sud", value: "TestUserData"});
@@ -279,7 +279,7 @@ function publishSubscribeWithHeadersTest() returns error? {
         }
 
         test:assertEquals(headers[2].flags, 14);
-        header = headers[0];
+        header = headers[2];
         if header is MQRFH2 {
             table<MQRFH2Field> key(folder, 'field) fieldTable = header.fieldValues;
             test:assertEquals(fieldTable.get(["mcd", "Msd"]), {folder: "mcd", 'field: "Msd", value: "TestMcdValue23"});
