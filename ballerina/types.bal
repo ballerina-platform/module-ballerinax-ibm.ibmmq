@@ -81,7 +81,7 @@ public type Message record {|
 public type MQRFH2 record {|
     int flags = 0;
     string[] folderStrings = [];
-    int nameValueCCSID = 0;
+    int nameValueCCSID = 1208;
     byte[] nameValueData = [];
     string strucId = "RFH ";
     int strucLength = 36;
@@ -97,5 +97,5 @@ public type MQRFH2 record {|
 public type MQRFH2Field record {|
     readonly string folder;
     readonly string 'field;
-    int|float|byte|byte[]|string value;
+    boolean|byte|byte[]|float|int|string value;
 |};

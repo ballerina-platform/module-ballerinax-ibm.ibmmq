@@ -231,16 +231,25 @@ function publishSubscribeWithHeadersTest() returns error? {
             {
                 flags: 12,
                 fieldValues: table [
-                    {
-                        folder: "mcd",
-                        'field: "Msd",
-                        value: "TestMcdValue"
-                    },
-                    {
-                        folder: "jms",
-                        'field: "Dlv",
-                        value: 134
-                    }
+                    {folder: "mcd", 'field: "Msd", value: "TestMcdValue"},
+                    {folder: "jms", 'field: "Dlv", value: 134},
+                    {folder: "mqps", 'field: "Ret",value: true}
+                ]
+            },
+            {
+                flags: 13,
+                fieldValues: table [
+                    {folder: "mqps", 'field: "Sud", value: "TestUserData"},
+                    {folder: "mqpse", 'field: "Sid", value: "PubData"},
+                    {folder: "mqps", 'field: "Ret",value: true}
+                ]
+            },
+            {
+                flags: 14,
+                fieldValues: table [
+                    {folder: "mcd", 'field: "Msd", value: "TestMcdValue23"},
+                    {folder: "jms", 'field: "Dlv", value: 1341},
+                    {folder: "mqps", 'field: "Ret",value: false}
                 ]
             }
         ]
@@ -253,19 +262,20 @@ function publishSubscribeWithHeadersTest() returns error? {
             return;
         }
         test:assertEquals(headers[0].flags, 12);
-        MQRFH2Field[] fieldArray = headers[0].fieldValues.toArray();
-        test:assertTrue(headers[0].fieldValues.hasKey(["mcd", "Msd"]));
-        test:assertTrue(headers[0].fieldValues.hasKey(["jms", "Dlv"]));
-        test:assertEquals(fieldArray[0], {
-            folder: "mcd",
-            'field: "Msd",
-            value: "TestMcdValue"
-        });
-        test:assertEquals(fieldArray[1], {
-            folder: "jms",
-            'field: "Dlv",
-            value: 134
-        });
+        table<MQRFH2Field> key(folder, 'field) fieldTable = headers[0].fieldValues;
+        test:assertEquals(fieldTable.get(["mcd", "Msd"]), {folder: "mcd", 'field: "Msd", value: "TestMcdValue"});
+        test:assertEquals(fieldTable.get(["jms", "Dlv"]), {folder: "jms", 'field: "Dlv", value: 134});
+        test:assertEquals(fieldTable.get(["mqps", "Ret"]), {folder: "mqps", 'field: "Ret", value: "1"});
+        
+        fieldTable = headers[1].fieldValues;
+        test:assertEquals(fieldTable.get(["mqps", "Sud"]), {folder: "mqps", 'field: "Sud", value: "TestUserData"});
+        test:assertEquals(fieldTable.get(["mqpse", "Sid"]), {folder: "mqpse", 'field: "Sid", value: "PubData"});
+        test:assertEquals(fieldTable.get(["mqps", "Ret"]), {folder: "mqps", 'field: "Ret", value: "1"});
+
+        fieldTable = headers[2].fieldValues;
+        test:assertEquals(fieldTable.get(["mcd", "Msd"]), {folder: "mcd", 'field: "Msd", value: "TestMcdValue23"});
+        test:assertEquals(fieldTable.get(["jms", "Dlv"]), {folder: "jms", 'field: "Dlv", value: 1341});
+        test:assertEquals(fieldTable.get(["mqps", "Ret"]), {folder: "mqps", 'field: "Ret", value: "0"});
     } else {
         test:assertFail("Expected a value for message");
     }

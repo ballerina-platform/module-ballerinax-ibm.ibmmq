@@ -259,7 +259,9 @@ public class CommonUtils {
         String field = bField.getStringValue(FIELD_FIELD).getValue();
         Object value = bField.get(VALUE_FIELD);
         if (value instanceof Long longValue) {
-            header.setIntFieldValue(folder, field, longValue.intValue());
+            header.setLongFieldValue(folder, field, longValue.intValue());
+        } else if (value instanceof Integer intValue) {
+            header.setIntFieldValue(folder, field, intValue);
         } else if (value instanceof Boolean booleanValue) {
             header.setFieldValue(folder, field, booleanValue);
         } else if (value instanceof Byte byteValue) {
@@ -272,6 +274,8 @@ public class CommonUtils {
             header.setFloatFieldValue(folder, field, doubleValue.floatValue());
         } else if (value instanceof BString stringValue) {
             header.setFieldValue(folder, field, stringValue.getValue());
+        } else {
+            header.setFieldValue(folder, field, value);
         }
     }
 
