@@ -25,11 +25,24 @@ import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.crypto.nativeimpl.Decode;
 
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.Objects;
+import java.util.UUID;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.getOptionalStringProperty;
@@ -46,6 +59,21 @@ public class QueueManager {
     private static final BString CHANNEL = StringUtils.fromString("channel");
     private static final BString USER_ID = StringUtils.fromString("userID");
     private static final BString PASSWORD = StringUtils.fromString("password");
+    private static final BString SSL_CIPHER_SUITE = StringUtils.fromString("sslCipherSuite");
+    private static final BString SECURE_SOCKET = StringUtils.fromString("secureSocket");
+    public static final BString CERT = StringUtils.fromString("cert");
+    public static final BString KEY = StringUtils.fromString("key");
+    public static final BString CERT_FILE = StringUtils.fromString("certFile");
+    public static final BString KEY_FILE = StringUtils.fromString("keyFile");
+    public static final BString KEY_PASSWORD = StringUtils.fromString("keyPassword");
+    public static final BString KEY_STORE_PASSWORD = StringUtils.fromString("password");
+    public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
+    public static final String DEFAULT_TLS_PROTOCOL = "TLSv1.2";
+    public static final BString CRYPTO_TRUSTSTORE_PATH = StringUtils.fromString("path");
+    public static final BString CRYPTO_TRUSTSTORE_PASSWORD = StringUtils.fromString("password");
+    public static final String NATIVE_DATA_PRIVATE_KEY = "NATIVE_DATA_PRIVATE_KEY";
+    public static final String NATIVE_DATA_PUBLIC_KEY_CERTIFICATE = "NATIVE_DATA_PUBLIC_KEY_CERTIFICATE";
+
     private static final String BTOPIC = "Topic";
     private static final String BQUEUE = "Queue";
 
@@ -57,19 +85,23 @@ public class QueueManager {
      * @return A Ballerina `ibmmq:Error` if there are connection problems
      */
     public static Object init(BObject queueManager, BMap<BString, Object> configurations) {
-        Hashtable<String, Object> connectionProperties = getConnectionProperties(configurations);
         try {
+            Hashtable<String, Object> connectionProperties = getConnectionProperties(configurations);
             String queueManagerName = configurations.getStringValue(QUEUE_MANAGER_NAME).getValue();
             MQQueueManager mqQueueManager = new MQQueueManager(queueManagerName, connectionProperties);
             queueManager.addNativeData(NATIVE_QUEUE_MANAGER, mqQueueManager);
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
                     String.format("Error occurred while initializing the connection manager: %s", e.getMessage()), e);
+        } catch (Exception e) {
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while initializing the connection manager: %s", e.getMessage()), e);
         }
         return null;
     }
 
-    private static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations) {
+    private static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations)
+            throws Exception {
         Hashtable<String, Object> properties = new Hashtable<>();
         String host = configurations.getStringValue(HOST).getValue();
         properties.put(MQConstants.HOST_NAME_PROPERTY, host);
@@ -81,7 +113,121 @@ public class QueueManager {
                 .ifPresent(userId -> properties.put(MQConstants.USER_ID_PROPERTY, userId));
         getOptionalStringProperty(configurations, PASSWORD)
                 .ifPresent(password -> properties.put(MQConstants.PASSWORD_PROPERTY, password));
+        updateSSlConfig(properties, configurations);
         return properties;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void updateSSlConfig(Hashtable<String, Object> properties,
+                                        BMap<BString, Object> configurations) throws Exception {
+        getOptionalStringProperty(configurations, SSL_CIPHER_SUITE)
+                .ifPresent(sslCipherSuite -> properties.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, sslCipherSuite));
+        Object secureSocket = configurations.get(SECURE_SOCKET);
+        if (Objects.nonNull(secureSocket)) {
+            SSLSocketFactory sslSocketFactory = getSecureSocketFactory((BMap<BString, Object>) secureSocket);
+            properties.put(MQConstants.SSL_SOCKET_FACTORY_PROPERTY, sslSocketFactory);
+        }
+    }
+
+    private static SSLSocketFactory getSecureSocketFactory(BMap<BString, Object> secureSocket) throws Exception {
+        Object bCert = secureSocket.get(CERT);
+        BMap<BString, BString> keyRecord = (BMap<BString, BString>) secureSocket.getMapValue(KEY);
+        KeyManagerFactory kmf = null;
+        TrustManagerFactory tmf;
+        if (bCert instanceof BString) {
+            tmf = getTrustManagerFactory((BString) bCert);
+        } else {
+            BMap<BString, BString> trustStore = (BMap<BString, BString>) bCert;
+            tmf = getTrustManagerFactory(trustStore);
+        }
+        if (Objects.nonNull(keyRecord)) {
+            if (keyRecord.containsKey(CERT_FILE)) {
+                BString certFile = keyRecord.get(CERT_FILE);
+                BString keyFile = keyRecord.get(KEY_FILE);
+                BString keyPassword = keyRecord.getStringValue(KEY_PASSWORD);
+                kmf = getKeyManagerFactory(certFile, keyFile, keyPassword);
+            } else {
+                kmf = getKeyManagerFactory(keyRecord);
+            }
+        }
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        if (Objects.nonNull(kmf)) {
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+        } else {
+            sslContext.init(null, tmf.getTrustManagers(), null);
+        }
+        return sslContext.getSocketFactory();
+    }
+
+    private static TrustManagerFactory getTrustManagerFactory(BString cert) throws Exception {
+        Object publicKeyMap = Decode.decodeRsaPublicKeyFromCertFile(cert);
+        if (publicKeyMap instanceof BMap) {
+            X509Certificate x509Certificate = (X509Certificate) ((BMap<BString, Object>) publicKeyMap)
+                    .getNativeData(NATIVE_DATA_PUBLIC_KEY_CERTIFICATE);
+            KeyStore ts = KeyStore.getInstance(KeyStore.getDefaultType());
+            ts.load(null, "".toCharArray());
+            ts.setCertificateEntry(UUID.randomUUID().toString(), x509Certificate);
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(ts);
+            return tmf;
+        } else {
+            throw new Exception("Failed to get the public key from Crypto API. " +
+                    ((BError) publicKeyMap).getErrorMessage().getValue());
+        }
+    }
+
+    private static TrustManagerFactory getTrustManagerFactory(BMap<BString, BString> trustStore) throws Exception {
+        BString trustStorePath = trustStore.getStringValue(CRYPTO_TRUSTSTORE_PATH);
+        BString trustStorePassword = trustStore.getStringValue(CRYPTO_TRUSTSTORE_PASSWORD);
+        KeyStore ts = getKeyStore(trustStorePath, trustStorePassword);
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        tmf.init(ts);
+        return tmf;
+    }
+
+    private static KeyManagerFactory getKeyManagerFactory(BMap<BString, BString> keyStore) throws Exception {
+        BString keyStorePath = keyStore.getStringValue(KEY_STORE_PATH);
+        BString keyStorePassword = keyStore.getStringValue(KEY_STORE_PASSWORD);
+        KeyStore ks = getKeyStore(keyStorePath, keyStorePassword);
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(ks, keyStorePassword.getValue().toCharArray());
+        return kmf;
+    }
+
+    private static KeyManagerFactory getKeyManagerFactory(BString certFile, BString keyFile, BString keyPassword)
+            throws Exception {
+        Object publicKey = Decode.decodeRsaPublicKeyFromCertFile(certFile);
+        if (publicKey instanceof BMap) {
+            X509Certificate publicCert = (X509Certificate) ((BMap<BString, Object>) publicKey).getNativeData(
+                    NATIVE_DATA_PUBLIC_KEY_CERTIFICATE);
+            Object privateKeyMap = Decode.decodeRsaPrivateKeyFromKeyFile(keyFile, keyPassword);
+            if (privateKeyMap instanceof BMap) {
+                PrivateKey privateKey = (PrivateKey) ((BMap<BString, Object>) privateKeyMap).getNativeData(
+                        NATIVE_DATA_PRIVATE_KEY);
+                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+                ks.load(null, "".toCharArray());
+                ks.setKeyEntry(UUID.randomUUID().toString(), privateKey, "".toCharArray(),
+                        new X509Certificate[]{publicCert});
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                kmf.init(ks, "".toCharArray());
+                return kmf;
+            } else {
+                throw new Exception("Failed to get the private key from Crypto API. " +
+                        ((BError) privateKeyMap).getErrorMessage().getValue());
+            }
+        } else {
+            throw new Exception("Failed to get the public key from Crypto API. " +
+                    ((BError) publicKey).getErrorMessage().getValue());
+        }
+    }
+
+    private static KeyStore getKeyStore(BString path, BString password) throws Exception {
+        try (FileInputStream is = new FileInputStream(path.getValue())) {
+            char[] passphrase = password.getValue().toCharArray();
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(is, passphrase);
+            return ks;
+        }
     }
 
     public static Object accessQueue(BObject queueManagerObject, BString queueName, Long options) {
