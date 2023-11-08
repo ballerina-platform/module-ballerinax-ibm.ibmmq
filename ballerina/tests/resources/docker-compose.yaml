@@ -10,3 +10,7 @@ services:
     environment:
       - LICENSE=accept
       - MQ_QMGR_NAME=QM1
+    volumes:
+      - ./certsandkeys/broker.public.crt:/home/ballerina/resources/brokercerts/broker.public.crt
+      - ./certsandkeys/client.public.crt:/home/ballerina/resources/brokercerts/client.public.crt
+      - ./certsandkeys/client.private.key:/home/ballerina/resources/brokercerts/client.private.key
