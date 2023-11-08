@@ -100,8 +100,28 @@ public type Property record {|
 # Represents an IBM MQ message.
 #
 # + properties - Message properties
+# + format - Format associated with the header
+# + messageId - Message identifier
+# + correlationId - Correlation identifier
+# + expiry - Message lifetime
+# + priority - Message priority
+# + persistence - Message persistence
+# + messageType - Message type
+# + putApplicationType - Type of application that put the message
+# + replyToQueueName - Name of reply queue
+# + replyToQueueManagerName - Name of reply queue manager
 # + payload - Message payload
 public type Message record {|
     map<Property> properties?;
+    string format?;
+    byte[] messageId?;
+    byte[] correlationId?;
+    int expiry?;
+    int priority?;
+    int persistence?;
+    int messageType?;
+    int putApplicationType?;
+    string replyToQueueName?;
+    string replyToQueueManagerName?;
     byte[] payload;
 |};
