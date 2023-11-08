@@ -258,7 +258,7 @@ function publishSubscribeWithHeadersTest() returns error? {
         test:assertEquals(string:fromBytes(message.payload), "Hello World");
         Header[]? headers = message.headers;
         if headers is () {
-            return;
+            test:assertFail("Expected MQRFH2 headers");
         }
         test:assertEquals(headers[0].flags, 12);
         Header header = headers[0];
@@ -306,7 +306,7 @@ function publishSubscribeWithMQRFHHeadersTest() returns error? {
         headers: [
             {
                 flags: 12,
-                nameValuePairs: {"pair1": "pair1val", "pair2": "pair2val"}
+                nameValuePairs: {"pair1": "value1", "pair2": "value2"}
             }
         ]
     });
@@ -315,13 +315,106 @@ function publishSubscribeWithMQRFHHeadersTest() returns error? {
         test:assertEquals(string:fromBytes(message.payload), "Hello World");
         Header[]? headers = message.headers;
         if headers is () {
-            return;
+            test:assertFail("Expected MQRFH headers");
         }
         test:assertEquals(headers[0].flags, 12);
         Header header = headers[0];
         if header is MQRFH {
             map<string> nameValuePairs = header.nameValuePairs;
-            test:assertEquals(nameValuePairs, {"pair1": "pair1val", "pair2": "pair2val"});
+            test:assertEquals(nameValuePairs, {"pair1": "value1", "pair2": "value2"});
+        }
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check subscriber->close();
+    check publisher->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqTopic"]
+}
+function publishSubscribeWithMQCIHHeadersTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->put({
+        payload: "Hello World".toBytes(),
+        headers: [
+            {
+                flags: 12,
+                returnCode: 12,
+                compCode: 0,
+                reason: 5,
+                UOWControl: 2,
+                waitInterval: 12,
+                linkType: 1,
+                facilityKeepTime: 10,
+                ADSDescriptor: 20,
+                conversationalTask: 12,
+                taskEndStatus: 4,
+                facility: "facility".toBytes(),
+                'function: "test",
+                abendCode: "code",
+                authenticator: "authenti",
+                reserved1: "reserve1",
+                reserved2: "reserve2",
+                reserved3: "reserve3",
+                replyToFormat: "reformat",
+                remoteSysId: "rSId",
+                remoteTransId: "rTId",
+                transactionId: "trId",
+                facilityLike: "fcLk",
+                attentionId: "atId",
+                startCode: "stCd",
+                cancelCode: "ccCd",
+                nextTransactionId: "ntid",
+                inputItem: 23
+            }
+        ]
+    });
+    Message? message = check subscriber->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+        Header[]? headers = message.headers;
+        if headers is () {
+            test:assertFail("Expected MQCIH headers");
+        }
+        Header header = headers[0];
+        if header is MQCIH {
+            test:assertEquals(header, {
+                strucLength: 180,
+                version: 2,
+                strucId: "CIH ",
+                flags: 12,
+                returnCode: 12,
+                compCode: 0,
+                reason: 5,
+                UOWControl: 2,
+                waitInterval: 12,
+                linkType: 1,
+                facilityKeepTime: 10,
+                ADSDescriptor: 20,
+                conversationalTask: 12,
+                taskEndStatus: 4,
+                facility: "facility".toBytes(),
+                'function: "test",
+                abendCode: "code",
+                authenticator: "authenti",
+                reserved1: "reserve1",
+                reserved2: "reserve2",
+                reserved3: "reserve3",
+                replyToFormat: "reformat",
+                remoteSysId: "rSId",
+                remoteTransId: "rTId",
+                transactionId: "trId",
+                facilityLike: "fcLk",
+                attentionId: "atId",
+                startCode: "stCd",
+                cancelCode: "ccCd",
+                nextTransactionId: "ntid",
+                inputItem: 23
+            });
         }
     } else {
         test:assertFail("Expected a value for message");

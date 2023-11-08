@@ -18,6 +18,9 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+
 public interface Constants {
     // Error names for IBM MQ package
     public static final String IBMMQ_ERROR = "Error";
@@ -28,4 +31,9 @@ public interface Constants {
     String NATIVE_QUEUE = "queue";
 
     String MQRFH2FIELD_RECORD_NAME = "MQRFH2Field";
+
+    BString STRUC_ID_FIELD = StringUtils.fromString("strucId");
+    BString STRUC_LENGTH_FIELD = StringUtils.fromString("strucLength");
+    BString FLAGS_FIELD = StringUtils.fromString("flags");
+    BString VERSION_FIELD = StringUtils.fromString("version");
 }

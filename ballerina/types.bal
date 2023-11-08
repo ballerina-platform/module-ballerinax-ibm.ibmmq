@@ -18,7 +18,7 @@
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
 # Header types that are provided in the IBM MQ message.
-public type Header MQRFH2|MQRFH;
+public type Header MQRFH2|MQRFH|MQCIH;
 
 # IBM MQ queue manager configurations.
 #
@@ -67,6 +67,19 @@ public type Message record {|
     byte[] payload;
 |};
 
+# Record defining the common fields in headers.
+#
+# + flags - Flag of the header 
+# + strucId - Structure identifier
+# + strucLength - Length of the structure
+# + version - Structure version number
+public type MQHeader record {|
+    int flags = 0;
+    string strucId = "RFH ";
+    int strucLength;
+    int version;
+|};
+
 # Header record representing the MQRFH2 structure.
 #
 # + folderStrings - Contents of the variable part of the structure
@@ -77,7 +90,7 @@ public type Message record {|
 # + fieldValues - Table containing all occurrences of field values matching 
 #                 the specified field name in the folder
 public type MQRFH2 record {|
-    *MQRHeader;
+    *MQHeader;
     string[] folderStrings = [];
     int nameValueCCSID = 1208;
     byte[] nameValueData = [];
@@ -103,21 +116,74 @@ public type MQRFH2Field record {|
 # + version - Structure version number
 # + nameValuePairs - Related name-value pairs
 public type MQRFH record {|
-    *MQRHeader;
+    *MQHeader;
     int strucLength = 32;
     int version = 1;
     map<string> nameValuePairs = {};
 |};
 
-# Record defining the common fields in headers.
+# Header record representing the MQCIH structure.
 #
-# + flags - Flag of the header 
-# + strucId - Structure identifier
 # + strucLength - Length of the structure
+# + strucId - Structure version number
 # + version - Structure version number
-public type MQRHeader record {|
-    int flags = 0;
-    string strucId = "RFH ";
-    int strucLength;
-    int version;
+# + returnCode - Return code from bridge
+# + compCode - MQ completion code or CICS EIBRESP
+# + reason - MQ reason or feedback code, or CICS EIBRESP2
+# + UOWControl - Unit-of-work control
+# + waitInterval - Wait interval for MQGET call issued by bridge task
+# + linkType - Link type
+# + facilityKeepTime - Bridge facility release time
+# + ADSDescriptor - Send/receive ADS descriptor
+# + conversationalTask - Whether task can be conversational
+# + taskEndStatus - Status at end of task
+# + facility - Bridge facility token
+# + 'function - MQ call name or CICS EIBFN function
+# + abendCode - Abend code
+# + authenticator - Password or passticket
+# + reserved1 - Reserved
+# + reserved2 - Reserved
+# + reserved3 - Reserved
+# + replyToFormat - MQ format name of reply message
+# + remoteSysId - Remote CICS system Id to use
+# + remoteTransId - CICS RTRANSID to use
+# + transactionId - Transaction to attach
+# + facilityLike - Terminal emulated attributes
+# + attentionId - AID key
+# + startCode - Transaction start code
+# + cancelCode - Abend transaction code
+# + nextTransactionId - Next transaction to attach
+# + inputItem - Reserved
+public type MQCIH record {|
+    *MQHeader;
+    int strucLength = 180;
+    string strucId = "CIH ";
+    int version = 2;
+    int returnCode = 0;
+    int compCode = 0;
+    int reason = 0;
+    int UOWControl = 273;
+    int waitInterval = -2;
+    int linkType = 1;
+    int facilityKeepTime = 0;
+    int ADSDescriptor = 0;
+    int conversationalTask = 0;
+    int taskEndStatus = 0;
+    byte[] facility = [];
+    string 'function = "";
+    string abendCode = "";
+    string authenticator = "";
+    string reserved1 = "";
+    string reserved2 = "";
+    string reserved3 = "";
+    string replyToFormat = "";
+    string remoteSysId = "";
+    string remoteTransId = "";
+    string transactionId = "";
+    string facilityLike = "";
+    string attentionId = "";
+    string startCode = "";
+    string cancelCode = "";
+    string nextTransactionId = "";
+    int inputItem = 0;
 |};
