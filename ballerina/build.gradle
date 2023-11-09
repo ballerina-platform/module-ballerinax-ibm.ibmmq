@@ -117,7 +117,7 @@ task commitTomlFiles {
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
-                sleep(5 * 1000)
+                sleep(10 * 1000)
             } else {
                 println "IBMMQ server is already running."
             }
@@ -140,7 +140,7 @@ task commitTomlFiles {
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
-                sleep(5 * 1000)
+                sleep(10 * 1000)
             } else {
                 println "IBMMQ server is not started."
             }

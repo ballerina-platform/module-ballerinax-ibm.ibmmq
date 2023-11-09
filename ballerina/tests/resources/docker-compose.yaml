@@ -4,13 +4,32 @@ services:
   mq:
     image: icr.io/ibm-messaging/mq:latest
     container_name: ibmmq-test
+    depends_on:
+      mq-tls:
+        condition: service_started
     ports:
       - "1414:1414"
-      - "9443:9443"
     environment:
       - LICENSE=accept
       - MQ_QMGR_NAME=QM1
+    healthcheck:
+      test: ["CMD-SHELL", "chkmqstarted"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  mq-tls:
+    image: icr.io/ibm-messaging/mq:latest
+    container_name: ibmmq-test-tls
+    ports:
+      - "1415:1414"
+    environment:
+      - LICENSE=accept
+      - MQ_QMGR_NAME=QM2
     volumes:
-      - ./certsandkeys/broker.public.crt:/home/ballerina/resources/brokercerts/broker.public.crt
-      - ./certsandkeys/client.public.crt:/home/ballerina/resources/brokercerts/client.public.crt
-      - ./certsandkeys/client.private.key:/home/ballerina/resources/brokercerts/client.private.key
+      - ./secrets:/etc/mqm/pki/keys/mykey
+    healthcheck:
+      test: ["CMD-SHELL", "chkmqstarted"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
