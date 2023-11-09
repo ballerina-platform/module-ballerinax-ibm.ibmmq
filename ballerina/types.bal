@@ -60,10 +60,7 @@ public type QueueManagerConfiguration record {|
 # of the JVM
 public type SecureSocket record {|
     crypto:TrustStore|string cert;
-    record {|
-        crypto:KeyStore keyStore;
-        string keyPassword?;
-    |}|CertKey key?;
+    crypto:KeyStore|CertKey key?;
     string provider?;
 |};
 
