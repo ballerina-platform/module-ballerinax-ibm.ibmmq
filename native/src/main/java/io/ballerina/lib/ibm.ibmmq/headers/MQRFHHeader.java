@@ -21,6 +21,9 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_LENGTH_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.VERSION_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 
+/**
+ * Header class with util methods for handling MQRFH headers.
+ */
 public class MQRFHHeader {
 
     private static final String MQRFH_RECORD_NAME = "MQRFH";

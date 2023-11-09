@@ -254,8 +254,8 @@ public class CommonUtils {
                 case MQRFH2 -> headerList.add(createMQRFH2HeaderFromBHeader(bHeader));
                 case MQRFH -> headerList.add(createMQRFHHeaderFromBHeader(bHeader));
                 case MQCIH -> headerList.add(createMQCIHHeaderFromBHeader(bHeader));
-                default -> throw createError(IBMMQ_ERROR,
-                        String.format("Error occurred while populating headers: Unsupported header type"), null);
+                default -> throw createError(IBMMQ_ERROR, String.format("Error occurred while populating headers: " +
+                        "Unsupported header type %s", headerType), null);
             }
         }
         try {

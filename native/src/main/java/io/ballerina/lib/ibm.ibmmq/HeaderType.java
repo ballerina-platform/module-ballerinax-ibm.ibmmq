@@ -23,15 +23,6 @@ package io.ballerina.lib.ibm.ibmmq;
  */
 public enum HeaderType {
     MQCIH,
-    MQDH,
-    MQDLH,
-    MQIIH,
     MQRFH,
-    MQRFH2,
-    MQRMH,
-    MQSAPH,
-    MQTM,
-    MQWIH,
-    MQXQH,
-    MQEPH
+    MQRFH2
 }

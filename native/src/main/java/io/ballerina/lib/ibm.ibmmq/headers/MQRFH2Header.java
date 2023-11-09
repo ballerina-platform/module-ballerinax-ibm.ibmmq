@@ -29,6 +29,9 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_LENGTH_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.VERSION_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 
+/**
+ * Header class with util methods for handling MQRFH2 headers.
+ */
 public class MQRFH2Header {
 
     private static final BString FIELD_VALUES_FIELD = StringUtils.fromString("fieldValues");
