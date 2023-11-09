@@ -24,6 +24,7 @@ import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FLAGS_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2FIELD_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_LENGTH_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.VERSION_FIELD;
@@ -41,7 +42,6 @@ public class MQRFH2Header {
     private static final BString FOLDER_FIELD = StringUtils.fromString("folder");
     private static final BString FIELD_FIELD = StringUtils.fromString("field");
     private static final BString VALUE_FIELD = StringUtils.fromString("value");
-    private static final String MQRFH2_RECORD_NAME = "MQRFH2";
     private static final String NATIVE_UTILS_OBJECT_NAME = "NativeUtils";
     private static final String ADD_FIELDS_TO_TABLE_FUNCTION_NAME = "addMQRFH2FieldsToTable";
 

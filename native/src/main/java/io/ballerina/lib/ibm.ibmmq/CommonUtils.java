@@ -29,6 +29,8 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -40,10 +42,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQCHIHHeader.createMQCIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header.createMQRFH2HeaderFromBHeader;
@@ -85,6 +91,11 @@ public class CommonUtils {
     private static final BString REPLY_TO_QM_NAME_FIELD = StringUtils.fromString("replyToQueueManagerName");
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
+    private static final ArrayType BHeaderUnionType = TypeCreator.createArrayType(
+            TypeCreator.createUnionType(List.of(
+                    TypeCreator.createRecordType(MQRFH2_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0),
+                    TypeCreator.createRecordType(MQRFH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0),
+                    TypeCreator.createRecordType(MQCIH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0))));
 
     public static MQMessage getMqMessageFromBMessage(BMap<BString, Object> bMessage) {
         MQMessage mqMessage = new MQMessage();
@@ -297,7 +308,7 @@ public class CommonUtils {
         if (bHeaders.isEmpty()) {
             return null;
         }
-        BArray headerArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(bHeaders.get(0).getType()));
+        BArray headerArray = ValueCreator.createArrayValue(BHeaderUnionType);
         for (BMap<BString, Object> header : bHeaders) {
             headerArray.append(header);
         }

@@ -472,11 +472,9 @@ function publishSubscribeWithMultipleHeaderTypesTest() returns error? {
         header = headers[1];
         if header is MQRFH2 {
             test:assertEquals(header.flags, 12);
-            test:assertEquals(header.fieldValues, table [
-                {folder: "mcd", 'field: "Msd", value: "TestMcdValue"},
-                {folder: "jms", 'field: "Dlv", value: 134},
-                {folder: "mqps", 'field: "Ret", value: true}
-            ]);
+            test:assertEquals(header.fieldValues.get(["mcd", "Msd"]), {folder: "mcd", 'field: "Msd", value: "TestMcdValue"});
+            test:assertEquals(header.fieldValues.get(["jms", "Dlv"]), {folder: "jms", 'field: "Dlv", value: 134});
+            test:assertEquals(header.fieldValues.get(["mqps", "Ret"]), {folder: "mqps", 'field: "Ret", value: "1"});
         }
         header = headers[2];
         if header is MQRFH {

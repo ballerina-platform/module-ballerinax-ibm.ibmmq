@@ -30,6 +30,10 @@ public interface Constants {
     String NATIVE_TOPIC = "topic";
     String NATIVE_QUEUE = "queue";
 
+    String MQCIH_RECORD_NAME = "MQCIH";
+    String MQRFH2_RECORD_NAME = "MQRFH2";
+    String MQRFH_RECORD_NAME = "MQRFH";
+
     String MQRFH2FIELD_RECORD_NAME = "MQRFH2Field";
 
     BString STRUC_ID_FIELD = StringUtils.fromString("strucId");

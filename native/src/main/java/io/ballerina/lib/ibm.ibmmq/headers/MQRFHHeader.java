@@ -16,6 +16,7 @@ import java.util.List;
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FLAGS_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_LENGTH_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.VERSION_FIELD;
@@ -26,7 +27,6 @@ import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
  */
 public class MQRFHHeader {
 
-    private static final String MQRFH_RECORD_NAME = "MQRFH";
     private static final BString NAME_VALUE_PAIRS_FIELD = StringUtils.fromString("nameValuePairs");
 
     private MQRFHHeader() {}

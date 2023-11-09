@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.FLAGS_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_LENGTH_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.VERSION_FIELD;
@@ -23,7 +24,6 @@ import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
  */
 public class MQCHIHHeader {
 
-    private static final String MQCIH_RECORD_NAME = "MQCIH";
     private static final BString RETURN_CODE_FIELD = StringUtils.fromString("returnCode");
     private static final BString COMP_CODE_FIELD = StringUtils.fromString("compCode");
     private static final BString REASON_FIELD = StringUtils.fromString("reason");
