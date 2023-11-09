@@ -220,7 +220,7 @@ function putToTopicAfterQMDisconnectTest() returns error? {
 @test:Config {
     groups: ["ibmmqTopic"]
 }
-function publishSubscribeWithHeadersTest() returns error? {
+function publishSubscribeWithMQRFH2HeadersTest() returns error? {
     QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
     Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
@@ -415,6 +415,73 @@ function publishSubscribeWithMQCIHHeadersTest() returns error? {
                 nextTransactionId: "ntid",
                 inputItem: 23
             });
+        }
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check subscriber->close();
+    check publisher->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqTopic"]
+}
+function publishSubscribeWithMultipleHeaderTypesTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->put({
+        payload: "Hello World".toBytes(),
+        headers: [
+            {
+                facility: "facility".toBytes(),
+                'function: "test",
+                abendCode: "code",
+                authenticator: "authenti"
+            },
+            {
+                flags: 12,
+                fieldValues: table [
+                    {folder: "mcd", 'field: "Msd", value: "TestMcdValue"},
+                    {folder: "jms", 'field: "Dlv", value: 134},
+                    {folder: "mqps", 'field: "Ret", value: true}
+                ]
+            },
+            {
+                flags: 15,
+                nameValuePairs: {"pair1": "value1", "pair2": "value2"}
+            }
+        ]
+    });
+    Message? message = check subscriber->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+        Header[]? headers = message.headers;
+        if headers is () {
+            test:assertFail("Expected MQCIH headers");
+        }
+        test:assertTrue(headers.length() == 3);
+        Header header = headers[0];
+        if header is MQCIH {
+            test:assertEquals(header.facility, "facility".toBytes());
+            test:assertEquals(header.'function, "test");
+            test:assertEquals(header.abendCode, "code");
+            test:assertEquals(header.authenticator, "authenti");
+        }
+        header = headers[1];
+        if header is MQRFH2 {
+            test:assertEquals(header.flags, 12);
+            test:assertEquals(header.fieldValues, table [
+                {folder: "mcd", 'field: "Msd", value: "TestMcdValue"},
+                {folder: "jms", 'field: "Dlv", value: 134},
+                {folder: "mqps", 'field: "Ret", value: true}
+            ]);
+        }
+        header = headers[2];
+        if header is MQRFH {
+            test:assertEquals(header.flags, 15);
+            test:assertEquals(header.nameValuePairs, {"pair1": "value1", "pair2": "value2"});
         }
     } else {
         test:assertFail("Expected a value for message");
