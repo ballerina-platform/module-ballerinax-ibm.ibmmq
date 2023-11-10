@@ -26,3 +26,18 @@ groupId = "com.ibm.mq"
 artifactId = "com.ibm.mq.allclient"
 version = "9.3.4.0"
 path = "./lib/com.ibm.mq.allclient-9.3.4.0.jar"
+
+[[platform.java17.dependency]]
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-annotations"
+version = "2.15.3"
+
+[[platform.java17.dependency]]
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-core"
+version = "2.15.3"
+
+[[platform.java17.dependency]]
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-databind"
+version = "2.15.3"
