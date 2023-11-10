@@ -36,7 +36,9 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -68,11 +70,21 @@ public class QueueManager {
     public static final BString KEY_PASSWORD = StringUtils.fromString("keyPassword");
     public static final BString KEY_STORE_PASSWORD = StringUtils.fromString("password");
     public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
-    public static final String DEFAULT_TLS_PROTOCOL = "TLSv1.2";
+    public static final String TLS_V_1_0 = "TLSv1.0";
+    public static final String TLS_V_1_2 = "TLSv1.2";
+    public static final String TLS_V_1_3 = "TLSv1.3";
     public static final BString CRYPTO_TRUSTSTORE_PATH = StringUtils.fromString("path");
     public static final BString CRYPTO_TRUSTSTORE_PASSWORD = StringUtils.fromString("password");
     public static final String NATIVE_DATA_PRIVATE_KEY = "NATIVE_DATA_PRIVATE_KEY";
     public static final String NATIVE_DATA_PUBLIC_KEY_CERTIFICATE = "NATIVE_DATA_PUBLIC_KEY_CERTIFICATE";
+    private static final List<String> TLS_V_1_0_CIPHER_SPEC = List.of(
+            "SSL_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_AES_128_CBC_SHA",
+            "SSL_RSA_WITH_AES_256_CBC_SHA", "SSL_RSA_WITH_DES_CBC_SHA"
+    );
+    private static final List<String> TLS_V_1_3_CIPHER_SPEC = List.of(
+            "TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256",
+            "TLS_AES_128_CCM_SHA256", "TLS_AES_128_CCM_8_SHA256", "*TLS13", "*TLS13ORHIGHER"
+    );
 
     private static final String BTOPIC = "Topic";
     private static final String BQUEUE = "Queue";
@@ -124,12 +136,26 @@ public class QueueManager {
                 .ifPresent(sslCipherSuite -> properties.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, sslCipherSuite));
         Object secureSocket = configurations.get(SECURE_SOCKET);
         if (Objects.nonNull(secureSocket)) {
-            SSLSocketFactory sslSocketFactory = getSecureSocketFactory((BMap<BString, Object>) secureSocket);
+            String sslProtocol = getSslProtocol(configurations);
+            SSLSocketFactory sslSocketFactory = getSecureSocketFactory(
+                    sslProtocol, (BMap<BString, Object>) secureSocket);
             properties.put(MQConstants.SSL_SOCKET_FACTORY_PROPERTY, sslSocketFactory);
         }
     }
 
-    private static SSLSocketFactory getSecureSocketFactory(BMap<BString, Object> secureSocket) throws Exception {
+    private static String getSslProtocol(BMap<BString, Object> configurations) {
+        Optional<String> cipherSuiteOpt = getOptionalStringProperty(configurations, SSL_CIPHER_SUITE);
+        if (cipherSuiteOpt.isEmpty()) {
+            return TLS_V_1_2;
+        }
+        String cipherSuite = cipherSuiteOpt.get();
+        return TLS_V_1_0_CIPHER_SPEC.contains(cipherSuite)
+                ? TLS_V_1_0 : TLS_V_1_3_CIPHER_SPEC.contains(cipherSuite) ? TLS_V_1_3 : TLS_V_1_2;
+
+    }
+
+    private static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
+            throws Exception {
         Object bCert = secureSocket.get(CERT);
         BMap<BString, BString> keyRecord = (BMap<BString, BString>) secureSocket.getMapValue(KEY);
         KeyManagerFactory kmf = null;
@@ -150,7 +176,7 @@ public class QueueManager {
                 kmf = getKeyManagerFactory(keyRecord);
             }
         }
-        SSLContext sslContext = SSLContext.getInstance("TLS");
+        SSLContext sslContext = SSLContext.getInstance(protocol);
         if (Objects.nonNull(kmf)) {
             sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         } else {

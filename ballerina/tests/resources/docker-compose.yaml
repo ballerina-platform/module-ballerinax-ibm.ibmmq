@@ -27,7 +27,9 @@ services:
       - LICENSE=accept
       - MQ_QMGR_NAME=QM2
     volumes:
-      - ./secrets:/etc/mqm/pki/keys/mykey
+      - ./secrets/server.crt:/etc/mqm/pki/keys/mykey/server.crt
+      - ./secrets/server.key:/etc/mqm/pki/keys/mykey/server.key
+      - ./secrets/client.crt:/etc/mqm/pki/trust/0/client.crt
     healthcheck:
       test: ["CMD-SHELL", "chkmqstarted"]
       interval: 10s
