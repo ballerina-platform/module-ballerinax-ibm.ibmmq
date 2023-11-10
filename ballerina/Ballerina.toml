@@ -31,13 +31,16 @@ path = "./lib/com.ibm.mq.allclient-9.3.4.0.jar"
 groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-annotations"
 version = "2.15.3"
+path = "./lib/jackson-annotations-2.15.3.jar"
 
 [[platform.java17.dependency]]
 groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-core"
 version = "2.15.3"
+path = "./lib/jackson-core-2.15.3.jar"
 
 [[platform.java17.dependency]]
 groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-databind"
 version = "2.15.3"
+path = "./lib/jackson-databind-2.15.3.jar"
