@@ -24,7 +24,6 @@ import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -36,7 +35,6 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,46 +46,39 @@ import javax.net.ssl.TrustManagerFactory;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.getOptionalStringProperty;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BQUEUE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BTOPIC;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CERT;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CERT_FILE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CHANNEL;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CRYPTO_TRUSTSTORE_PASSWORD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CRYPTO_TRUSTSTORE_PATH;
+import static io.ballerina.lib.ibm.ibmmq.Constants.HOST;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.KEY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.KEY_FILE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.KEY_PASSWORD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.KEY_STORE_PASSWORD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.KEY_STORE_PATH;
+import static io.ballerina.lib.ibm.ibmmq.Constants.NATIVE_DATA_PRIVATE_KEY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.NATIVE_QUEUE_MANAGER;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PASSWORD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PORT;
+import static io.ballerina.lib.ibm.ibmmq.Constants.QUEUE_MANAGER_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.SECURE_SOCKET;
+import static io.ballerina.lib.ibm.ibmmq.Constants.SSL_CIPHER_SUITE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_2;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3_CIPHER_SPEC;
+import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
 
 /**
  * Representation of {@link com.ibm.mq.MQQueueManager} with utility methods to invoke as inter-op functions.
  */
 public class QueueManager {
-    private static final BString QUEUE_MANAGER_NAME = StringUtils.fromString("name");
-    private static final BString HOST = StringUtils.fromString("host");
-    private static final BString PORT = StringUtils.fromString("port");
-    private static final BString CHANNEL = StringUtils.fromString("channel");
-    private static final BString USER_ID = StringUtils.fromString("userID");
-    private static final BString PASSWORD = StringUtils.fromString("password");
-    private static final BString SSL_CIPHER_SUITE = StringUtils.fromString("sslCipherSuite");
-    private static final BString SECURE_SOCKET = StringUtils.fromString("secureSocket");
-    public static final BString CERT = StringUtils.fromString("cert");
-    public static final BString KEY = StringUtils.fromString("key");
-    public static final BString CERT_FILE = StringUtils.fromString("certFile");
-    public static final BString KEY_FILE = StringUtils.fromString("keyFile");
-    public static final BString KEY_PASSWORD = StringUtils.fromString("keyPassword");
-    public static final BString KEY_STORE_PASSWORD = StringUtils.fromString("password");
-    public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
-    public static final String TLS_V_1_0 = "TLSv1.0";
-    public static final String TLS_V_1_2 = "TLSv1.2";
-    public static final String TLS_V_1_3 = "TLSv1.3";
-    public static final BString CRYPTO_TRUSTSTORE_PATH = StringUtils.fromString("path");
-    public static final BString CRYPTO_TRUSTSTORE_PASSWORD = StringUtils.fromString("password");
-    public static final String NATIVE_DATA_PRIVATE_KEY = "NATIVE_DATA_PRIVATE_KEY";
-    public static final String NATIVE_DATA_PUBLIC_KEY_CERTIFICATE = "NATIVE_DATA_PUBLIC_KEY_CERTIFICATE";
-    private static final List<String> TLS_V_1_0_CIPHER_SPEC = List.of(
-            "SSL_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_AES_128_CBC_SHA",
-            "SSL_RSA_WITH_AES_256_CBC_SHA", "SSL_RSA_WITH_DES_CBC_SHA"
-    );
-    private static final List<String> TLS_V_1_3_CIPHER_SPEC = List.of(
-            "TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256",
-            "TLS_AES_128_CCM_SHA256", "TLS_AES_128_CCM_8_SHA256", "*TLS13", "*TLS13ORHIGHER"
-    );
-
-    private static final String BTOPIC = "Topic";
-    private static final String BQUEUE = "Queue";
 
     /**
      * Creates an IBM MQ queue manager with the provided configurations.
