@@ -26,7 +26,8 @@ import java.util.ArrayList;
 public class HeaderUtils {
 
     // Following header types are read and ignored as the decode and encode to ballerina is not yet added.
-    public static void decodeUnSupportedHeaders(Runtime runtime, MQMessage msg, ArrayList<BMap<BString, Object>> headers) throws IOException {
+    public static void decodeUnSupportedHeaders(Runtime runtime, MQMessage msg,
+                                                ArrayList<BMap<BString, Object>> headers) throws IOException {
         int dataOffset = msg.getDataOffset();
         try {
             MQIIH mqiih = new MQIIH();
