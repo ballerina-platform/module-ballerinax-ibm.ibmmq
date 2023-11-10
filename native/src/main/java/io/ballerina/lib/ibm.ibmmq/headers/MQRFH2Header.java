@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CODED_CHARSET_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ENCODING_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FLAGS_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2FIELD_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
@@ -42,6 +45,7 @@ public class MQRFH2Header {
     private static final BString FOLDER_FIELD = StringUtils.fromString("folder");
     private static final BString FIELD_FIELD = StringUtils.fromString("field");
     private static final BString VALUE_FIELD = StringUtils.fromString("value");
+    private static final BString NAME_VALUE_LENGTH_FIELD = StringUtils.fromString("nameValueLength");
     private static final String NATIVE_UTILS_OBJECT_NAME = "NativeUtils";
     private static final String ADD_FIELDS_TO_TABLE_FUNCTION_NAME = "addMQRFH2FieldsToTable";
 
@@ -64,6 +68,8 @@ public class MQRFH2Header {
     public static MQRFH2 createMQRFH2HeaderFromBHeader(BMap<BString, Object> bHeader) {
         MQRFH2 header = new MQRFH2();
         header.setFlags(bHeader.getIntValue(FLAGS_FIELD).intValue());
+        header.setEncoding(bHeader.getIntValue(ENCODING_FIELD).intValue());
+        header.setCodedCharSetId(bHeader.getIntValue(CODED_CHARSET_ID_FIELD).intValue());
         BArray folderStringsArray = bHeader.getArrayValue(FOLDER_STRINGS_FIELD);
         try {
             header.setFolderStrings(folderStringsArray.getStringArray());
@@ -73,6 +79,7 @@ public class MQRFH2Header {
         }
         header.setNameValueCCSID(bHeader.getIntValue(NAME_VALUE_CCSID_FIELD).intValue());
         header.setNameValueData(bHeader.getArrayValue(NAME_VALUE_DATA_FIELD).getBytes());
+        header.setFormat(bHeader.getStringValue(FORMAT_FIELD).getValue());
         BTable fieldTable = (BTable) bHeader.get(FIELD_VALUES_FIELD);
         BIterator fieldTableIterator = fieldTable.getIterator();
         while (fieldTableIterator.hasNext()) {
@@ -115,6 +122,8 @@ public class MQRFH2Header {
     private static BMap<BString, Object> getBHeaderFromMQRFH2(Runtime runtime, MQRFH2 mqrfh2) throws IOException {
         BMap<BString, Object> header = ValueCreator.createRecordValue(getModule(), MQRFH2_RECORD_NAME);
         header.put(FLAGS_FIELD, mqrfh2.getFlags());
+        header.put(ENCODING_FIELD, mqrfh2.getEncoding());
+        header.put(CODED_CHARSET_ID_FIELD, mqrfh2.getCodedCharSetId());
         BArray folderStringArray = ValueCreator.createArrayValue(TypeCreator
                 .createArrayType(PredefinedTypes.TYPE_STRING));
         String[] folderStrings = mqrfh2.getFolderStrings();
@@ -124,6 +133,8 @@ public class MQRFH2Header {
         header.put(FOLDER_STRINGS_FIELD, folderStringArray);
         header.put(NAME_VALUE_CCSID_FIELD, mqrfh2.getNameValueCCSID());
         header.put(NAME_VALUE_DATA_FIELD, ValueCreator.createArrayValue(mqrfh2.getNameValueData()));
+        header.put(NAME_VALUE_LENGTH_FIELD, mqrfh2.getNameValueLength());
+        header.put(FORMAT_FIELD, StringUtils.fromString(mqrfh2.getFormat()));
         header.put(STRUC_ID_FIELD, StringUtils.fromString(mqrfh2.getStrucId()));
         header.put(STRUC_LENGTH_FIELD, mqrfh2.getStrucLength());
         header.put(VERSION_FIELD, mqrfh2.getVersion());

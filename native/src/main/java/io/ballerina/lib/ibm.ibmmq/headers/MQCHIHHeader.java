@@ -12,7 +12,10 @@ import io.ballerina.runtime.api.values.BString;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static io.ballerina.lib.ibm.ibmmq.Constants.CODED_CHARSET_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ENCODING_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FLAGS_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_LENGTH_FIELD;
@@ -65,12 +68,16 @@ public class MQCHIHHeader {
             MQRFH2Header.decodeHeader(runtime, msg, headers);
         } catch (MQDataException e) {
             msg.seek(dataOffset);
+            HeaderUtils.decodeUnSupportedHeaders(runtime, msg, headers);
         }
     }
 
     private static BMap<BString, Object> getBHeaderFromMQCIH(MQCIH mqcih) {
         BMap<BString, Object> header = ValueCreator.createRecordValue(getModule(), MQCIH_RECORD_NAME);
         header.put(FLAGS_FIELD, mqcih.getFlags());
+        header.put(ENCODING_FIELD, mqcih.getEncoding());
+        header.put(CODED_CHARSET_ID_FIELD, mqcih.getCodedCharSetId());
+        header.put(FORMAT_FIELD, StringUtils.fromString(mqcih.getFormat()));
         header.put(STRUC_ID_FIELD, StringUtils.fromString(mqcih.getStrucId()));
         header.put(STRUC_LENGTH_FIELD, mqcih.getStrucLength());
         header.put(VERSION_FIELD, mqcih.getVersion());
@@ -107,6 +114,9 @@ public class MQCHIHHeader {
     public static Object createMQCIHHeaderFromBHeader(BMap<BString, Object> bHeader) {
         MQCIH header = new MQCIH();
         header.setFlags(bHeader.getIntValue(FLAGS_FIELD).intValue());
+        header.setFormat(bHeader.getStringValue(FORMAT_FIELD).getValue());
+        header.setCodedCharSetId(bHeader.getIntValue(CODED_CHARSET_ID_FIELD).intValue());
+        header.setEncoding(bHeader.getIntValue(ENCODING_FIELD).intValue());
         header.setReturnCode(bHeader.getIntValue(RETURN_CODE_FIELD).intValue());
         header.setCompCode(bHeader.getIntValue(COMP_CODE_FIELD).intValue());
         header.setReason(bHeader.getIntValue(REASON_FIELD).intValue());

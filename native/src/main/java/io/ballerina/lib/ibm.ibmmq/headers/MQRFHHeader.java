@@ -14,7 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CODED_CHARSET_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ENCODING_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FLAGS_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.STRUC_ID_FIELD;
@@ -48,6 +51,11 @@ public class MQRFHHeader {
     public static MQRFH createMQRFHHeaderFromBHeader(BMap<BString, Object> bHeader) {
         MQRFH header = new MQRFH();
         header.setFlags(bHeader.getIntValue(FLAGS_FIELD).intValue());
+        if (bHeader.getIntValue(ENCODING_FIELD).intValue() != 0) {
+            header.setEncoding(bHeader.getIntValue(ENCODING_FIELD).intValue());
+        }
+        header.setCodedCharSetId(bHeader.getIntValue(CODED_CHARSET_ID_FIELD).intValue());
+        header.setFormat(bHeader.getStringValue(FORMAT_FIELD).getValue());
         BMap<BString, Object> nameValuePairsMap = (BMap<BString, Object>) bHeader.getMapValue(NAME_VALUE_PAIRS_FIELD);
         for (BString key : nameValuePairsMap.getKeys()) {
             try {
@@ -63,9 +71,12 @@ public class MQRFHHeader {
     private static BMap<BString, Object> getBHeaderFromMQRFH(MQRFH mqrfh) {
         BMap<BString, Object> header = ValueCreator.createRecordValue(getModule(), MQRFH_RECORD_NAME);
         header.put(FLAGS_FIELD, mqrfh.getFlags());
+        header.put(ENCODING_FIELD, mqrfh.getEncoding());
         header.put(STRUC_ID_FIELD, StringUtils.fromString(mqrfh.getStrucId()));
         header.put(STRUC_LENGTH_FIELD, mqrfh.getStrucLength());
         header.put(VERSION_FIELD, mqrfh.getVersion());
+        header.put(CODED_CHARSET_ID_FIELD, mqrfh.getCodedCharSetId());
+        header.put(FORMAT_FIELD, StringUtils.fromString(mqrfh.getFormat()));
         header.put(NAME_VALUE_PAIRS_FIELD, getBNameValuePairsFromMQRFH(mqrfh));
         return header;
     }

@@ -385,6 +385,9 @@ function publishSubscribeWithMQCIHHeadersTest() returns error? {
             test:assertEquals(header, {
                 strucLength: 180,
                 version: 2,
+                encoding: 273,
+                format: "        ",
+                codedCharSetId: 0,
                 strucId: "CIH ",
                 flags: 12,
                 returnCode: 12,

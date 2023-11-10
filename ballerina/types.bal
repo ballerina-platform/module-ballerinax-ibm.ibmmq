@@ -87,33 +87,32 @@ public type Message record {|
     byte[] payload;
 |};
 
-# Record defining the common fields in headers.
-#
-# + flags - Flag of the header 
-# + strucId - Structure identifier
-# + strucLength - Length of the structure
-# + version - Structure version number
-public type MQHeader record {|
-    int flags = 0;
-    string strucId = "RFH ";
-    int strucLength;
-    int version;
-|};
-
 # Header record representing the MQRFH2 structure.
 #
-# + folderStrings - Contents of the variable part of the structure
-# + nameValueCCSID - Coded character set for the NameValue data
-# + nameValueData - NameValueData variable-length field
-# + strucLength - Length of the structure
-# + version - Structure version number
-# + fieldValues - Table containing all occurrences of field values matching 
-#                 the specified field name in the folder
+# + flags - Flag of the header  
+# + encoding - Numeric encoding of data that follows NameValueData  
+# + codedCharSetId - Character set identifier of data that follows NameValueData
+# + folderStrings - Contents of the variable part of the structure  
+# + nameValueCCSID - Coded character set for the NameValue data  
+# + nameValueData - NameValueData variable-length field  
+# + nameValueLength - Length of NameValueData  
+# + format - Format name of data that follows NameValueData.The name should be padded with  
+# blanks to the length of the field.  
+# + strucId - Structure identifier  
+# + strucLength - Length of the structure  
+# + version - Structure version number  
+# + fieldValues - Table containing all occurrences of field values matching  
+# the specified field name in the folder
 public type MQRFH2 record {|
-    *MQHeader;
+    int flags = 0;
+    int encoding = 273;
+    int codedCharSetId = -2;
     string[] folderStrings = [];
     int nameValueCCSID = 1208;
     byte[] nameValueData = [];
+    int nameValueLength = 0;
+    string format = "        ";
+    string strucId = "RFH ";
     int strucLength = 36;
     int version = 2;
     table<MQRFH2Field> key(folder, 'field) fieldValues = table [];
@@ -132,52 +131,68 @@ public type MQRFH2Field record {|
 
 # Header record representing the MQRFH structure.
 #
-# + strucLength - Length of the structure
-# + version - Structure version number
+# + flags - Flag of the header  
+# + encoding - Numeric encoding of data that follows NameValueString  
+# + strucId - Structure identifier  
+# + strucLength - Length of the structure  
+# + version - Structure version number  
+# + codedCharSetId - Character set identifier of data that follows NameValueString
+# + format - Format name of data that follows NameValueString
 # + nameValuePairs - Related name-value pairs
 public type MQRFH record {|
-    *MQHeader;
+    int flags = 0;
+    int encoding = 0;
+    string strucId = "RFH ";
     int strucLength = 32;
     int version = 1;
+    int codedCharSetId = 0;
+    string format = "        ";
     map<string> nameValuePairs = {};
 |};
 
 # Header record representing the MQCIH structure.
 #
-# + strucLength - Length of the structure
-# + strucId - Structure version number
-# + version - Structure version number
-# + returnCode - Return code from bridge
-# + compCode - MQ completion code or CICS EIBRESP
-# + reason - MQ reason or feedback code, or CICS EIBRESP2
-# + UOWControl - Unit-of-work control
-# + waitInterval - Wait interval for MQGET call issued by bridge task
-# + linkType - Link type
-# + facilityKeepTime - Bridge facility release time
-# + ADSDescriptor - Send/receive ADS descriptor
-# + conversationalTask - Whether task can be conversational
-# + taskEndStatus - Status at end of task
-# + facility - Bridge facility token
-# + 'function - MQ call name or CICS EIBFN function
-# + abendCode - Abend code
-# + authenticator - Password or passticket
-# + reserved1 - Reserved
-# + reserved2 - Reserved
-# + reserved3 - Reserved
-# + replyToFormat - MQ format name of reply message
-# + remoteSysId - Remote CICS system Id to use
-# + remoteTransId - CICS RTRANSID to use
-# + transactionId - Transaction to attach
-# + facilityLike - Terminal emulated attributes
-# + attentionId - AID key
-# + startCode - Transaction start code
-# + cancelCode - Abend transaction code
-# + nextTransactionId - Next transaction to attach
+# + flags - Flag of the header  
+# + encoding - field description  
+# + codedCharSetId - field description  
+# + format - MQ format name of data that follows MQCIH
+# + strucId - Structure identifier  
+# + strucLength - Length of the structure  
+# + version - Structure version number  
+# + returnCode - Return code from bridge  
+# + compCode - MQ completion code or CICS EIBRESP  
+# + reason - MQ reason or feedback code, or CICS EIBRESP2  
+# + UOWControl - Unit-of-work control  
+# + waitInterval - Wait interval for MQGET call issued by bridge task  
+# + linkType - Link type  
+# + facilityKeepTime - Bridge facility release time  
+# + ADSDescriptor - Send/receive ADS descriptor  
+# + conversationalTask - Whether task can be conversational  
+# + taskEndStatus - Status at end of task  
+# + facility - Bridge facility token  
+# + 'function - field description  
+# + abendCode - Abend code  
+# + authenticator - Password or passticket  
+# + reserved1 - Reserved  
+# + reserved2 - Reserved  
+# + reserved3 - Reserved  
+# + replyToFormat - MQ format name of reply message  
+# + remoteSysId - Remote CICS system Id to use  
+# + remoteTransId - CICS RTRANSID to use  
+# + transactionId - Transaction to attach  
+# + facilityLike - Terminal emulated attributes  
+# + attentionId - AID key  
+# + startCode - Transaction start code  
+# + cancelCode - Abend transaction code  
+# + nextTransactionId - Next transaction to attach  
 # + inputItem - Reserved
 public type MQCIH record {|
-    *MQHeader;
-    int strucLength = 180;
+    int flags = 0;
+    int encoding = 0;
+    int codedCharSetId = 0;
+    string format = "        ";
     string strucId = "CIH ";
+    int strucLength = 180;
     int version = 2;
     int returnCode = 0;
     int compCode = 0;

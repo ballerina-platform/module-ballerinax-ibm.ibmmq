@@ -40,4 +40,7 @@ public interface Constants {
     BString STRUC_LENGTH_FIELD = StringUtils.fromString("strucLength");
     BString FLAGS_FIELD = StringUtils.fromString("flags");
     BString VERSION_FIELD = StringUtils.fromString("version");
+    BString ENCODING_FIELD = StringUtils.fromString("encoding");
+    BString CODED_CHARSET_ID_FIELD = StringUtils.fromString("codedCharSetId");
+    BString FORMAT_FIELD = StringUtils.fromString("format");
 }

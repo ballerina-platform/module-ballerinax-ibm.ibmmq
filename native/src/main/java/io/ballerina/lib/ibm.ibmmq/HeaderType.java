@@ -19,10 +19,21 @@
 package io.ballerina.lib.ibm.ibmmq;
 
 /**
- * Enum for the header types supported by IBM MQ.
+ * Enum for the header types in IBM MQ.
  */
 public enum HeaderType {
     MQCIH,
     MQRFH,
-    MQRFH2
+    MQRFH2,
+    MQIIH,
+    MQMD,
+    MQMD1,
+    MQMDE,
+    MQRMH,
+    MQSAPH,
+    MQTM,
+    MQTM2,
+    MQTMC2,
+    MQWIH,
+    MQXQH
 }
