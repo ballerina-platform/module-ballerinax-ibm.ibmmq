@@ -98,7 +98,8 @@ public class QueueManager {
                     String.format("Error occurred while initializing the connection manager: %s", e.getMessage()), e);
         } catch (Exception e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while initializing the connection manager: %s", e.getMessage()), e);
+                    String.format("Unexpected error occurred while initializing the connection manager: %s",
+                            e.getMessage()), e);
         }
         return null;
     }
@@ -145,14 +146,15 @@ public class QueueManager {
 
     }
 
+    @SuppressWarnings("unchecked")
     private static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
             throws Exception {
         Object bCert = secureSocket.get(CERT);
         BMap<BString, BString> keyRecord = (BMap<BString, BString>) secureSocket.getMapValue(KEY);
         KeyManagerFactory kmf = null;
         TrustManagerFactory tmf;
-        if (bCert instanceof BString) {
-            tmf = getTrustManagerFactory((BString) bCert);
+        if (bCert instanceof BString cert) {
+            tmf = getTrustManagerFactory(cert);
         } else {
             BMap<BString, BString> trustStore = (BMap<BString, BString>) bCert;
             tmf = getTrustManagerFactory(trustStore);
@@ -176,6 +178,7 @@ public class QueueManager {
         return sslContext.getSocketFactory();
     }
 
+    @SuppressWarnings("unchecked")
     private static TrustManagerFactory getTrustManagerFactory(BString cert) throws Exception {
         Object publicKeyMap = Decode.decodeRsaPublicKeyFromCertFile(cert);
         if (publicKeyMap instanceof BMap) {
@@ -211,6 +214,7 @@ public class QueueManager {
         return kmf;
     }
 
+    @SuppressWarnings("unchecked")
     private static KeyManagerFactory getKeyManagerFactory(BString certFile, BString keyFile, BString keyPassword)
             throws Exception {
         Object publicKey = Decode.decodeRsaPublicKeyFromCertFile(certFile);

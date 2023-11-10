@@ -150,12 +150,14 @@ public class CommonUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void handlePropertyValue(BMap<BString, Object> properties, MQMessage mqMessage, BString key)
             throws MQException {
         BMap<BString, Object> property = (BMap<BString, Object>) properties.getMapValue(key);
         MQPropertyDescriptor propertyDescriptor = defaultPropertyDescriptor;
         if (property.containsKey(PROPERTY_DESCRIPTOR)) {
-            propertyDescriptor = getMQPropertyDescriptor(properties.getMapValue(PROPERTY_DESCRIPTOR));
+            propertyDescriptor = getMQPropertyDescriptor(
+                    (BMap<BString, Object>) properties.getMapValue(PROPERTY_DESCRIPTOR));
         }
         Object value = property.get(PROPERTY_VALUE);
         if (value instanceof Long longValue) {
@@ -208,7 +210,7 @@ public class CommonUtils {
         }
     }
 
-    private static MQPropertyDescriptor getMQPropertyDescriptor(BMap descriptor) {
+    private static MQPropertyDescriptor getMQPropertyDescriptor(BMap<BString, Object> descriptor) {
         MQPropertyDescriptor propertyDescriptor = new MQPropertyDescriptor();
         if (descriptor.containsKey(PD_VERSION)) {
             propertyDescriptor.version = ((Long) descriptor.get(PD_VERSION)).intValue();
@@ -228,7 +230,8 @@ public class CommonUtils {
         return propertyDescriptor;
     }
 
-    private static BMap populateDescriptorFromMQPropertyDescriptor(MQPropertyDescriptor propertyDescriptor) {
+    private static BMap<BString, Object> populateDescriptorFromMQPropertyDescriptor(
+            MQPropertyDescriptor propertyDescriptor) {
         BMap<BString, Object> descriptor = ValueCreator.createMapValue(TypeCreator
                 .createMapType(PredefinedTypes.TYPE_INT));
         descriptor.put(PD_VERSION, propertyDescriptor.version);
