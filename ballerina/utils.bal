@@ -15,7 +15,7 @@
 // under the License.
 
 // This class is used by the native implementation to add the MQRFH2 fields to a table.
-class NativeUtils {
+isolated class NativeUtils {
 
     // This method is invoked by the native runtime to add the MQRFH2 fields to a table.
     function addMQRFH2FieldsToTable(MQRFH2Field[] fields) returns table<MQRFH2Field> key(folder, 'field) {
