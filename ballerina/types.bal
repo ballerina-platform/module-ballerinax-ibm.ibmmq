@@ -19,6 +19,9 @@ import ballerina/crypto;
 # Options which can be provided when opening an IBM MQ topic.
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
+# Header types that are provided in the IBM MQ message.
+public type Header MQRFH2|MQRFH|MQCIH;
+
 # The SSL Cipher Suite to be used for secure communication with the IBM MQ server.
 public type SSL_CIPHER_SUITE SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
     |SSL_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256|SSL_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384|SSL_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
@@ -79,7 +82,7 @@ public type CertKey record {|
 #
 # + options - Get message option 
 # + waitInterval - The maximum time (in seconds) that a `get` call waits for a suitable message to 
-#                   arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
+# arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
 public type GetMessageOptions record {|
     int options = MQGMO_NO_WAIT;
     int waitInterval = 10;
@@ -91,7 +94,7 @@ public type GetMessageOptions record {|
 # + value - Property value
 public type Property record {|
     map<int> descriptor?;
-    boolean|byte|byte[]|decimal|float|int|string value;
+    boolean|byte|byte[]|float|int|string value;
 |};
 
 # Represents an IBM MQ message.
@@ -107,6 +110,7 @@ public type Property record {|
 # + putApplicationType - Type of application that put the message
 # + replyToQueueName - Name of reply queue
 # + replyToQueueManagerName - Name of reply queue manager
+# + headers - Headers to be sent in the message
 # + payload - Message payload
 public type Message record {|
     map<Property> properties?;
@@ -120,5 +124,142 @@ public type Message record {|
     int putApplicationType?;
     string replyToQueueName?;
     string replyToQueueManagerName?;
+    Header[] headers?;
     byte[] payload;
+|};
+
+# Header record representing the MQRFH2 structure.
+#
+# + flags - Flag of the header  
+# + encoding - Numeric encoding of data that follows NameValueData  
+# + codedCharSetId - Character set identifier of data that follows NameValueData
+# + folderStrings - Contents of the variable part of the structure  
+# + nameValueCCSID - Coded character set for the NameValue data  
+# + nameValueData - NameValueData variable-length field  
+# + nameValueLength - Length of NameValueData  
+# + format - Format name of data that follows NameValueData.The name should be padded with  
+# blanks to the length of the field.  
+# + strucId - Structure identifier  
+# + strucLength - Length of the structure  
+# + version - Structure version number  
+# + fieldValues - Table containing all occurrences of field values matching  
+# the specified field name in the folder
+public type MQRFH2 record {|
+    int flags = 0;
+    int encoding = 273;
+    int codedCharSetId = -2;
+    string[] folderStrings = [];
+    int nameValueCCSID = 1208;
+    byte[] nameValueData = [];
+    int nameValueLength = 0;
+    string format = "        ";
+    string strucId = "RFH ";
+    int strucLength = 36;
+    int version = 2;
+    table<MQRFH2Field> key(folder, 'field) fieldValues = table [];
+|};
+
+# Record defining a field in the MQRFH2 record.
+#
+# + folder - The name of the folder containing the field
+# + 'field - The field name
+# + value - The field value
+public type MQRFH2Field record {|
+    readonly string folder;
+    readonly string 'field;
+    boolean|byte|byte[]|float|int|string value;
+|};
+
+# Header record representing the MQRFH structure.
+#
+# + flags - Flag of the header  
+# + encoding - Numeric encoding of data that follows NameValueString  
+# + strucId - Structure identifier  
+# + strucLength - Length of the structure  
+# + version - Structure version number  
+# + codedCharSetId - Character set identifier of data that follows NameValueString
+# + format - Format name of data that follows NameValueString
+# + nameValuePairs - Related name-value pairs
+public type MQRFH record {|
+    int flags = 0;
+    int encoding = 0;
+    string strucId = "RFH ";
+    int strucLength = 32;
+    int version = 1;
+    int codedCharSetId = 0;
+    string format = "        ";
+    map<string> nameValuePairs = {};
+|};
+
+# Header record representing the MQCIH structure.
+#
+# + flags - Flag of the header  
+# + encoding - field description  
+# + codedCharSetId - field description  
+# + format - MQ format name of data that follows MQCIH
+# + strucId - Structure identifier  
+# + strucLength - Length of the structure  
+# + version - Structure version number  
+# + returnCode - Return code from bridge  
+# + compCode - MQ completion code or CICS EIBRESP  
+# + reason - MQ reason or feedback code, or CICS EIBRESP2  
+# + UOWControl - Unit-of-work control  
+# + waitInterval - Wait interval for MQGET call issued by bridge task  
+# + linkType - Link type  
+# + facilityKeepTime - Bridge facility release time  
+# + ADSDescriptor - Send/receive ADS descriptor  
+# + conversationalTask - Whether task can be conversational  
+# + taskEndStatus - Status at end of task  
+# + facility - Bridge facility token  
+# + 'function - field description  
+# + abendCode - Abend code  
+# + authenticator - Password or passticket  
+# + reserved1 - Reserved  
+# + reserved2 - Reserved  
+# + reserved3 - Reserved  
+# + replyToFormat - MQ format name of reply message  
+# + remoteSysId - Remote CICS system Id to use  
+# + remoteTransId - CICS RTRANSID to use  
+# + transactionId - Transaction to attach  
+# + facilityLike - Terminal emulated attributes  
+# + attentionId - AID key  
+# + startCode - Transaction start code  
+# + cancelCode - Abend transaction code  
+# + nextTransactionId - Next transaction to attach  
+# + inputItem - Reserved
+public type MQCIH record {|
+    int flags = 0;
+    int encoding = 0;
+    int codedCharSetId = 0;
+    string format = "        ";
+    string strucId = "CIH ";
+    int strucLength = 180;
+    int version = 2;
+    int returnCode = 0;
+    int compCode = 0;
+    int reason = 0;
+    int UOWControl = 273;
+    int waitInterval = -2;
+    int linkType = 1;
+    int facilityKeepTime = 0;
+    int ADSDescriptor = 0;
+    int conversationalTask = 0;
+    int taskEndStatus = 0;
+    byte[] facility = [];
+    string 'function = "";
+    string abendCode = "";
+    string authenticator = "";
+    string reserved1 = "";
+    string reserved2 = "";
+    string reserved3 = "";
+    string replyToFormat = "";
+    string remoteSysId = "";
+    string remoteTransId = "";
+    string transactionId = "";
+    string facilityLike = "";
+    string attentionId = "";
+    string startCode = "";
+    string cancelCode = "";
+    string nextTransactionId = "";
+    int inputItem = 0;
 |};

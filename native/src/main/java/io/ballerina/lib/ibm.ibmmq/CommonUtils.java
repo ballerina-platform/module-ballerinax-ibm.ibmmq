@@ -22,25 +22,33 @@ import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPropertyDescriptor;
+import com.ibm.mq.headers.MQHeaderList;
+import io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
-import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_COMPLETION_CODE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_DETAILS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_ERROR_CODE;
@@ -48,6 +56,10 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_REASON_CODE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.EXPIRY_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_HEADERS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PAYLOAD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
@@ -68,6 +80,9 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QM_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.WAIT_INTERVAL;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
+import static io.ballerina.lib.ibm.ibmmq.headers.MQCHIHHeader.createMQCIHHeaderFromBHeader;
+import static io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header.createMQRFH2HeaderFromBHeader;
+import static io.ballerina.lib.ibm.ibmmq.headers.MQRFHHeader.createMQRFHHeaderFromBHeader;
 
 /**
  * {@code CommonUtils} contains the common utility functions for the Ballerina IBM MQ connector.
@@ -75,12 +90,21 @@ import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 public class CommonUtils {
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
+    private static final ArrayType BHeaderUnionType = TypeCreator.createArrayType(
+            TypeCreator.createUnionType(List.of(
+                    TypeCreator.createRecordType(MQRFH2_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0),
+                    TypeCreator.createRecordType(MQRFH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0),
+                    TypeCreator.createRecordType(MQCIH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0))));
 
     public static MQMessage getMqMessageFromBMessage(BMap<BString, Object> bMessage) {
         MQMessage mqMessage = new MQMessage();
         BMap<BString, Object> properties = (BMap<BString, Object>) bMessage.getMapValue(MESSAGE_PROPERTIES);
         if (Objects.nonNull(properties)) {
             populateMQProperties(properties, mqMessage);
+        }
+        BArray headers = bMessage.getArrayValue(MESSAGE_HEADERS);
+        if (Objects.nonNull(headers)) {
+            populateMQHeaders(headers, mqMessage);
         }
         byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
         assignOptionalFieldsToMqMessage(bMessage, mqMessage);
@@ -93,9 +117,10 @@ public class CommonUtils {
         return mqMessage;
     }
 
-    public static BMap<BString, Object> getBMessageFromMQMessage(MQMessage mqMessage) {
+    public static BMap<BString, Object> getBMessageFromMQMessage(Runtime runtime, MQMessage mqMessage) {
         BMap<BString, Object> bMessage = ValueCreator.createRecordValue(getModule(), BMESSAGE_NAME);
         try {
+            bMessage.put(MESSAGE_HEADERS, getBHeaders(runtime, mqMessage));
             bMessage.put(MESSAGE_PROPERTY, getBProperties(mqMessage));
             bMessage.put(FORMAT_FIELD, StringUtils.fromString(mqMessage.format));
             bMessage.put(MESSAGE_ID_FIELD, ValueCreator.createArrayValue(mqMessage.messageId));
@@ -129,6 +154,8 @@ public class CommonUtils {
                 property.put(PROPERTY_VALUE, intProperty.longValue());
             } else if (propertyObject instanceof String stringProperty) {
                 property.put(PROPERTY_VALUE, StringUtils.fromString(stringProperty));
+            } else if (propertyObject instanceof byte[] bytesProperty) {
+                property.put(PROPERTY_VALUE, ValueCreator.createArrayValue(bytesProperty));
             } else {
                 property.put(PROPERTY_VALUE, propertyObject);
             }
@@ -230,8 +257,28 @@ public class CommonUtils {
         return propertyDescriptor;
     }
 
-    private static BMap<BString, Object> populateDescriptorFromMQPropertyDescriptor(
-            MQPropertyDescriptor propertyDescriptor) {
+    private static void populateMQHeaders(BArray bHeaders, MQMessage mqMessage) {
+        MQHeaderList headerList = new MQHeaderList();
+        for (int i = 0; i < bHeaders.size(); i++) {
+            BMap<BString, Object> bHeader = (BMap) bHeaders.get(i);
+            HeaderType headerType = HeaderType.valueOf(bHeader.getType().getName());
+            switch (headerType) {
+                case MQRFH2 -> headerList.add(createMQRFH2HeaderFromBHeader(bHeader));
+                case MQRFH -> headerList.add(createMQRFHHeaderFromBHeader(bHeader));
+                case MQCIH -> headerList.add(createMQCIHHeaderFromBHeader(bHeader));
+                default -> throw createError(IBMMQ_ERROR, String.format("Error occurred while populating headers: " +
+                        "Unsupported header type %s", headerType), null);
+            }
+        }
+        try {
+            headerList.write(mqMessage);
+        } catch (IOException e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Error occurred while putting a message to the topic: %s", e.getMessage()), e);
+        }
+    }
+
+    private static BMap populateDescriptorFromMQPropertyDescriptor(MQPropertyDescriptor propertyDescriptor) {
         BMap<BString, Object> descriptor = ValueCreator.createMapValue(TypeCreator
                 .createMapType(PredefinedTypes.TYPE_INT));
         descriptor.put(PD_VERSION, propertyDescriptor.version);
@@ -249,6 +296,24 @@ public class CommonUtils {
         getMessageOptions.waitInterval = waitInterval * 1000;
         getMessageOptions.options = options;
         return getMessageOptions;
+    }
+
+    private static Object getBHeaders(Runtime runtime, MQMessage mqMessage) {
+        ArrayList<BMap<BString, Object>> bHeaders = new ArrayList<>();
+        try {
+            MQRFH2Header.decodeHeader(runtime, mqMessage, bHeaders);
+        } catch (IOException e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Error occurred while reading headers: %s", e.getMessage()), e);
+        }
+        if (bHeaders.isEmpty()) {
+            return null;
+        }
+        BArray headerArray = ValueCreator.createArrayValue(BHeaderUnionType);
+        for (BMap<BString, Object> header : bHeaders) {
+            headerArray.append(header);
+        }
+        return headerArray;
     }
 
     public static BError createError(String errorType, String message, Throwable throwable) {

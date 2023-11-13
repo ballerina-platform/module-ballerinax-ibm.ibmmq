@@ -178,3 +178,70 @@ function produceAndConsumerMessageWithAdditionalPropertiesTest() returns error? 
     check consumer->close();
     check queueManager.disconnect();
 }
+
+
+@test:Config {
+    groups: ["ibmmqQueue"]
+}
+function produceAndConsumerMessageWithMultipleHeaderTypesTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
+    Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
+    check producer->put({
+        payload: "Hello World".toBytes(),
+        headers: [
+            {
+                facility: "facility".toBytes(),
+                'function: "test",
+                abendCode: "code",
+                authenticator: "authenti"
+            },
+            {
+                flags: 12,
+                fieldValues: table [
+                    {folder: "mcd", 'field: "Msd", value: "TestMcdValue"},
+                    {folder: "jms", 'field: "Dlv", value: 134},
+                    {folder: "mqps", 'field: "Ret", value: true}
+                ]
+            },
+            {
+                flags: 15,
+                nameValuePairs: {"pair1": "value1", "pair2": "value2"}
+            }
+        ]
+    });
+    Message? message = check consumer->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+        Header[]? headers = message.headers;
+        if headers is () {
+            test:assertFail("Expected MQCIH headers");
+        }
+        test:assertTrue(headers.length() == 3);
+        Header header = headers[0];
+        if header is MQCIH {
+            test:assertEquals(header.facility, "facility".toBytes());
+            test:assertEquals(header.'function, "test");
+            test:assertEquals(header.abendCode, "code");
+            test:assertEquals(header.authenticator, "authenti");
+        }
+        header = headers[1];
+        if header is MQRFH2 {
+            test:assertEquals(header.flags, 12);
+            test:assertEquals(header.fieldValues.get(["mcd", "Msd"]), {folder: "mcd", 'field: "Msd", value: "TestMcdValue"});
+            test:assertEquals(header.fieldValues.get(["jms", "Dlv"]), {folder: "jms", 'field: "Dlv", value: 134});
+            test:assertEquals(header.fieldValues.get(["mqps", "Ret"]), {folder: "mqps", 'field: "Ret", value: "1"});
+        }
+        header = headers[2];
+        if header is MQRFH {
+            test:assertEquals(header.flags, 15);
+            test:assertEquals(header.nameValuePairs, {"pair1": "value1", "pair2": "value2"});
+        }
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check producer->close();
+    check consumer->close();
+    check queueManager.disconnect();
+}
+

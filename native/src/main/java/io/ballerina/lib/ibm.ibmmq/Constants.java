@@ -38,6 +38,20 @@ public interface Constants {
     String NATIVE_TOPIC = "topic";
     String NATIVE_QUEUE = "queue";
 
+    String MQCIH_RECORD_NAME = "MQCIH";
+    String MQRFH2_RECORD_NAME = "MQRFH2";
+    String MQRFH_RECORD_NAME = "MQRFH";
+
+    String MQRFH2FIELD_RECORD_NAME = "MQRFH2Field";
+
+    BString STRUC_ID_FIELD = StringUtils.fromString("strucId");
+    BString STRUC_LENGTH_FIELD = StringUtils.fromString("strucLength");
+    BString FLAGS_FIELD = StringUtils.fromString("flags");
+    BString VERSION_FIELD = StringUtils.fromString("version");
+    BString ENCODING_FIELD = StringUtils.fromString("encoding");
+    BString CODED_CHARSET_ID_FIELD = StringUtils.fromString("codedCharSetId");
+    BString MESSAGE_HEADERS = StringUtils.fromString("headers");
+
     // Ballerina record names
     String BTOPIC = "Topic";
     String BQUEUE = "Queue";

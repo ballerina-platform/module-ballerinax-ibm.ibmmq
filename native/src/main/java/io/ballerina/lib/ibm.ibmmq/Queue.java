@@ -68,7 +68,7 @@ public class Queue {
             try {
                 MQMessage message = new MQMessage();
                 queue.get(message, getMessageOptions);
-                future.complete(CommonUtils.getBMessageFromMQMessage(message));
+                future.complete(CommonUtils.getBMessageFromMQMessage(environment.getRuntime(), message));
             } catch (MQException e) {
                 if (e.reasonCode == CMQC.MQRC_NO_MSG_AVAILABLE) {
                     future.complete(null);
