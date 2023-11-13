@@ -173,8 +173,7 @@ public class MQRFH2Header {
                 field.put(FOLDER_FIELD, StringUtils.fromString(folder.getName()));
                 field.put(FIELD_FIELD, StringUtils.fromString(child.getName()));
                 field.put(VALUE_FIELD, getBValueForMQObjectValue(child.getValue()));
-                fieldArray.add(i, field);
-                i = i + 1;
+                fieldArray.add(i++, field);
             }
         }
         BObject nativeUtilsObject = ValueCreator.createObjectValue(getModule(), NATIVE_UTILS_OBJECT_NAME);
