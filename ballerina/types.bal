@@ -54,8 +54,8 @@ public type QueueManagerConfiguration record {|
 
 # Configurations for secure communication with the IBM MQ server.
 #
-# + cert - Configurations associated with crypto:TrustStore or single certificate file that the client trusts
-# + key - Configurations associated with crypto:KeyStore or combination of certificate and private key of the client
+# + cert - Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts
+# + key - Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client
 # + provider - Name of the security provider used for SSL connections. The default value is the default security provider
 # of the JVM
 public type SecureSocket record {|
