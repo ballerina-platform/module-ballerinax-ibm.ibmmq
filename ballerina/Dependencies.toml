@@ -9,6 +9,18 @@ distribution-version = "2201.8.0"
 
 [[package]]
 org = "ballerina"
+name = "crypto"
+version = "2.5.0"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "crypto", moduleName = "crypto"}
+]
+
+[[package]]
+org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
 modules = [
@@ -41,7 +53,6 @@ modules = [
 org = "ballerina"
 name = "time"
 version = "2.4.0"
-scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -54,6 +65,7 @@ org = "ballerinax"
 name = "ibm.ibmmq"
 version = "0.1.1"
 dependencies = [
+	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"}
