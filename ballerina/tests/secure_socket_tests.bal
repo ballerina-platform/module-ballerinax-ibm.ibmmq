@@ -96,11 +96,11 @@ function basicPublisherSubscriberSecureSocketJksTest() returns error? {
         sslCipherSuite = TLS12ORHIGHER,
         secureSocket = {
             cert: {
-                path: "./tests/resources/secrets/clientTrustStore.jks",
+                path: "./tests/resources/secrets/clientTrustStore.p12",
                 password: "password"
             },
             'key: {
-                path: "./tests/resources/secrets/clientKeyStore.jks",
+                path: "./tests/resources/secrets/clientKeyStore.p12",
                 password: "password"
             }
         }
@@ -133,11 +133,11 @@ function basicQueueProducerConsumerSecureSocketJksTest() returns error? {
         sslCipherSuite = TLS12ORHIGHER,
         secureSocket = {
             cert: {
-                path: "./tests/resources/secrets/clientTrustStore.jks",
+                path: "./tests/resources/secrets/clientTrustStore.p12",
                 password: "password"
             },
             'key: {
-                path: "./tests/resources/secrets/clientKeyStore.jks",
+                path: "./tests/resources/secrets/clientKeyStore.p12",
                 password: "password"
             }
         }
