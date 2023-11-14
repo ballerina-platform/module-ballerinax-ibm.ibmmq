@@ -14,20 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Options which can be provided when opening an IBM MQ topic.
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
 # Header types that are provided in the IBM MQ message.
 public type Header MQRFH2|MQRFH|MQCIH;
 
+# The SSL Cipher Suite to be used for secure communication with the IBM MQ server.
+public type SslCipherSuite SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+    |SSL_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256|SSL_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384|SSL_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    |SSL_ECDHE_ECDSA_WITH_NULL_SHA|SSL_ECDHE_ECDSA_WITH_RC4_128_SHA|SSL_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+    |SSL_ECDHE_RSA_WITH_AES_128_GCM_SHA256|SSL_ECDHE_RSA_WITH_AES_256_CBC_SHA384|SSL_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+    |SSL_ECDHE_RSA_WITH_NULL_SHA|SSL_ECDHE_RSA_WITH_RC4_128_SHA|SSL_RSA_WITH_3DES_EDE_CBC_SHA|SSL_RSA_WITH_AES_128_CBC_SHA
+    |SSL_RSA_WITH_AES_128_CBC_SHA256|SSL_RSA_WITH_AES_128_GCM_SHA256|SSL_RSA_WITH_AES_256_CBC_SHA|SSL_RSA_WITH_AES_256_CBC_SHA256
+    |SSL_RSA_WITH_AES_256_GCM_SHA384|SSL_RSA_WITH_DES_CBC_SHA|SSL_RSA_WITH_NULL_SHA256|SSL_RSA_WITH_RC4_128_SHA
+    |TLS12|TLS_AES_128_GCM_SHA256|TLS_AES_256_GCM_SHA384|TLS_CHACHA20_POLY1305_SHA256|TLS_AES_128_CCM_SHA256
+    |TLS_AES_128_CCM_8_SHA256|ANY|TLS13|TLS12ORHIGHER|TLS13ORHIGHER;
+
 # IBM MQ queue manager configurations.
 #
-# + name - Name of the queue manager
-# + host - IBM MQ server host
-# + port - IBM MQ server port 
+# + name - Name of the queue manager  
+# + host - IBM MQ server host  
+# + port - IBM MQ server port  
 # + channel - IBM MQ channel  
 # + userID - IBM MQ userId  
-# + password - IBM MQ user password
+# + password - IBM MQ user password  
+# + secureSocket - Configurations related to SSL/TLS encryption
+# + sslCipherSuite - Defines the combination of key exchange, encryption, 
+#   and integrity algorithms used for establishing a secure SSL/TLS connection
 public type QueueManagerConfiguration record {|
     string name;
     string host;
@@ -35,6 +51,31 @@ public type QueueManagerConfiguration record {|
     string channel;
     string userID?;
     string password?;
+    SecureSocket secureSocket?;
+    SslCipherSuite sslCipherSuite?;
+|};
+
+# Configurations for secure communication with the IBM MQ server.
+#
+# + cert - Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts
+# + key - Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client
+# + provider - Name of the security provider used for SSL connections. The default value is the default security provider
+# of the JVM
+public type SecureSocket record {|
+    crypto:TrustStore|string cert;
+    crypto:KeyStore|CertKey key?;
+    string provider?;
+|};
+
+# Represents a combination of certificate, private key, and private key password if encrypted.
+#
+# + certFile - A file containing the certificate
+# + keyFile - A file containing the private key in PKCS8 format
+# + keyPassword - Password of the private key if it is encrypted
+public type CertKey record {|
+    string certFile;
+    string keyFile;
+    string keyPassword?;
 |};
 
 # IBM MQ get message options.

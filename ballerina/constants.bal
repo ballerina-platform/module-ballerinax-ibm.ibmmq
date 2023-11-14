@@ -103,3 +103,108 @@ public const int MQGMO_CONVERT = 16384;
 
 # Subscribe Option create
 public const int MQSO_CREATE = 2;
+
+// SSL cipher suite related constants
+
+# SSL cipher suite using ECDHE-ECDSA for key exchange with 3DES encryption and SHA integrity.
+public const string SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA = "SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA";
+
+# SSL cipher suite using ECDHE-ECDSA for key exchange with AES 128-bit encryption and SHA-256 integrity.
+public const string SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 = "SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256";
+
+# SSL cipher suite using ECDHE-ECDSA for key exchange with AES 128-bit GCM encryption and SHA-256 integrity.
+public const string SSL_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 = "SSL_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256";
+
+# SSL cipher suite using ECDHE-ECDSA for key exchange with AES 256-bit CBC encryption and SHA-384 integrity.
+public const string SSL_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 = "SSL_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384";
+
+# SSL cipher suite using ECDHE-ECDSA for key exchange with AES 256-bit GCM encryption and SHA-384 integrity.
+public const string SSL_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 = "SSL_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384";
+
+# SSL cipher suite using ECDHE-ECDSA for key exchange with NULL encryption and SHA integrity (not recommended for production use).
+public const string SSL_ECDHE_ECDSA_WITH_NULL_SHA = "SSL_ECDHE_ECDSA_WITH_NULL_SHA";
+
+# SSL cipher suite using ECDHE-ECDSA for key exchange with RC4 128-bit encryption and SHA integrity (not recommended for production use).
+public const string SSL_ECDHE_ECDSA_WITH_RC4_128_SHA = "SSL_ECDHE_ECDSA_WITH_RC4_128_SHA";
+
+# SSL cipher suite using ECDHE-RSA for key exchange with 3DES encryption and SHA integrity.
+public const string SSL_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA = "SSL_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA";
+
+# SSL cipher suite using ECDHE-RSA for key exchange with AES 128-bit encryption and SHA-256 integrity.
+public const string SSL_ECDHE_RSA_WITH_AES_128_CBC_SHA256 = "SSL_ECDHE_RSA_WITH_AES_128_CBC_SHA256";
+
+# SSL cipher suite using ECDHE-RSA for key exchange with AES 128-bit GCM encryption and SHA-256 integrity.
+public const string SSL_ECDHE_RSA_WITH_AES_128_GCM_SHA256 = "SSL_ECDHE_RSA_WITH_AES_128_GCM_SHA256";
+
+# SSL cipher suite using ECDHE-RSA for key exchange with AES 256-bit CBC encryption and SHA-384 integrity.
+public const string SSL_ECDHE_RSA_WITH_AES_256_CBC_SHA384 = "SSL_ECDHE_RSA_WITH_AES_256_CBC_SHA384";
+
+# SSL cipher suite using ECDHE-RSA for key exchange with AES 256-bit GCM encryption and SHA-384 integrity.
+public const string SSL_ECDHE_RSA_WITH_AES_256_GCM_SHA384 = "SSL_ECDHE_RSA_WITH_AES_256_GCM_SHA384";
+
+# SSL cipher suite using ECDHE-RSA for key exchange with NULL encryption and SHA integrity (not recommended for production use).
+public const string SSL_ECDHE_RSA_WITH_NULL_SHA = "SSL_ECDHE_RSA_WITH_NULL_SHA";
+
+# SSL cipher suite using ECDHE-RSA for key exchange with RC4 128-bit encryption and SHA integrity (not recommended for production use).
+public const string SSL_ECDHE_RSA_WITH_RC4_128_SHA = "SSL_ECDHE_RSA_WITH_RC4_128_SHA";
+
+# SSL cipher suite using RSA for key exchange with 3DES encryption and SHA integrity.
+public const string SSL_RSA_WITH_3DES_EDE_CBC_SHA = "SSL_RSA_WITH_3DES_EDE_CBC_SHA";
+
+# SSL cipher suite using RSA for key exchange with AES 128-bit encryption and SHA integrity.
+public const string SSL_RSA_WITH_AES_128_CBC_SHA = "SSL_RSA_WITH_AES_128_CBC_SHA";
+
+# SSL cipher suite using RSA for key exchange with AES 128-bit encryption, SHA-256 integrity.
+public const string SSL_RSA_WITH_AES_128_CBC_SHA256 = "SSL_RSA_WITH_AES_128_CBC_SHA256";
+
+# SSL cipher suite using RSA for key exchange with AES 128-bit GCM encryption, SHA-256 integrity.
+public const string SSL_RSA_WITH_AES_128_GCM_SHA256 = "SSL_RSA_WITH_AES_128_GCM_SHA256";
+
+# SSL cipher suite using RSA for key exchange with AES 256-bit CBC encryption and SHA integrity.
+public const string SSL_RSA_WITH_AES_256_CBC_SHA = "SSL_RSA_WITH_AES_256_CBC_SHA";
+
+# SSL cipher suite using RSA for key exchange with AES 256-bit CBC encryption, SHA-256 integrity.
+public const string SSL_RSA_WITH_AES_256_CBC_SHA256 = "SSL_RSA_WITH_AES_256_CBC_SHA256";
+
+# SSL cipher suite using RSA for key exchange with AES 256-bit GCM encryption, SHA-384 integrity.
+public const string SSL_RSA_WITH_AES_256_GCM_SHA384 = "SSL_RSA_WITH_AES_256_GCM_SHA384";
+
+# SSL cipher suite using RSA for key exchange with DES encryption and SHA integrity (not recommended for production use).
+public const string SSL_RSA_WITH_DES_CBC_SHA = "SSL_RSA_WITH_DES_CBC_SHA";
+
+# SSL cipher suite using RSA for key exchange with NULL encryption and SHA-256 integrity (not recommended for production use).
+public const string SSL_RSA_WITH_NULL_SHA256 = "SSL_RSA_WITH_NULL_SHA256";
+
+# SSL cipher suite using RSA for key exchange with RC4 128-bit encryption and SHA integrity (not recommended for production use).
+public const string SSL_RSA_WITH_RC4_128_SHA = "SSL_RSA_WITH_RC4_128_SHA";
+
+# TLS 1.2 protocol version.
+public const string TLS12 = "*TLS12";
+
+# SSL cipher suite using AES 128-bit GCM encryption, SHA-256 integrity.
+public const string TLS_AES_128_GCM_SHA256 = "TLS_AES_128_GCM_SHA256";
+
+# SSL cipher suite using AES 256-bit GCM encryption, SHA-384 integrity.
+public const string TLS_AES_256_GCM_SHA384 = "TLS_AES_256_GCM_SHA384";
+
+# SSL cipher suite using ChaCha20-Poly1305 encryption, SHA-256 integrity.
+public const string TLS_CHACHA20_POLY1305_SHA256 = "TLS_CHACHA20_POLY1305_SHA256";
+
+# SSL cipher suite using AES 128-bit CCM encryption, SHA-256 integrity.
+public const string TLS_AES_128_CCM_SHA256 = "TLS_AES_128_CCM_SHA256";
+
+# SSL cipher suite using AES 128-bit CCM 8 encryption, SHA-256 integrity.
+public const string TLS_AES_128_CCM_8_SHA256 = "TLS_AES_128_CCM_8_SHA256";
+
+# Any supported SSL/TLS cipher suite.
+public const string ANY = "*ANY";
+
+# TLS 1.3 protocol version.
+public const string TLS13 = "*TLS13";
+
+# TLS 1.2 or higher protocol version.
+public const string TLS12ORHIGHER = "*TLS12ORHIGHER";
+
+# TLS 1.3 or higher protocol version.
+public const string TLS13ORHIGHER = "*TLS13ORHIGHER";
+

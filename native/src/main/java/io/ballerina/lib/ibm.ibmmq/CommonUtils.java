@@ -46,10 +46,39 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_COMPLETION_CODE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_DETAILS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_ERROR_CODE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_REASON_CODE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.EXPIRY_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_HEADERS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PAYLOAD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTIES;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_TYPE_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.OPTIONS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_CONTEXT;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_COPY_OPTIONS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_OPTIONS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_SUPPORT;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_VERSION;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PERSISTENCE_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PRIORITY_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_DESCRIPTOR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_VALUE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PUT_APPLICATION_TYPE_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QM_NAME_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.WAIT_INTERVAL;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQCHIHHeader.createMQCIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header.createMQRFH2HeaderFromBHeader;
@@ -59,36 +88,6 @@ import static io.ballerina.lib.ibm.ibmmq.headers.MQRFHHeader.createMQRFHHeaderFr
  * {@code CommonUtils} contains the common utility functions for the Ballerina IBM MQ connector.
  */
 public class CommonUtils {
-
-    private static final String ERROR_DETAILS = "ErrorDetails";
-    private static final BString ERROR_REASON_CODE = StringUtils.fromString("reasonCode");
-    private static final BString ERROR_ERROR_CODE = StringUtils.fromString("errorCode");
-    private static final BString ERROR_COMPLETION_CODE = StringUtils.fromString("completionCode");
-    private static final BString MESSAGE_PAYLOAD = StringUtils.fromString("payload");
-    private static final BString MESSAGE_PROPERTIES = StringUtils.fromString("properties");
-    private static final BString MESSAGE_HEADERS = StringUtils.fromString("headers");
-    private static final BString MESSAGE_PROPERTY = StringUtils.fromString("property");
-    private static final String BPROPERTY = "Property";
-    private static final String BMESSAGE_NAME = "Message";
-    private static final BString PD_VERSION = StringUtils.fromString("version");
-    private static final BString PD_COPY_OPTIONS = StringUtils.fromString("copyOptions");
-    private static final BString PD_OPTIONS = StringUtils.fromString("options");
-    private static final BString PD_SUPPORT = StringUtils.fromString("support");
-    private static final BString PD_CONTEXT = StringUtils.fromString("context");
-    private static final BString PROPERTY_VALUE = StringUtils.fromString("value");
-    private static final BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
-    private static final BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
-    private static final BString OPTIONS = StringUtils.fromString("options");
-    private static final BString FORMAT_FIELD = StringUtils.fromString("format");
-    private static final BString MESSAGE_ID_FIELD = StringUtils.fromString("messageId");
-    private static final BString CORRELATION_ID_FIELD = StringUtils.fromString("correlationId");
-    private static final BString EXPIRY_FIELD = StringUtils.fromString("expiry");
-    private static final BString PRIORITY_FIELD = StringUtils.fromString("priority");
-    private static final BString PERSISTENCE_FIELD = StringUtils.fromString("persistence");
-    private static final BString MESSAGE_TYPE_FIELD = StringUtils.fromString("messageType");
-    private static final BString PUT_APPLICATION_TYPE_FIELD = StringUtils.fromString("putApplicationType");
-    private static final BString REPLY_TO_QUEUE_NAME_FIELD = StringUtils.fromString("replyToQueueName");
-    private static final BString REPLY_TO_QM_NAME_FIELD = StringUtils.fromString("replyToQueueManagerName");
 
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
     private static final ArrayType BHeaderUnionType = TypeCreator.createArrayType(
@@ -178,12 +177,14 @@ public class CommonUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void handlePropertyValue(BMap<BString, Object> properties, MQMessage mqMessage, BString key)
             throws MQException {
         BMap<BString, Object> property = (BMap<BString, Object>) properties.getMapValue(key);
         MQPropertyDescriptor propertyDescriptor = defaultPropertyDescriptor;
         if (property.containsKey(PROPERTY_DESCRIPTOR)) {
-            propertyDescriptor = getMQPropertyDescriptor(properties.getMapValue(PROPERTY_DESCRIPTOR));
+            propertyDescriptor = getMQPropertyDescriptor(
+                    (BMap<BString, Object>) properties.getMapValue(PROPERTY_DESCRIPTOR));
         }
         Object value = property.get(PROPERTY_VALUE);
         if (value instanceof Long longValue) {
@@ -236,7 +237,7 @@ public class CommonUtils {
         }
     }
 
-    private static MQPropertyDescriptor getMQPropertyDescriptor(BMap descriptor) {
+    private static MQPropertyDescriptor getMQPropertyDescriptor(BMap<BString, Object> descriptor) {
         MQPropertyDescriptor propertyDescriptor = new MQPropertyDescriptor();
         if (descriptor.containsKey(PD_VERSION)) {
             propertyDescriptor.version = ((Long) descriptor.get(PD_VERSION)).intValue();
