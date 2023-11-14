@@ -6,9 +6,3 @@ distribution = "2201.8.2"
 
 [build-options]
 observabilityIncluded = true
-
-[[dependency]]
-org = "ballerinax"
-name = "ibm.ibmmq"
-version="0.1.1"
-repository="local"
