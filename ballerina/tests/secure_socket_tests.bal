@@ -83,3 +83,77 @@ function basicQueueProducerConsumerSecureSocketTest() returns error? {
     check consumer->close();
     check queueManager.disconnect();
 }
+
+@test:Config {
+    groups: ["secureSocket"]
+}
+function basicPublisherSubscriberSecureSocketJksTest() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM2",
+        host = "localhost",
+        port = 1415,
+        channel = "DEV.APP.SVRCONN",
+        sslCipherSuite = TLS12ORHIGHER,
+        secureSocket = {
+            cert: {
+                path: "./tests/resources/secrets/clientTrustStore.jks",
+                password: "password"
+            },
+            'key: {
+                path: "./tests/resources/secrets/clientKeyStore.jks",
+                password: "password"
+            }
+        }
+    );
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->put({
+        payload: "Hello World".toBytes()
+    });
+    Message? message = check subscriber->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check subscriber->close();
+    check publisher->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["secureSocket"]
+}
+function basicQueueProducerConsumerSecureSocketJksTest() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM2",
+        host = "localhost",
+        port = 1415,
+        channel = "DEV.APP.SVRCONN",
+        sslCipherSuite = TLS12ORHIGHER,
+        secureSocket = {
+            cert: {
+                path: "./tests/resources/secrets/clientTrustStore.jks",
+                password: "password"
+            },
+            'key: {
+                path: "./tests/resources/secrets/clientKeyStore.jks",
+                password: "password"
+            }
+        }
+    );
+    Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
+    Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
+    check producer->put({
+        payload: "Hello World".toBytes()
+    });
+    Message? message = check consumer->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check producer->close();
+    check consumer->close();
+    check queueManager.disconnect();
+}
