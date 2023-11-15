@@ -57,6 +57,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.EXPIRY_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQIIH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_HEADERS;
@@ -80,7 +81,8 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QM_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.WAIT_INTERVAL;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
-import static io.ballerina.lib.ibm.ibmmq.headers.MQCHIHHeader.createMQCIHHeaderFromBHeader;
+import static io.ballerina.lib.ibm.ibmmq.headers.MQCIHHeader.createMQCIHHeaderFromBHeader;
+import static io.ballerina.lib.ibm.ibmmq.headers.MQIIHHeader.createMQIIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header.createMQRFH2HeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQRFHHeader.createMQRFHHeaderFromBHeader;
 
@@ -94,7 +96,8 @@ public class CommonUtils {
             TypeCreator.createUnionType(List.of(
                     TypeCreator.createRecordType(MQRFH2_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0),
                     TypeCreator.createRecordType(MQRFH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0),
-                    TypeCreator.createRecordType(MQCIH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0))));
+                    TypeCreator.createRecordType(MQCIH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0),
+                    TypeCreator.createRecordType(MQIIH_RECORD_NAME, getModule(), SymbolFlags.PUBLIC, true, 0))));
 
     public static MQMessage getMqMessageFromBMessage(BMap<BString, Object> bMessage) {
         MQMessage mqMessage = new MQMessage();
@@ -266,6 +269,7 @@ public class CommonUtils {
                 case MQRFH2 -> headerList.add(createMQRFH2HeaderFromBHeader(bHeader));
                 case MQRFH -> headerList.add(createMQRFHHeaderFromBHeader(bHeader));
                 case MQCIH -> headerList.add(createMQCIHHeaderFromBHeader(bHeader));
+                case MQIIH -> headerList.add(createMQIIHHeaderFromBHeader(bHeader));
                 default -> throw createError(IBMMQ_ERROR, String.format("Error occurred while populating headers: " +
                         "Unsupported header type %s", headerType), null);
             }

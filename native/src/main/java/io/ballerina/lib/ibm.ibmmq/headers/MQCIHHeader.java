@@ -43,7 +43,7 @@ import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 /**
  * Header class with util methods for handling MQCHIH headers.
  */
-public class MQCHIHHeader {
+public class MQCIHHeader {
 
     private static final BString RETURN_CODE_FIELD = StringUtils.fromString("returnCode");
     private static final BString COMP_CODE_FIELD = StringUtils.fromString("compCode");
@@ -59,9 +59,6 @@ public class MQCHIHHeader {
     private static final BString FUNCTION_FIELD = StringUtils.fromString("function");
     private static final BString ABEND_CODE_FIELD = StringUtils.fromString("abendCode");
     private static final BString AUTHENTICATOR_FIELD = StringUtils.fromString("authenticator");
-    private static final BString RESERVED1_FIELD = StringUtils.fromString("reserved1");
-    private static final BString RESERVED2_FIELD = StringUtils.fromString("reserved2");
-    private static final BString RESERVED3_FIELD = StringUtils.fromString("reserved3");
     private static final BString REPLY_TO_FORMAT_FIELD = StringUtils.fromString("replyToFormat");
     private static final BString REMOTE_SYS_ID_FIELD = StringUtils.fromString("remoteSysId");
     private static final BString REMOTE_TRANS_ID_FIELD = StringUtils.fromString("remoteTransId");
@@ -74,7 +71,7 @@ public class MQCHIHHeader {
     private static final BString INPUT_ITEM_FIELD = StringUtils.fromString("inputItem");
 
 
-    private MQCHIHHeader() {}
+    private MQCIHHeader() {}
 
     public static void decodeHeader(Runtime runtime, MQMessage msg, ArrayList<BMap<BString, Object>> headers)
             throws IOException {
@@ -86,7 +83,7 @@ public class MQCHIHHeader {
             MQRFH2Header.decodeHeader(runtime, msg, headers);
         } catch (MQDataException e) {
             msg.seek(dataOffset);
-            HeaderUtils.decodeUnSupportedHeaders(runtime, msg, headers);
+            MQIIHHeader.decodeHeader(runtime, msg, headers);
         }
     }
 
@@ -113,9 +110,6 @@ public class MQCHIHHeader {
         header.put(FUNCTION_FIELD, StringUtils.fromString(mqcih.getFunction()));
         header.put(ABEND_CODE_FIELD, StringUtils.fromString(mqcih.getAbendCode()));
         header.put(AUTHENTICATOR_FIELD, StringUtils.fromString(mqcih.getAuthenticator()));
-        header.put(RESERVED1_FIELD, StringUtils.fromString(mqcih.getReserved1()));
-        header.put(RESERVED2_FIELD, StringUtils.fromString(mqcih.getReserved2()));
-        header.put(RESERVED3_FIELD, StringUtils.fromString(mqcih.getReserved3()));
         header.put(REPLY_TO_FORMAT_FIELD, StringUtils.fromString(mqcih.getReplyToFormat()));
         header.put(REMOTE_SYS_ID_FIELD, StringUtils.fromString(mqcih.getRemoteSysId()));
         header.put(REMOTE_TRANS_ID_FIELD, StringUtils.fromString(mqcih.getRemoteTransId()));
@@ -149,9 +143,6 @@ public class MQCHIHHeader {
         header.setFunction(bHeader.getStringValue(FUNCTION_FIELD).getValue());
         header.setAbendCode(bHeader.getStringValue(ABEND_CODE_FIELD).getValue());
         header.setAuthenticator(bHeader.getStringValue(AUTHENTICATOR_FIELD).getValue());
-        header.setReserved1(bHeader.getStringValue(RESERVED1_FIELD).getValue());
-        header.setReserved2(bHeader.getStringValue(RESERVED2_FIELD).getValue());
-        header.setReserved3(bHeader.getStringValue(RESERVED3_FIELD).getValue());
         header.setReplyToFormat(bHeader.getStringValue(REPLY_TO_FORMAT_FIELD).getValue());
         header.setRemoteSysId(bHeader.getStringValue(REMOTE_SYS_ID_FIELD).getValue());
         header.setRemoteTransId(bHeader.getStringValue(REMOTE_TRANS_ID_FIELD).getValue());

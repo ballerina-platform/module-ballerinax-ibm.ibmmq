@@ -62,7 +62,7 @@ public class MQRFHHeader {
             MQRFH2Header.decodeHeader(runtime, msg, headers);
         } catch (MQDataException e) {
             msg.seek(dataOffset);
-            MQCHIHHeader.decodeHeader(runtime, msg, headers);
+            MQCIHHeader.decodeHeader(runtime, msg, headers);
         }
     }
 

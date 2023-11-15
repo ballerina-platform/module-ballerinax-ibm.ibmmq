@@ -104,6 +104,8 @@ public const int MQGMO_CONVERT = 16384;
 # Subscribe Option create
 public const int MQSO_CREATE = 2;
 
+const string DEFAULT_BLANK_VALUE = "        ";
+
 // SSL cipher suite related constants
 
 # SSL cipher suite using ECDHE-ECDSA for key exchange with 3DES encryption and SHA integrity.

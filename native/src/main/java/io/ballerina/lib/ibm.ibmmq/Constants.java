@@ -41,6 +41,7 @@ public interface Constants {
     String MQCIH_RECORD_NAME = "MQCIH";
     String MQRFH2_RECORD_NAME = "MQRFH2";
     String MQRFH_RECORD_NAME = "MQRFH";
+    String MQIIH_RECORD_NAME = "MQIIH";
 
     String MQRFH2FIELD_RECORD_NAME = "MQRFH2Field";
 
