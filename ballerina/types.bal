@@ -20,7 +20,7 @@ import ballerina/crypto;
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
 # Header types that are provided in the IBM MQ message.
-public type Header MQRFH2|MQRFH|MQCIH;
+public type Header MQRFH2|MQRFH|MQCIH|MQIIH;
 
 # The SSL Cipher Suite to be used for secure communication with the IBM MQ server.
 public type SslCipherSuite SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
@@ -214,9 +214,6 @@ public type MQRFH record {|
 # + 'function - field description  
 # + abendCode - Abend code  
 # + authenticator - Password or passticket  
-# + reserved1 - Reserved  
-# + reserved2 - Reserved  
-# + reserved3 - Reserved  
 # + replyToFormat - MQ format name of reply message  
 # + remoteSysId - Remote CICS system Id to use  
 # + remoteTransId - CICS RTRANSID to use  
@@ -249,9 +246,6 @@ public type MQCIH record {|
     string 'function = "";
     string abendCode = "";
     string authenticator = "";
-    string reserved1 = "";
-    string reserved2 = "";
-    string reserved3 = "";
     string replyToFormat = "";
     string remoteSysId = "";
     string remoteTransId = "";
@@ -262,4 +256,40 @@ public type MQCIH record {|
     string cancelCode = "";
     string nextTransactionId = "";
     int inputItem = 0;
+|};
+
+# Header record representing the MQIIH structure.
+#
+# + flags - Flag of the header  
+# + encoding - Numeric encoding of data that follows NameValueString  
+# + strucId - Structure identifier  
+# + strucLength - Length of the structure  
+# + version - Structure version number  
+# + codedCharSetId - Character set identifier of data that follows NameValueString  
+# + format - Format name of data that follows NameValueString  
+# + lTermOverride - The logical terminal override, placed in the IO PCB field
+# + mfsMapName - The message format services map name, placed in the IO PCB field
+# + replyToFormat - This is the MQ format name of the reply message that is sent 
+#                   in response to the current message
+# + authenticator - The RACF® password or PassTicket
+# + tranInstanceId - This is the transaction instance identifier
+# + tranState - This indicates the IMS conversation state
+# + commitMode - IMS commit mode
+# + securityScope - This indicates the IMS security processing required
+public type MQIIH record {|
+    int flags = 0;
+    int encoding = 0;
+    string strucId = "IIH ";
+    int strucLength = 84;
+    int version = 1;
+    int codedCharSetId = 0;
+    string format = "        ";
+    string lTermOverride = "        ";
+    string mfsMapName = "        ";
+    string replyToFormat = "        ";
+    string authenticator = "        ";
+    byte[] tranInstanceId = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    string:Char tranState = " ";
+    string:Char commitMode = "0";
+    string:Char securityScope = "C";
 |};

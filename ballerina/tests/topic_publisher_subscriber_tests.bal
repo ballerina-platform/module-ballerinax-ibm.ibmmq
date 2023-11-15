@@ -358,9 +358,6 @@ function publishSubscribeWithMQCIHHeadersTest() returns error? {
                 'function: "test",
                 abendCode: "code",
                 authenticator: "authenti",
-                reserved1: "reserve1",
-                reserved2: "reserve2",
-                reserved3: "reserve3",
                 replyToFormat: "reformat",
                 remoteSysId: "rSId",
                 remoteTransId: "rTId",
@@ -405,9 +402,6 @@ function publishSubscribeWithMQCIHHeadersTest() returns error? {
                 'function: "test",
                 abendCode: "code",
                 authenticator: "authenti",
-                reserved1: "reserve1",
-                reserved2: "reserve2",
-                reserved3: "reserve3",
                 replyToFormat: "reformat",
                 remoteSysId: "rSId",
                 remoteTransId: "rTId",
@@ -418,6 +412,64 @@ function publishSubscribeWithMQCIHHeadersTest() returns error? {
                 cancelCode: "ccCd",
                 nextTransactionId: "ntid",
                 inputItem: 23
+            });
+        }
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check subscriber->close();
+    check publisher->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqTopic"]
+}
+function publishSubscribeWithMQIIHHeadersTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Topic subscriber = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
+    Topic publisher = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check publisher->put({
+        payload: "Hello World".toBytes(),
+        headers: [
+            {
+                flags: 12,
+                lTermOverride: "ltorride",
+                mfsMapName: "mfsmapnm",
+                replyToFormat: "reformat",
+                authenticator: "authenti",
+                tranInstanceId: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+                tranState: "t",
+                commitMode: "c",
+                securityScope: "s"
+            }
+        ]
+    });
+    Message? message = check subscriber->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World");
+        Header[]? headers = message.headers;
+        if headers is () {
+            test:assertFail("Expected MQCIH headers");
+        }
+        Header header = headers[0];
+        if header is MQIIH {
+            test:assertEquals(header, {
+                flags: 12,
+                encoding: 273,
+                strucId:"IIH ",
+                strucLength:84,
+                version:1,
+                codedCharSetId:0,
+                format:"        ",
+                lTermOverride: "ltorride",
+                mfsMapName: "mfsmapnm",
+                replyToFormat: "reformat",
+                authenticator: "authenti",
+                tranInstanceId: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+                tranState: "t",
+                commitMode: "c",
+                securityScope: "s"
             });
         }
     } else {
@@ -455,6 +507,17 @@ function publishSubscribeWithMultipleHeaderTypesTest() returns error? {
             {
                 flags: 15,
                 nameValuePairs: {"pair1": "value1", "pair2": "value2"}
+            },
+            {
+                flags: 12,
+                lTermOverride: "ltorride",
+                mfsMapName: "mfsmapnm",
+                replyToFormat: "reformat",
+                authenticator: "authenti",
+                tranInstanceId: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+                tranState: "t",
+                commitMode: "c",
+                securityScope: "s"
             }
         ]
     });
@@ -465,13 +528,15 @@ function publishSubscribeWithMultipleHeaderTypesTest() returns error? {
         if headers is () {
             test:assertFail("Expected MQCIH headers");
         }
-        test:assertTrue(headers.length() == 3);
+        test:assertTrue(headers.length() == 4);
         Header header = headers[0];
         if header is MQCIH {
             test:assertEquals(header.facility, "facility".toBytes());
             test:assertEquals(header.'function, "test");
             test:assertEquals(header.abendCode, "code");
             test:assertEquals(header.authenticator, "authenti");
+        } else {
+            test:assertFail("Expected MQCIH header");
         }
         header = headers[1];
         if header is MQRFH2 {
@@ -479,11 +544,25 @@ function publishSubscribeWithMultipleHeaderTypesTest() returns error? {
             test:assertEquals(header.fieldValues.get(["mcd", "Msd"]), {folder: "mcd", 'field: "Msd", value: "TestMcdValue"});
             test:assertEquals(header.fieldValues.get(["jms", "Dlv"]), {folder: "jms", 'field: "Dlv", value: 134});
             test:assertEquals(header.fieldValues.get(["mqps", "Ret"]), {folder: "mqps", 'field: "Ret", value: "1"});
+        } else {
+            test:assertFail("Expected MQRFH2 header");
         }
         header = headers[2];
         if header is MQRFH {
             test:assertEquals(header.flags, 15);
             test:assertEquals(header.nameValuePairs, {"pair1": "value1", "pair2": "value2"});
+        } else {
+            test:assertFail("Expected MQRFH header");
+        }
+        header = headers[3];
+        if header is MQIIH {
+            test:assertEquals(header.flags, 12);
+            test:assertEquals(header.lTermOverride, "ltorride");
+            test:assertEquals(header.replyToFormat, "reformat");
+            test:assertEquals(header.authenticator, "authenti");
+            test:assertEquals(header.commitMode, "c");
+        } else {
+            test:assertFail("Expected MQIIH header");
         }
     } else {
         test:assertFail("Expected a value for message");
