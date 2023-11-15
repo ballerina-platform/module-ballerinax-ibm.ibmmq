@@ -152,7 +152,7 @@ public type MQRFH2 record {|
     int nameValueCCSID = 1208;
     byte[] nameValueData = [];
     int nameValueLength = 0;
-    string format = "        ";
+    string format = DEFAULT_BLANK_VALUE;
     string strucId = "RFH ";
     int strucLength = 36;
     int version = 2;
@@ -187,7 +187,7 @@ public type MQRFH record {|
     int strucLength = 32;
     int version = 1;
     int codedCharSetId = 0;
-    string format = "        ";
+    string format = DEFAULT_BLANK_VALUE;
     map<string> nameValuePairs = {};
 |};
 
@@ -228,7 +228,7 @@ public type MQCIH record {|
     int flags = 0;
     int encoding = 0;
     int codedCharSetId = 0;
-    string format = "        ";
+    string format = DEFAULT_BLANK_VALUE;
     string strucId = "CIH ";
     int strucLength = 180;
     int version = 2;
@@ -283,11 +283,11 @@ public type MQIIH record {|
     int strucLength = 84;
     int version = 1;
     int codedCharSetId = 0;
-    string format = "        ";
-    string lTermOverride = "        ";
-    string mfsMapName = "        ";
-    string replyToFormat = "        ";
-    string authenticator = "        ";
+    string format = DEFAULT_BLANK_VALUE;
+    string lTermOverride = DEFAULT_BLANK_VALUE;
+    string mfsMapName = DEFAULT_BLANK_VALUE;
+    string replyToFormat = DEFAULT_BLANK_VALUE;
+    string authenticator = DEFAULT_BLANK_VALUE;
     byte[] tranInstanceId = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     string:Char tranState = " ";
     string:Char commitMode = "0";

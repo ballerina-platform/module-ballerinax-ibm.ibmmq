@@ -450,7 +450,7 @@ function publishSubscribeWithMQIIHHeadersTest() returns error? {
         test:assertEquals(string:fromBytes(message.payload), "Hello World");
         Header[]? headers = message.headers;
         if headers is () {
-            test:assertFail("Expected MQCIH headers");
+            test:assertFail("Expected MQIIH headers");
         }
         Header header = headers[0];
         if header is MQIIH {
