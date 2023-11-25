@@ -77,7 +77,6 @@ function basicQueueProducerConsumerWithJsonTest() returns error? {
         }
     };
     byte[] payload = messageBody.toJsonString().toBytes();
-    io:println(payload.length());
     check producer->put({
         payload: payload
     });
