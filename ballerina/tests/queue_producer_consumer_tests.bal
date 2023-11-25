@@ -41,6 +41,62 @@ function basicQueueProducerConsumerTest() returns error? {
 @test:Config {
     groups: ["ibmmqQueue"]
 }
+function basicQueueProducerConsumerWithJsonTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
+    Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
+    json messageBody = {
+        "data":{
+            "EmployeeRecord":{
+                "EmployeeId":"0001",
+                "EmployeeName":{
+                    "FirstName":"Mahroof",
+                    "LastName":"Sabthar"
+                    },
+                "EmployeeFullName":"Mahroof   Sabthar",
+                "EmployeeSalary":1500.0,
+                "EmployeeGrade":"A",
+                "EmployeeRating":99.8,
+                "EmployeeDepartments":[
+                    {
+                        "DeptCode":20901,
+                        "DeptName":"R&D"
+                    },{
+                        "DeptCode":29041,
+                        "DeptName":"Ballerina"
+                    }
+                ],
+                "EmployeeAddress":"Vijya RoadKolonnawa",
+                "EmployeeAddressRed":{
+                    "Street":"Vijya Road",
+                    "City":"Kolonnawa"
+                },
+                "FineAmount":100.0,
+                "PenaltyRating":9.2
+            }
+        }
+    };
+    byte[] payload = messageBody.toJsonString().toBytes();
+    io:println(payload.length());
+    check producer->put({
+        payload: payload
+    });
+    Message? message = check consumer->get();
+    if message !is () {
+        string rawMessageBody = check string:fromBytes(message.payload);
+        json receivedMessage = check rawMessageBody.fromJsonString();
+        test:assertEquals(receivedMessage, messageBody);
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check producer->close();
+    check consumer->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue"]
+}
 function pubSubMultipleMessagesQueueProducerConsumerTest() returns error? {
     QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);

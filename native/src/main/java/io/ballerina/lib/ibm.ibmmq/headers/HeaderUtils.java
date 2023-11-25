@@ -20,8 +20,6 @@ package io.ballerina.lib.ibm.ibmmq.headers;
 
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.headers.MQDataException;
-import com.ibm.mq.headers.MQIIH;
-import com.ibm.mq.headers.MQMD;
 import com.ibm.mq.headers.MQMD1;
 import com.ibm.mq.headers.MQMDE;
 import com.ibm.mq.headers.MQRMH;
@@ -47,22 +45,6 @@ public class HeaderUtils {
     public static void decodeUnSupportedHeaders(Runtime runtime, MQMessage msg,
                                                 ArrayList<BMap<BString, Object>> headers) throws IOException {
         int dataOffset = msg.getDataOffset();
-        try {
-            MQIIH mqiih = new MQIIH();
-            mqiih.read(msg);
-            MQRFH2Header.decodeHeader(runtime, msg, headers);
-            return;
-        } catch (MQDataException e) {
-            msg.seek(dataOffset);
-        }
-        try {
-            MQMD mqmd = new MQMD();
-            mqmd.read(msg);
-            MQRFH2Header.decodeHeader(runtime, msg, headers);
-            return;
-        } catch (MQDataException e) {
-            msg.seek(dataOffset);
-        }
         try {
             MQMD1 mqmd1 = new MQMD1();
             mqmd1.read(msg);
