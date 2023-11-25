@@ -41,7 +41,7 @@ function basicQueueProducerConsumerTest() returns error? {
 @test:Config {
     groups: ["ibmmqQueue"]
 }
-function basicQueueProducerConsumerWithJsonTest() returns error? {
+function basicQueueProducerConsumerWithJsonPayloadTest() returns error? {
     QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
