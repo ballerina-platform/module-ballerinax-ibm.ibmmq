@@ -41,6 +41,61 @@ function basicQueueProducerConsumerTest() returns error? {
 @test:Config {
     groups: ["ibmmqQueue"]
 }
+function basicQueueProducerConsumerWithJsonPayloadTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
+    Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
+    json messageBody = {
+        "data":{
+            "EmployeeRecord":{
+                "EmployeeId":"0001",
+                "EmployeeName":{
+                    "FirstName":"Mahroof",
+                    "LastName":"Sabthar"
+                    },
+                "EmployeeFullName":"Mahroof   Sabthar",
+                "EmployeeSalary":1500.00d,
+                "EmployeeGrade":"A",
+                "EmployeeRating":99.8d,
+                "EmployeeDepartments":[
+                    {
+                        "DeptCode":20901,
+                        "DeptName":"R&D"
+                    },{
+                        "DeptCode":29041,
+                        "DeptName":"Ballerina"
+                    }
+                ],
+                "EmployeeAddress":"Vijya RoadKolonnawa",
+                "EmployeeAddressRed":{
+                    "Street":"Vijya Road",
+                    "City":"Kolonnawa"
+                },
+                "FineAmount":100.00d,
+                "PenaltyRating":9.2d
+            }
+        }
+    };
+    byte[] payload = messageBody.toJsonString().toBytes();
+    check producer->put({
+        payload: payload
+    });
+    Message? message = check consumer->get();
+    if message !is () {
+        string rawMessageBody = check string:fromBytes(message.payload);
+        json receivedMessage = check rawMessageBody.fromJsonString();
+        test:assertEquals(receivedMessage, messageBody);
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check producer->close();
+    check consumer->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue"]
+}
 function pubSubMultipleMessagesQueueProducerConsumerTest() returns error? {
     QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
@@ -179,6 +234,80 @@ function produceAndConsumerMessageWithAdditionalPropertiesTest() returns error? 
     check queueManager.disconnect();
 }
 
+@test:Config {
+    groups: ["ibmmqQueue"]
+}
+function produceAndConsumerMessageWithAdditionalPropertiesWithJsonPayloadTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
+    Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
+    time:Utc timeNow = time:utcNow();
+    json messageBody = {
+        "data":{
+            "EmployeeRecord":{
+                "EmployeeId":"0001",
+                "EmployeeName":{
+                    "FirstName":"Mahroof",
+                    "LastName":"Sabthar"
+                    },
+                "EmployeeFullName":"Mahroof   Sabthar",
+                "EmployeeSalary":1500.00d,
+                "EmployeeGrade":"A",
+                "EmployeeRating":99.8d,
+                "EmployeeDepartments":[
+                    {
+                        "DeptCode":20901,
+                        "DeptName":"R&D"
+                    },{
+                        "DeptCode":29041,
+                        "DeptName":"Ballerina"
+                    }
+                ],
+                "EmployeeAddress":"Vijya RoadKolonnawa",
+                "EmployeeAddressRed":{
+                    "Street":"Vijya Road",
+                    "City":"Kolonnawa"
+                },
+                "FineAmount":100.00d,
+                "PenaltyRating":9.2d
+            }
+        }
+    };
+    byte[] payload = messageBody.toJsonString().toBytes();
+    check producer->put({
+        payload: payload,
+        correlationId: "1234".toBytes(),
+        expiry: timeNow[0],
+        format: "mqformat",
+        messageId: "test-id".toBytes(),
+        messageType: 2,
+        persistence: 0,
+        priority: 4,
+        putApplicationType: 28,
+        replyToQueueManagerName: "QM1",
+        replyToQueueName: "DEV.QUEUE.1"
+    });
+    Message? message = check consumer->get();
+    if message !is () {
+        string rawMessageBody = check string:fromBytes(message.payload);
+        json receivedMessage = check rawMessageBody.fromJsonString();
+        test:assertEquals(receivedMessage, messageBody);
+        test:assertEquals(message.expiry, timeNow[0]);
+        test:assertEquals(message.format, "mqformat");
+        test:assertEquals(message.messageType, 2);
+        test:assertEquals(message.persistence, 0);
+        test:assertEquals(message.priority, 4);
+        test:assertEquals(message.putApplicationType, 28);
+        test:assertEquals(message.replyToQueueManagerName, "QM1");
+        test:assertEquals(message.replyToQueueName, "DEV.QUEUE.1");
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check producer->close();
+    check consumer->close();
+    check queueManager.disconnect();
+}
+
 
 @test:Config {
     groups: ["ibmmqQueue"]
@@ -213,6 +342,105 @@ function produceAndConsumerMessageWithMultipleHeaderTypesTest() returns error? {
     Message? message = check consumer->get();
     if message !is () {
         test:assertEquals(string:fromBytes(message.payload), "Hello World");
+        Header[]? headers = message.headers;
+        if headers is () {
+            test:assertFail("Expected MQCIH headers");
+        }
+        test:assertTrue(headers.length() == 3);
+        Header header = headers[0];
+        if header is MQCIH {
+            test:assertEquals(header.facility, "facility".toBytes());
+            test:assertEquals(header.'function, "test");
+            test:assertEquals(header.abendCode, "code");
+            test:assertEquals(header.authenticator, "authenti");
+        }
+        header = headers[1];
+        if header is MQRFH2 {
+            test:assertEquals(header.flags, 12);
+            test:assertEquals(header.fieldValues.get(["mcd", "Msd"]), {folder: "mcd", 'field: "Msd", value: "TestMcdValue"});
+            test:assertEquals(header.fieldValues.get(["jms", "Dlv"]), {folder: "jms", 'field: "Dlv", value: 134});
+            test:assertEquals(header.fieldValues.get(["mqps", "Ret"]), {folder: "mqps", 'field: "Ret", value: "1"});
+        }
+        header = headers[2];
+        if header is MQRFH {
+            test:assertEquals(header.flags, 15);
+            test:assertEquals(header.nameValuePairs, {"pair1": "value1", "pair2": "value2"});
+        }
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check producer->close();
+    check consumer->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue"]
+}
+function produceAndConsumerMessageWithMultipleHeaderTypesWithJsonPayloadTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
+    Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
+    json messageBody = {
+        "data":{
+            "EmployeeRecord":{
+                "EmployeeId":"0001",
+                "EmployeeName":{
+                    "FirstName":"Mahroof",
+                    "LastName":"Sabthar"
+                    },
+                "EmployeeFullName":"Mahroof   Sabthar",
+                "EmployeeSalary":1500.00d,
+                "EmployeeGrade":"A",
+                "EmployeeRating":99.8d,
+                "EmployeeDepartments":[
+                    {
+                        "DeptCode":20901,
+                        "DeptName":"R&D"
+                    },{
+                        "DeptCode":29041,
+                        "DeptName":"Ballerina"
+                    }
+                ],
+                "EmployeeAddress":"Vijya RoadKolonnawa",
+                "EmployeeAddressRed":{
+                    "Street":"Vijya Road",
+                    "City":"Kolonnawa"
+                },
+                "FineAmount":100.00d,
+                "PenaltyRating":9.2d
+            }
+        }
+    };
+    byte[] payload = messageBody.toJsonString().toBytes();
+    check producer->put({
+        payload: payload,
+        headers: [
+            {
+                facility: "facility".toBytes(),
+                'function: "test",
+                abendCode: "code",
+                authenticator: "authenti"
+            },
+            {
+                flags: 12,
+                fieldValues: table [
+                    {folder: "mcd", 'field: "Msd", value: "TestMcdValue"},
+                    {folder: "jms", 'field: "Dlv", value: 134},
+                    {folder: "mqps", 'field: "Ret", value: true}
+                ]
+            },
+            {
+                flags: 15,
+                nameValuePairs: {"pair1": "value1", "pair2": "value2"}
+            }
+        ]
+    });
+    Message? message = check consumer->get();
+    if message !is () {
+        string rawMessageBody = check string:fromBytes(message.payload);
+        json receivedMessage = check rawMessageBody.fromJsonString();
+        test:assertEquals(receivedMessage, messageBody);
         Header[]? headers = message.headers;
         if headers is () {
             test:assertFail("Expected MQCIH headers");
