@@ -54,9 +54,9 @@ function basicQueueProducerConsumerWithJsonTest() returns error? {
                     "LastName":"Sabthar"
                     },
                 "EmployeeFullName":"Mahroof   Sabthar",
-                "EmployeeSalary":1500.0,
+                "EmployeeSalary":1500.00d,
                 "EmployeeGrade":"A",
-                "EmployeeRating":99.8,
+                "EmployeeRating":99.8d,
                 "EmployeeDepartments":[
                     {
                         "DeptCode":20901,
@@ -71,8 +71,8 @@ function basicQueueProducerConsumerWithJsonTest() returns error? {
                     "Street":"Vijya Road",
                     "City":"Kolonnawa"
                 },
-                "FineAmount":100.0,
-                "PenaltyRating":9.2
+                "FineAmount":100.00d,
+                "PenaltyRating":9.2d
             }
         }
     };
