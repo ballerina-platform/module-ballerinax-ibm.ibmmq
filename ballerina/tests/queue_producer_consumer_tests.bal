@@ -41,6 +41,25 @@ function basicQueueProducerConsumerTest() returns error? {
 @test:Config {
     groups: ["ibmmqQueue"]
 }
+function basicQueueProducerConsumerWithOneQueueObjectTest() returns error? {
+    QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+    check queue->put({
+        payload: "Hello World with one queue".toBytes()
+    });
+    Message? message = check queue->get();
+    if message !is () {
+        test:assertEquals(string:fromBytes(message.payload), "Hello World with one queue");
+    } else {
+        test:assertFail("Expected a value for message");
+    }
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue"]
+}
 function basicQueueProducerConsumerWithJsonPayloadTest() returns error? {
     QueueManager queueManager = check new (name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
