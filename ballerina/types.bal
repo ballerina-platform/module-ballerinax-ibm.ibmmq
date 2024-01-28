@@ -194,8 +194,8 @@ public type MQRFH record {|
 # Header record representing the MQCIH structure.
 #
 # + flags - Flag of the header  
-# + encoding - field description  
-# + codedCharSetId - field description  
+# + encoding - Numeric encoding of data that follows NameValueData 
+# + codedCharSetId - Character set identifier of data that follows NameValueString
 # + format - MQ format name of data that follows MQCIH
 # + strucId - Structure identifier  
 # + strucLength - Length of the structure  
@@ -211,7 +211,7 @@ public type MQRFH record {|
 # + conversationalTask - Whether task can be conversational  
 # + taskEndStatus - Status at end of task  
 # + facility - Bridge facility token  
-# + 'function - field description  
+# + 'function - MQ call name or CICS EIBFN function  
 # + abendCode - Abend code  
 # + authenticator - Password or passticket  
 # + replyToFormat - MQ format name of reply message  
@@ -271,7 +271,7 @@ public type MQCIH record {|
 # + mfsMapName - The message format services map name, placed in the IO PCB field
 # + replyToFormat - This is the MQ format name of the reply message that is sent 
 #                   in response to the current message
-# + authenticator - The RACF® password or PassTicket
+# + authenticator - RACF password or passticket
 # + tranInstanceId - This is the transaction instance identifier
 # + tranState - This indicates the IMS conversation state
 # + commitMode - IMS commit mode
