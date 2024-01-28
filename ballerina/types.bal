@@ -84,7 +84,7 @@ public type CertKey record {|
 # + waitInterval - The maximum time (in seconds) that a `get` call waits for a suitable message to 
 # arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
 public type GetMessageOptions record {|
-    int options = MQGMO_WAIT;
+    int options = MQGMO_NO_WAIT;
     int waitInterval = 10;
 |};
 
