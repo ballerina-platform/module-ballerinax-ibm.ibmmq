@@ -12,6 +12,7 @@ services:
     environment:
       - LICENSE=accept
       - MQ_QMGR_NAME=QM1
+      - MQ_APP_PASSWORD=password
     healthcheck:
       test: ["CMD-SHELL", "chkmqstarted"]
       interval: 10s
@@ -26,6 +27,7 @@ services:
     environment:
       - LICENSE=accept
       - MQ_QMGR_NAME=QM2
+      - MQ_APP_PASSWORD=password
     volumes:
       - ./secrets/server.crt:/etc/mqm/pki/keys/mykey/server.crt
       - ./secrets/server.key:/etc/mqm/pki/keys/mykey/server.key
