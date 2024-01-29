@@ -25,6 +25,8 @@ function basicPublisherSubscriberSecureSocketTest() returns error? {
         host = "localhost",
         port = 1415, 
         channel = "DEV.APP.SVRCONN",
+        userID = "app", 
+        password = "password",
         sslCipherSuite = TLS12ORHIGHER,
         secureSocket = {
             cert: "./tests/resources/secrets/server.crt",
@@ -59,6 +61,8 @@ function basicQueueProducerConsumerSecureSocketTest() returns error? {
         host = "localhost",
         port = 1415,
         channel = "DEV.APP.SVRCONN",
+        userID = "app", 
+        password = "password",
         sslCipherSuite = TLS12ORHIGHER,
         secureSocket = {
             cert: "./tests/resources/secrets/server.crt",
@@ -93,6 +97,8 @@ function basicPublisherSubscriberSecureSocketJksTest() returns error? {
         host = "localhost",
         port = 1415,
         channel = "DEV.APP.SVRCONN",
+        userID = "app", 
+        password = "password",
         sslCipherSuite = TLS12ORHIGHER,
         secureSocket = {
             cert: {
@@ -130,6 +136,8 @@ function basicQueueProducerConsumerSecureSocketJksTest() returns error? {
         host = "localhost",
         port = 1415,
         channel = "DEV.APP.SVRCONN",
+        userID = "app", 
+        password = "password",
         sslCipherSuite = TLS12ORHIGHER,
         secureSocket = {
             cert: {
