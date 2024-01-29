@@ -66,6 +66,9 @@ public isolated class QueueManager {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"
     } external;
 
+    # Ends the connection to the IBM MQ queue manager.
+    #
+    # + return - An `ibmmq:Error` if the operation fails or else `()`
     public isolated function disconnect() returns Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.QueueManager"

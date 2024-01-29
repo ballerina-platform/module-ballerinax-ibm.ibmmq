@@ -30,6 +30,9 @@ public isolated client class Queue {
     *Destination;
 
     # Puts a message to an IBM MQ queue.
+    # ```ballerina
+    # check queue->put({payload: "Hello World".toBytes()});
+    # ```
     # 
     # + message - IBM MQ message
     # + return - An `ibmmq:Error` if the operation fails or else `()`
@@ -39,6 +42,9 @@ public isolated client class Queue {
     } external;
 
     # Retrieves a message from an IBM MQ queue.
+    # ```ballerina
+    # ibmmq:Message? message = check queue->get();
+    # ```
     # 
     # + getMessageOptions - Options to control message retrieval
     # + return - An `ibmmq:Message` if there is a message in the queue, `()` if there 
@@ -49,6 +55,9 @@ public isolated client class Queue {
     } external;
 
     # Closes the IBM MQ queue object. No further operations on this object are permitted after it is closed.
+    # ```ballerina
+    # check queue->close();
+    # ```
     # 
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function close() returns Error? =
@@ -62,6 +71,9 @@ public isolated client class Topic {
     *Destination;
 
     # Puts a message to an IBM MQ topic.
+    #```ballerina
+    # check topic->put({payload: "Hello World".toBytes()});
+    #```
     # 
     # + message - IBM MQ message
     # + return - An `ibmmq:Error` if the operation fails or else `()`
@@ -71,6 +83,9 @@ public isolated client class Topic {
     } external;
 
     # Retrieves a message from an IBM MQ topic.
+    #```ballerina
+    # ibmmq:Message? message = check topic->get();
+    #```
     # 
     # + getMessageOptions - Options to control message retrieval
     # + return - An `ibmmq:Message` if there is a message in the topic, `()` if there 
@@ -81,6 +96,9 @@ public isolated client class Topic {
     } external;
 
     # Closes the IBM MQ topic object. No further operations on this object are permitted after it is closed.
+    # ```ballerina
+    # check topic->close();
+    # ```
     # 
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function close() returns Error? =
