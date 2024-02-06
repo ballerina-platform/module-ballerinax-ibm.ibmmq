@@ -1,6 +1,6 @@
 # Specification: Ballerina `ibm.ibmmq` Library
 
-_Owners_: @ayeshLK @dilanSachi \
+_Owners_: @ayeshLK \
 _Reviewers_: @NipunaRanasinghe @dilanSachi \
 _Created_: 2024/01/28 \
 _Updated_: 2024/01/28 \
@@ -23,16 +23,19 @@ The conforming implementation of the specification is released to Ballerina Cent
 
 ## Contents
 
-1. [Overview](#1-overview)
-2. [Queue Manager](#2-queue-manager)
-    * 2.1. [Configurations](#21-configurations)
-    * 2.2. [Initialization](#22-initialization)
-    * 2.3. [Functions](#23-functions)
-3. [Message](#3-message)
-4. [Queue](#4-queue)
-    * 4.1. [Functions](#41-functions)
-5. [Topic](#5-topic)
-    * 5.1. [Functions](#51-functions)
+- [Specification: Ballerina `ibm.ibmmq` Library](#specification-ballerina-ibmibmmq-library)
+  - [Introduction](#introduction)
+  - [Contents](#contents)
+  - [1. Overview](#1-overview)
+  - [2. Queue Manager](#2-queue-manager)
+    - [2.1 Configurations](#21-configurations)
+    - [2.2. Initialization](#22-initialization)
+    - [2.3. Functions](#23-functions)
+  - [3. Message](#3-message)
+  - [4. Queue](#4-queue)
+    - [4.1. Functions](#41-functions)
+  - [5. Topic](#5-topic)
+    - [5.1. Functions](#51-functions)
 
 ## 1. Overview
 
