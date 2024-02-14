@@ -29,10 +29,11 @@ The conforming implementation of the specification is released to Ballerina Cent
     * 2.2. [Initialization](#22-initialization)
     * 2.3. [Functions](#23-functions)
 3. [Message](#3-message)
-4. [Queue](#4-queue)
-    * 4.1. [Functions](#41-functions)
-5. [Topic](#5-topic)
+4. [Client Options](#4-client-options)
+5. [Queue](#5-queue)
     * 5.1. [Functions](#51-functions)
+6. [Topic](#6-topic)
+    * 6.1. [Functions](#61-functions)
 
 ## 1. Overview
 
@@ -405,11 +406,24 @@ public type Message record {|
 |};
 ```
 
-## 4. Queue
+## 4. Client Options
+
+- GetMessageOptions record represents client options which can be used when retrieving messages from an IBM MQ destination.
+
+```ballerina
+public type GetMessageOptions record {|
+    # Get message option
+    int options = MQGMO_NO_WAIT;
+    # The maximum time (in seconds) that a `get` call waits for a suitable message to arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
+    int waitInterval = 10;
+|};
+```
+
+## 5. Queue
 
 An IBM MQ Queue enables applications to interact with an IBM MQ queue to exchange messages.
 
-### 4.1. Functions
+### 5.1. Functions
 
 - To send a message `put` function can be used.
 
@@ -450,11 +464,11 @@ isolated remote function get(*ibmmq:GetMessageOptions getMessageOptions) returns
 isolated remote function close() returns ibmmq:Error?
 ```
 
-## 5. Topic
+## 6. Topic
 
 An IBM MQ Topic enables applications to interact with an IBM MQ Topic to exchange messages.
 
-### 5.1. Functions
+### 6.1. Functions
 
 - To send a message `put` function can be used.
 
