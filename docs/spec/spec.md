@@ -153,18 +153,18 @@ public isolated function accessQueue(string queueName, int options) returns ibmm
 - To initialize a new `ibmmq:Topic` client, the `accessTopic` function can be used.
 
 ```ballerina
-# Establishes access to an IBM MQ queue on this queue manager.
+# Establishes access to an IBM MQ topic on this queue manager.
 # ```
-# ibmmq:Queue queue = check queueManager.accessQueue("queue1", ibmmq:MQOO_OUTPUT);
+# ibmmq:Topic topic = check queueManager.accessTopic("topic1", ibmmq:MQOO_OUTPUT);
 # ```
 # 
-# + queueName - Name of the queue
-# + options - The options which control the opening of the queue
+# + topicName - Name of the queue
+# + options - The options which control the opening of the topic
 # + return - The `ibmmq:Queue` object or an `ibmmq:Error` if the operation failed
-public isolated function accessQueue(string queueName, int options) returns ibmmq:Queue|ibmmq:Error;
+public isolated function accessTopic(string topicName, int options) returns ibmmq:Topic|ibmmq:Error;
 ```
 
-- To end the connection to the IBM MQ queue manager, `disconect` function can be used.
+- To end the connection to the IBM MQ queue manager, `disconnect` function can be used.
 
 ```ballerina
 # Ends the connection to the IBM MQ queue manager.
