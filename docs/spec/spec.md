@@ -1,6 +1,6 @@
 # Specification: Ballerina `ibm.ibmmq` Library
 
-_Owners_: @ayeshLK \
+_Authors_: @ayeshLK \
 _Reviewers_: @NipunaRanasinghe @dilanSachi \
 _Created_: 2024/01/28 \
 _Updated_: 2024/01/28 \
