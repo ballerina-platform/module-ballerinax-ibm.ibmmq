@@ -1,4 +1,4 @@
-## Overview
+## Package overview
 
 [IBM MQ](https://www.ibm.com/products/mq) is a powerful messaging middleware platform designed for facilitating reliable
 communication between disparate systems and applications. IBM MQ ensures the secure and orderly exchange of messages
