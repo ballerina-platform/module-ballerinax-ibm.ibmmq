@@ -1,100 +1,122 @@
 ## Overview
 
+[IBM MQ](https://www.ibm.com/products/mq) is a powerful messaging middleware platform designed for facilitating reliable 
+communication between disparate systems and applications. IBM MQ ensures the secure and orderly exchange of messages 
+asynchronously, decoupling senders and receivers for efficient and scalable communication. It supports both 
+point-to-point and publish/subscribe messaging models via queues and topics.
+
 The `ballerinax/ibm.ibmmq` module provides an API to connect to an IBM MQ server using Ballerina.
 
-This module is created with minimal deviation from the IBM MQ java client API to make it easy for the developers who are used to working with the IBM MQ java client.
- 
-Currently, the following IBM MQ API Classes are supported through this package.
+## Setup guide
 
-- QueueManager
-- Queue
-- Destination (Queue, Topic)
-- Message
+To use the Ballerina IBM MQ connector, you need to have an IBM MQ instance running or possess an IBM MQ cloud account. 
+For setting up IBM MQ locally, you can refer to the [IBM MQ official documentation](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=migrating-installing-uninstalling). 
+Alternatively, to use IBM MQ on the cloud, [sign up](https://cloud.ibm.com/registration) for an IBM MQ cloud account.
 
-### IBM MQ queue
+### Create a queue
 
-IBM MQ queues are used for point-to-point messaging. In point-to-point messaging, a producer application sends a message to a queue, and a single consumer application retrieves the message from the queue.
+1. Log into IBM MQ console. If you are running an IBM MQ server locally you can navigate to 
+[https://localhost:9443/ibmmq/console](https://localhost:9443/ibmmq/console) URL in your browser to access the IBM MQ console. 
+2. Click on the `Create a queue` link.
 
-#### Producer
+![Create a queue](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-create-queue.png)
 
-```ballerina
-import ballerinax/ibm.ibmmq;
+3. Select the queue type.
 
-public function main() returns error? {
-    ibmmq:QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN"
-    );
-    ibmmq:Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", ibmmq:MQOO_OUTPUT);
-    check producer->put({
-        payload: "This is a sample message to IBM MQ queue".toBytes()
-    });
-    check producer->close();
-    check queueManager.disconnect();
-}
-```
+![Select the queue type](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-queue-type.png)
 
-#### Consumer
+4. Go back to the home page and click on the `Manage` link on the sidebar.
 
-```ballerina
-import ballerinax/ibm.ibmmq;
-import ballerina/io;
+![Click on Manage](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-manage-link.png)
 
-public function main() returns error? {
-    ibmmq:QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN"
-    );
-    ibmmq:Queue consumer = check queueManager.accessQueue(
-            "DEV.QUEUE.1", ibmmq:MQOO_INPUT_AS_Q_DEF);
-    while true {
-        ibmmq:Message? message = check consumer->get(options = ibmmq:MQGMO_WAIT);
-        if message is () {
-            continue;
-        }
-        io:println(string:fromBytes(message.payload));
-    }
-}
-```
+5. Navigate to `Events` tab.
 
-### IBM MQ topic
+![Navigate to Events tab](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/navigate-to-events-tab.png)
 
-IBM MQ topics are used in the publish/subscribe (pub/sub) messaging model. In pub/sub, publishers send messages to topics, and subscribers subscribe to topics. When a publisher sends a message to a topic, the queue manager delivers the message to all subscribers that are subscribed to that topic.
+6. Click on `Create`.
 
-#### Publisher
+![Click on create](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-on-create.png)
+
+## Quickstart
+
+To use the IBM MQ connector in your Ballerina application, modify the .bal file as follows:
+
+### Step 1: Import the connector
+
+Import `ballerinax/ibm.ibmmq` package into your Ballerina project.
 
 ```ballerina
 import ballerinax/ibm.ibmmq;
-
-public function main() returns error? {
-    ibmmq:QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN"
-    );
-    ibmmq:Topic publisher = check queueManager.accessTopic(
-        "dev", "DEV.BASE.TOPIC", ibmmq:OPEN_AS_PUBLICATION, ibmmq:MQOO_OUTPUT);
-    check publisher->put({
-        payload: "This is a sample message to IBM MQ topic".toBytes()
-    });
-    check publisher->close();
-    check queueManager.disconnect();
-}
 ```
 
-#### Subscriber
+### Step 2: Instantiate a new connector
+
+Create an `ibmmq:QueueManager` instance by giving IBM MQ configuration.
 
 ```ballerina
-import ballerinax/ibm.ibmmq;
-import ballerina/io;
+configurable string queueManagerName = ?;
+configurable string host = ?;
+configurable int port = ?;
+configurable string channel = ?;
+configurable string userID = ?;
+configurable string password = ?;
 
-public function main() returns error? {
-    ibmmq:QueueManager queueManager = check new(
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN");
-    ibmmq:Topic subscriber = check queueManager.accessTopic(
-        "dev", "DEV.BASE.TOPIC", ibmmq:OPEN_AS_SUBSCRIPTION, ibmmq:MQSO_CREATE);
-    while true {
-        ibmmq:Message? message = check subscriber->get(options = ibmmq:MQGMO_WAIT);
-        if message is () {
-            continue;
-        }
-        io:println(string:fromBytes(message.payload));
-    }
-}
+ibmmq:QueueManager queueManager = check new (
+    name = queueManagerName, host = host, channel = channel, userID = userID, password = password
+);
 ```
+
+Create an `ibmmq:Queue` or `ibmmq:Topic` using the `ibmmq:QueueManager` instance with relevant configurations.
+
+```ballerina
+configurable string queueName = ?;
+
+ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_OUTPUT | ibmmq:MQOO_INPUT_AS_Q_DEF);
+```
+
+Create an `ibmmq:Topic` using the `ibmmq:QueueManager` instance with relevant configurations.
+
+```ballerina
+configurable string topicName = ?;
+configurable string topicString = ?;
+
+ibmmq:Topic topic = check queueManager.accessTopic(
+    topicName, topicString, ibmmq:MQOO_OUTPUT | ibmmq:MQOO_INPUT_AS_Q_DEF
+);
+```
+
+### Step 3: Invoke the connector operations
+
+Now, utilize the available connector operations.
+
+#### Produce message to an IBM MQ queue
+
+```ballerina
+check queue->put({
+    payload: "This is a sample message to IBM MQ queue".toBytes()
+});
+```
+
+#### Produce message to an IBM MQ queue
+
+```ballerina
+check topic->put({
+    payload: "This is a sample message to IBM MQ topic".toBytes()
+});
+```
+
+#### Retrieve messages from an IBM MQ queue
+
+```ballerina
+ibmmq:Message? message = check queue->get();
+```
+
+#### Retrieve messages from an IBM MQ topic
+
+```ballerina
+ibmmq:Message? message = check topic->get();
+```
+
+### Examples
+
+The following example shows how to use the `ibm.ibmmq` connector to produce and consume messages using an IBM MQ server.
