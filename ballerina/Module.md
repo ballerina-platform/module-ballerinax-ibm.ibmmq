@@ -7,6 +7,13 @@ point-to-point and publish/subscribe messaging models via queues and topics.
 
 The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ server using Ballerina.
 
+## Compatibility
+
+| |   Version    |
+|:---|:------------:|
+|IBM MQ Server | **9.3 or earlier** |
+|IBM MQ Client Connector* |  **9.3.4.0**  |
+
 ## Setup guide
 
 To use the Ballerina IBM MQ connector, you need to have an IBM MQ instance running or possess an IBM MQ cloud account. 
