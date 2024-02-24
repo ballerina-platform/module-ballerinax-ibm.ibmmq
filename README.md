@@ -94,7 +94,7 @@ ibmmq:Topic topic = check queueManager.accessTopic(
 
 Now, utilize the available connector operations.
 
-#### Produce message to an IBM MQ queue
+#### Produce messages to an IBM MQ queue
 
 ```ballerina
 check queue->put({
@@ -102,7 +102,7 @@ check queue->put({
 });
 ```
 
-#### Produce message to an IBM MQ queue
+#### Produce messages to an IBM MQ topic
 
 ```ballerina
 check topic->put({
