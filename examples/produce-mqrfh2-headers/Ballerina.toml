@@ -1,6 +1,6 @@
 [package]
 org = "wso2"
-name = "send_mqrfh2_headers"
+name = "produce_mqrfh2_headers"
 version = "0.1.0"
 distribution = "2201.8.2"
 
