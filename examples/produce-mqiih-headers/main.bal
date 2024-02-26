@@ -1,4 +1,4 @@
-// Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,11 +16,23 @@
 
 import ballerinax/ibm.ibmmq;
 
+configurable string queueManagerName = ?;
+configurable string host = ?;
+configurable int port = ?;
+configurable string channel = ?;
+configurable string userID = ?;
+configurable string password = ?;
+configurable string queueName = ?;
+
 public function main() returns error? {
     ibmmq:QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN"
+        name = queueManagerName, 
+        host = host, 
+        channel = channel, 
+        userID = userID, 
+        password = password
     );
-    ibmmq:Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", ibmmq:MQOO_OUTPUT);
+    ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_OUTPUT);
 
     ibmmq:MQIIH mqiihHeader = {
         flags: 12,
@@ -34,10 +46,10 @@ public function main() returns error? {
         securityScope: "s"
     };
 
-    check producer->put({
+    check queue->put({
         headers: [mqiihHeader],
         payload: "This is a sample message to IBM MQ queue".toBytes()
     });
-    check producer->close();
+    check queue->close();
     check queueManager.disconnect();
 }
