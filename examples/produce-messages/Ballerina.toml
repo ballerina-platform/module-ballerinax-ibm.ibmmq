@@ -3,6 +3,3 @@ org = "wso2"
 name = "produce_messages"
 version = "0.1.0"
 distribution = "2201.8.4"
-
-[build-options]
-observabilityIncluded = true
