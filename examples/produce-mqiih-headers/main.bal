@@ -1,4 +1,4 @@
-// Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerinax/ibm.ibmmq;
-import ballerina/io;
 
 configurable string queueManagerName = ?;
 configurable string host = ?;
@@ -33,22 +32,24 @@ public function main() returns error? {
         userID = userID, 
         password = password
     );
-    ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_INPUT_AS_Q_DEF);
+    ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_OUTPUT);
 
-    while true {
-        ibmmq:Message? message = check queue->get(options = ibmmq:MQGMO_WAIT);
-        if message is () {
-            continue;
-        }
-        io:println(string:fromBytes(message.payload));
-        ibmmq:Header[]? headers = message.headers;
-        if headers is () {
-            continue;
-        }
-        ibmmq:Header header = headers[0];
-        if header is ibmmq:MQIIH {
-            io:println(header.lTermOverride);
-            io:println(header.mfsMapName);
-        }
-    }
+    ibmmq:MQIIH mqiihHeader = {
+        flags: 12,
+        lTermOverride: "ltorride",
+        mfsMapName: "mfsmapnm",
+        replyToFormat: "reformat",
+        authenticator: "authenti",
+        tranInstanceId: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+        tranState: "t",
+        commitMode: "c",
+        securityScope: "s"
+    };
+
+    check queue->put({
+        headers: [mqiihHeader],
+        payload: "This is a sample message to IBM MQ queue".toBytes()
+    });
+    check queue->close();
+    check queueManager.disconnect();
 }

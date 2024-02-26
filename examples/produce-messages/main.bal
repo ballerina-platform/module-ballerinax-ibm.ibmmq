@@ -1,4 +1,4 @@
-// Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,28 +16,26 @@
 
 import ballerinax/ibm.ibmmq;
 
-public function main() returns error? {
+configurable string queueManagerName = ?;
+configurable string host = ?;
+configurable int port = ?;
+configurable string channel = ?;
+configurable string userID = ?;
+configurable string password = ?;
+configurable string queueName = ?;
+
+public function main() returns error?{
     ibmmq:QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN"
+        name = queueManagerName, 
+        host = host, 
+        channel = channel, 
+        userID = userID, 
+        password = password
     );
-    ibmmq:Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", ibmmq:MQOO_OUTPUT);
-
-    ibmmq:MQIIH mqiihHeader = {
-        flags: 12,
-        lTermOverride: "ltorride",
-        mfsMapName: "mfsmapnm",
-        replyToFormat: "reformat",
-        authenticator: "authenti",
-        tranInstanceId: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-        tranState: "t",
-        commitMode: "c",
-        securityScope: "s"
-    };
-
-    check producer->put({
-        headers: [mqiihHeader],
+    ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_OUTPUT);
+    check queue->put({
         payload: "This is a sample message to IBM MQ queue".toBytes()
     });
-    check producer->close();
+    check queue->close();
     check queueManager.disconnect();
 }
