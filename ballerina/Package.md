@@ -128,6 +128,20 @@ ibmmq:Message? message = check topic->get();
 
 The following example shows how to use the `ibm.ibmmq` connector to produce and consume messages using an IBM MQ server.
 
+1. [Produce messages](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/produce-messages) - Produce messages to an IBM MQ queue.
+
+2. [Consume messages](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-messages) - Consume messages from an IBM MQ queue.
+
+3. [Securing IBM MQ client](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/ibmmq-client-security) - Initiate secure communication between an IBM MQ client and an IBM MQ server.
+
+4. [Produce MQIIH headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/produce-mqiih-headers) - Produce IBM MQ messages to an IBM MQ queue with the MQIIH headers.
+
+5. [Consume MQIIH headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-mqiih-headers) - Consume messages with the MQIIH header from an IBM MQ queue.
+
+6. [Produce MQRFH2 headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/produce-mqrfh2-headers) - Produce IBM MQ messages to an IBM MQ queue with the MQRFH2 headers.
+
+7. [Consume MQIIH headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-mqrfh2-headers) - Consume messages with the MQRFH2 header from an IBM MQ queue.
+
 ## Report Issues
 
 To report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina library parent repository](https://github.com/ballerina-platform/ballerina-library).
