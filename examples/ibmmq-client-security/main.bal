@@ -16,12 +16,21 @@
 
 import ballerinax/ibm.ibmmq;
 
+configurable string queueManagerName = ?;
+configurable string host = ?;
+configurable int port = ?;
+configurable string channel = ?;
+configurable string userID = ?;
+configurable string password = ?;
+configurable string queueName = ?;
+
 public function main() returns error? {
     ibmmq:QueueManager queueManager = check new (
-        name = "QM1",
-        host = "localhost",
-        port = 1415,
-        channel = "DEV.APP.SVRCONN",
+        name = queueManagerName, 
+        host = host, 
+        channel = channel, 
+        userID = userID, 
+        password = password,
         // Provide the relevant SSL cipher-suite.
         sslCipherSuite = ibmmq:TLS12ORHIGHER,
         secureSocket = {
@@ -37,10 +46,10 @@ public function main() returns error? {
             }
         }
     );
-    ibmmq:Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", ibmmq:MQOO_OUTPUT);
-    check producer->put({
+    ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_OUTPUT);
+    check queue->put({
         payload: "This is a sample message to IBM MQ queue".toBytes()
     });
-    check producer->close();
+    check queue->close();
     check queueManager.disconnect();
 }
