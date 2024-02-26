@@ -50,7 +50,7 @@ To use the IBM MQ connector in your Ballerina application, modify the .bal file 
 
 ### Step 1: Import the connector
 
-Import `ballerinax/ibm.ibmmq` package into your Ballerina project.
+Import `ballerinax/ibm.ibmmq` module into your Ballerina project.
 
 ```ballerina
 import ballerinax/ibm.ibmmq;
