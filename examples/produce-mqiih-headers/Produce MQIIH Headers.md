@@ -1,6 +1,6 @@
 # Produce MQIIH headers
 
-This example demonstrates how to produce IBM MQ messages to an IBM MQ queue with MQIIH headers.
+This example demonstrates how to produce IBM MQ messages to an IBM MQ queue with the MQIIH headers.
 
 ## Prerequisites
 
