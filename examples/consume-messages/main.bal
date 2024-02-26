@@ -1,4 +1,4 @@
-// Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -34,21 +34,11 @@ public function main() returns error? {
         password = password
     );
     ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_INPUT_AS_Q_DEF);
-
+    ibmmq:Message? message = check queue->get(options = ibmmq:MQGMO_WAIT);
     while true {
-        ibmmq:Message? message = check queue->get(options = ibmmq:MQGMO_WAIT);
         if message is () {
             continue;
         }
         io:println(string:fromBytes(message.payload));
-        ibmmq:Header[]? headers = message.headers;
-        if headers is () {
-            continue;
-        }
-        ibmmq:Header header = headers[0];
-        if header is ibmmq:MQIIH {
-            io:println(header.lTermOverride);
-            io:println(header.mfsMapName);
-        }
     }
 }

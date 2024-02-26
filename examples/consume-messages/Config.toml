@@ -1,0 +1,7 @@
+queueManagerName = "QM1"
+host = "localhost"
+port = 1414
+channel = "DEV.APP.SVRCONN"
+userID = "app"
+password = "password"
+queueName = "DEV.QUEUE.1"

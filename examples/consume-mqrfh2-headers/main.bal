@@ -17,14 +17,26 @@
 import ballerinax/ibm.ibmmq;
 import ballerina/io;
 
+configurable string queueManagerName = ?;
+configurable string host = ?;
+configurable int port = ?;
+configurable string channel = ?;
+configurable string userID = ?;
+configurable string password = ?;
+configurable string queueName = ?;
+
 public function main() returns error? {
     ibmmq:QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN"
+        name = queueManagerName, 
+        host = host, 
+        channel = channel, 
+        userID = userID, 
+        password = password
     );
-    ibmmq:Queue consumer = check queueManager.accessQueue(
-            "DEV.QUEUE.1", ibmmq:MQOO_INPUT_AS_Q_DEF);
+    ibmmq:Queue queue = check queueManager.accessQueue(queueName, ibmmq:MQOO_INPUT_AS_Q_DEF);
+
     while true {
-        ibmmq:Message? message = check consumer->get(options = ibmmq:MQGMO_WAIT);
+        ibmmq:Message? message = check queue->get(options = ibmmq:MQGMO_WAIT);
         if message is () {
             continue;
         }

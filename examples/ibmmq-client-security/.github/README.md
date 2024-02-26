@@ -1,0 +1,1 @@
+../Securing IBM MQ Client.md
