@@ -4,13 +4,13 @@ This example demonstrates how to produce messages to an IBM MQ queue.
 
 ## Prerequisites
 
-### 1. Setup Gmail API
+### 1. Setup IBM MQ server
 
 Refer to the [Setup Guide](https://dev-central.ballerina.io/ballerinax/ibm.ibmmq/latest#setup-guide) to set up the IBM MQ server locally.
 
 ### 2. Configuration
 
-Configure Gmail API credentials in `Config.toml` in the example directory:
+Update IBM MQ related configurations in `Config.toml` in the example directory:
 
 ```toml
 queueManagerName = "<queue-manager-name>"
