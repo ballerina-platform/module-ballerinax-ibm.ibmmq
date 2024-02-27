@@ -52,7 +52,7 @@ Alternatively, to use IBM MQ on the cloud, [sign up](https://cloud.ibm.com/regis
 
 ## Quickstart
 
-To use the IBM MQ connector in your Ballerina application, modify the .bal file as follows:
+To use the IBM MQ connector in your Ballerina application, modify the `.bal` file as follows:
 
 ### Step 1: Import the connector
 
