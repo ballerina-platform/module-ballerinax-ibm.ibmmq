@@ -1,6 +1,6 @@
 # Consume MQRFH2 headers
 
-This example demonstrates how to consume messages with MQRFH2 header from an IBM MQ queue.
+This example demonstrates how to consume messages with the MQRFH2 header from an IBM MQ queue.
 
 ## Prerequisites
 

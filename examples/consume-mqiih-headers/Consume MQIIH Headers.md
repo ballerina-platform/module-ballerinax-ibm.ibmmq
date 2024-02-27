@@ -1,6 +1,6 @@
 # Consume MQIIH headers
 
-This example demonstrates how to consume messages with MQIIH header from an IBM MQ queue.
+This example demonstrates how to consume messages with the MQIIH header from an IBM MQ queue.
 
 ## Prerequisites
 

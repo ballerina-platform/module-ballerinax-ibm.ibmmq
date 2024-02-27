@@ -1,6 +1,6 @@
 # Produce MQRFH2 headers
 
-This example demonstrates how to produce IBM MQ messages to an IBM MQ queue with MQRFH2 headers.
+This example demonstrates how to produce IBM MQ messages to an IBM MQ queue with the MQRFH2 headers.
 
 ## Prerequisites
 
