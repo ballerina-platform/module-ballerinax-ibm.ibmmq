@@ -17,7 +17,6 @@ The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ serve
 |                        |   Version    |
 |:-----------------------|:------------:|
 | IBM MQ Server          | **9.3 or earlier** |
-| IBM MQ Client Connector|  **9.3.4.0**  |
 
 ## Setup guide
 
