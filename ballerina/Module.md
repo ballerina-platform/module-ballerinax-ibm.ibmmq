@@ -9,10 +9,10 @@ The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ serve
 
 ## Compatibility
 
-| |   Version    |
-|:---|:------------:|
-|IBM MQ Server | **9.3 or earlier** |
-|IBM MQ Client Connector* |  **9.3.4.0**  |
+|                        |   Version    |
+|:-----------------------|:------------:|
+| IBM MQ Server          | **9.3 or earlier** |
+| IBM MQ Client Connector|  **9.3.4.0**  |
 
 ## Setup guide
 
@@ -122,6 +122,12 @@ ibmmq:Message? message = check queue->get();
 
 ```ballerina
 ibmmq:Message? message = check topic->get();
+```
+
+### Step 4: Run the Ballerina application
+
+```Shell
+bal run
 ```
 
 ### Examples
