@@ -20,7 +20,6 @@ groupId = "org.json"
 artifactId = "json"
 version = "20231013"
 path = "./lib/json-20231013.jar"
-scope="provided"
 
 [[platform.java17.dependency]]
 groupId = "com.ibm.mq"
@@ -34,18 +33,15 @@ groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-annotations"
 version = "2.15.3"
 path = "./lib/jackson-annotations-2.15.3.jar"
-scope="provided"
 
 [[platform.java17.dependency]]
 groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-core"
 version = "2.15.3"
 path = "./lib/jackson-core-2.15.3.jar"
-scope="provided"
 
 [[platform.java17.dependency]]
 groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-databind"
 version = "2.15.3"
 path = "./lib/jackson-databind-2.15.3.jar"
-scope="provided"
