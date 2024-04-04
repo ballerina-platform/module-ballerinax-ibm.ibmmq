@@ -26,7 +26,7 @@ groupId = "com.ibm.mq"
 artifactId = "com.ibm.mq.allclient"
 version = "@ibmmq.version@"
 path = "./lib/com.ibm.mq.allclient-@ibmmq.version@.jar"
-scope="provided"
+scope = "provided"
 
 [[platform.java17.dependency]]
 groupId = "com.fasterxml.jackson.core"
