@@ -30,25 +30,25 @@ Alternatively, to use IBM MQ on the cloud, [sign up](https://cloud.ibm.com/regis
    [https://localhost:9443/ibmmq/console](https://localhost:9443/ibmmq/console) URL in your browser to access the IBM MQ console.
 2. Click on the `Create a queue` link.
 
-   ![Create a queue](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-create-queue.png)
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-create-queue.png alt="Create a queue" style="width: 70%;">
 
 3. Select the queue type.
 
-   ![Select the queue type](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-queue-type.png)
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-queue-type.png alt="Select the queue type" style="width: 70%;">
 
 ### Create a topic
 
 1. Go back to the home page and click on the `Manage` link on the sidebar.
 
-   ![Click on Manage](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-manage-link.png)
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-manage-link.png alt="Click on manage" style="width: 70%;">
 
 2. Navigate to `Events` tab.
 
-   ![Navigate to Events tab](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/navigate-to-events-tab.png)
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/navigate-to-events-tab.png alt="Navigate to events tab" style="width: 70%;">
 
 3. Click on `Create`.
 
-   ![Click on create](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-on-create.png)
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-on-create.png alt="Click on create" style="width: 70%;">
 
 ## Quickstart
 
