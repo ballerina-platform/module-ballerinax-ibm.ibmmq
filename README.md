@@ -20,8 +20,8 @@ Alternatively, to use IBM MQ on the cloud, [sign up](https://cloud.ibm.com/regis
 
 ### Create a queue
 
-1. Log into IBM MQ console. If you are running an IBM MQ server locally you can navigate to
-   [https://localhost:9443/ibmmq/console](https://localhost:9443/ibmmq/console) URL in your browser to access the IBM MQ console.
+1. Log into IBM MQ console. If you are running an IBM MQ server locally you can navigate to `https://<host>:<port>/ibmmq/console` URL in your browser to access the IBM MQ console.
+
 2. Click on the `Create a queue` link.
 
     <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-create-queue.png alt="Create a queue" style="width: 70%;">
