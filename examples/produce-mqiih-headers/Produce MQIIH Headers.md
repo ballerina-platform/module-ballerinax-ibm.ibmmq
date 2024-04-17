@@ -15,7 +15,7 @@ Update IBM MQ related configurations in `Config.toml` in the example directory:
 ```toml
 queueManagerName = "<queue-manager-name>"
 host = "<host>"
-port = <port>
+port = "<port>"
 channel = "<ibm-mq-channel>"
 userID = "<user-ID>"
 password = "<password>"
