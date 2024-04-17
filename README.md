@@ -10,13 +10,7 @@ communication between disparate systems and applications. IBM MQ ensures the sec
 asynchronously, decoupling senders and receivers for efficient and scalable communication. It supports both
 point-to-point and publish/subscribe messaging models via queues and topics.
 
-The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ server using Ballerina.
-
-## Compatibility
-
-|                        |   Version    |
-|:-----------------------|:------------:|
-| IBM MQ Server          | **9.3 or earlier** |
+The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ server using Ballerina. The current connector is compatible with IBM MQ server versions up to 9.3.
 
 ## Setup guide
 
