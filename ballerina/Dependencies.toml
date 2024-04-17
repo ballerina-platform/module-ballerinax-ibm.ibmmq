@@ -63,7 +63,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "ibm.ibmmq"
-version = "0.1.4"
+version = "1.0.0"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
