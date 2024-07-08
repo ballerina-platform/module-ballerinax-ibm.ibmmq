@@ -56,7 +56,18 @@ Import `ballerinax/ibm.ibmmq` module into your Ballerina project.
 import ballerinax/ibm.ibmmq;
 ```
 
-### Step 2: Instantiate a new connector
+### Step 2: Add IBM MQ driver
+
+Add `com.ibm.mq.allclient` as a platform dependency to the `Ballerina.toml`.
+
+```toml
+[[platform.java17.dependency]]
+groupId = "com.ibm.mq"
+artifactId = "com.ibm.mq.allclient"
+version = "9.3.4.0"
+```
+
+### Step 3: Instantiate a new connector
 
 Create an `ibmmq:QueueManager` instance by giving IBM MQ configuration.
 
@@ -92,7 +103,7 @@ ibmmq:Topic topic = check queueManager.accessTopic(
 );
 ```
 
-### Step 3: Invoke the connector operations
+### Step 4: Invoke the connector operations
 
 Now, utilize the available connector operations.
 
@@ -124,7 +135,7 @@ ibmmq:Message? message = check queue->get();
 ibmmq:Message? message = check topic->get();
 ```
 
-### Step 4: Run the Ballerina application
+### Step 5: Run the Ballerina application
 
 ```Shell
 bal run
