@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- [Decouple IBM MQ java client jar from the IBM MQ connector](https://github.com/ballerina-platform/ballerina-library/issues/6287)
+
+## [0.1.3] - 2023-12-04
+
 ### Fixes
 
 - [When decoding IBM MQ headers from the received IBM MQ message Ballerina IBM MQ connector accidentally passes through to the message payload](https://github.com/ballerina-platform/ballerina-library/issues/5819)
