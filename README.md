@@ -10,14 +10,7 @@ communication between disparate systems and applications. IBM MQ ensures the sec
 asynchronously, decoupling senders and receivers for efficient and scalable communication. It supports both
 point-to-point and publish/subscribe messaging models via queues and topics.
 
-The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ server using Ballerina.
-
-## Compatibility
-
-|                        |   Version    |
-|:-----------------------|:------------:|
-| IBM MQ Server          | **9.3 or earlier** |
-| IBM MQ Client Connector|  **9.3.4.0**  |
+The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ server using Ballerina. The current connector is compatible with IBM MQ server versions up to 9.3.
 
 ## Setup guide
 
@@ -27,31 +20,33 @@ Alternatively, to use IBM MQ on the cloud, [sign up](https://cloud.ibm.com/regis
 
 ### Create a queue
 
-1. Log into IBM MQ console. If you are running an IBM MQ server locally you can navigate to
-   [https://localhost:9443/ibmmq/console](https://localhost:9443/ibmmq/console) URL in your browser to access the IBM MQ console.
+1. Log into IBM MQ console. If you are running an IBM MQ server locally you can navigate to `https://<host>:<port>/ibmmq/console` URL in your browser to access the IBM MQ console.
+
 2. Click on the `Create a queue` link.
 
-![Create a queue](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-create-queue.png)
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-create-queue.png alt="Create a queue" style="width: 70%;">
 
 3. Select the queue type.
 
-![Select the queue type](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-queue-type.png)
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/select-queue-type.png alt="Select the queue type" style="width: 70%;">
 
-4. Go back to the home page and click on the `Manage` link on the sidebar.
+### Create a topic
 
-![Click on Manage](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-manage-link.png)
+1. Go back to the home page and click on the `Manage` link on the sidebar.
 
-5. Navigate to `Events` tab.
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-manage-link.png alt="Click on manage" style="width: 70%;">
 
-![Navigate to Events tab](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/navigate-to-events-tab.png)
+2. Navigate to `Events` tab.
 
-6. Click on `Create`.
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/navigate-to-events-tab.png alt="Navigate to events tab" style="width: 70%;">
 
-![Click on create](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-on-create.png)
+3. Click on `Create`.
+
+    <img src=https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-ibm.ibmmq/main/docs/setup/resources/click-on-create.png alt="Click on create" style="width: 70%;">
 
 ## Quickstart
 
-To use the IBM MQ connector in your Ballerina application, modify the .bal file as follows:
+To use the IBM MQ connector in your Ballerina application, modify the `.bal` file as follows:
 
 ### Step 1: Import the connector
 
