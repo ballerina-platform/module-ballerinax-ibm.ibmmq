@@ -7,7 +7,7 @@ keywords = ["ibm.ibmmq", "client", "messaging", "network", "pubsub"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.8.0"
+distribution = "2201.9.0"
 
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
@@ -26,6 +26,7 @@ groupId = "com.ibm.mq"
 artifactId = "com.ibm.mq.allclient"
 version = "@ibmmq.version@"
 path = "./lib/com.ibm.mq.allclient-@ibmmq.version@.jar"
+scope = "provided"
 
 [[platform.java17.dependency]]
 groupId = "com.fasterxml.jackson.core"
