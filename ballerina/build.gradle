@@ -125,7 +125,7 @@ task commitTomlFiles {
             if (!stdOut.toString().contains("ibmmq-test")) {
                 println "Starting IBMMQ server."
                 exec {
-                    commandLine 'sh', '-c', "docker-compose -f tests/resources/docker-compose.yaml up -d"
+                    commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml up -d"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
@@ -148,7 +148,7 @@ task commitTomlFiles {
             if (stdOut.toString().contains("ibmmq-test")) {
                 println "Stopping IBMMQ server."
                 exec {
-                    commandLine 'sh', '-c', "docker-compose -f tests/resources/docker-compose.yaml rm -svf"
+                    commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml rm -svf"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
