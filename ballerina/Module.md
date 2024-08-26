@@ -75,7 +75,7 @@ configurable string userID = ?;
 configurable string password = ?;
 
 ibmmq:QueueManager queueManager = check new (
-    name = queueManagerName, host = host, channel = channel, userID = userID, password = password
+    name = queueManagerName, host = host, port = port, channel = channel, userID = userID, password = password
 );
 ```
 

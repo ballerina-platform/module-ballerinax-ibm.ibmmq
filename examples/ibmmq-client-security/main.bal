@@ -28,6 +28,7 @@ public function main() returns error? {
     ibmmq:QueueManager queueManager = check new (
         name = queueManagerName, 
         host = host, 
+        port = port,
         channel = channel, 
         userID = userID, 
         password = password,
