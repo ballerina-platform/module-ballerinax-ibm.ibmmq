@@ -205,19 +205,23 @@ Execute the commands below to build from the source.
    ```
    ./gradlew clean build -Pdebug=<port>
    ```
-5. To debug the library with Ballerina language:
+5. To run a group of tests:
+    ```
+    ./gradlew clean test -Pgroups=<test_group_names>
+    ```
+6. To debug the library with Ballerina language:
    ```
    ./gradlew clean build -PbalJavaDebug=<port>
    ```
-6. Publish ZIP artifact to the local `.m2` repository:
+7. Publish ZIP artifact to the local `.m2` repository:
    ```
    ./gradlew clean build publishToMavenLocal
    ```
-7. Publish the generated artifacts to the local Ballerina central repository:
+8. Publish the generated artifacts to the local Ballerina central repository:
    ```
    ./gradlew clean build -PpublishToLocalCentral=true
    ```
-8. Publish the generated artifacts to the Ballerina central repository:
+9. Publish the generated artifacts to the Ballerina central repository:
    ```
    ./gradlew clean build -PpublishToCentral=true
    ```
