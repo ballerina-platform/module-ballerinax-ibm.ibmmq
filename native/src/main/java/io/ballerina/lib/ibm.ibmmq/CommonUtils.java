@@ -319,7 +319,7 @@ public class CommonUtils {
             return mqGetMsgOptions;
         }
 
-        int matchOpt = 0;
+        int matchOpt = MQConstants.MQMO_NONE;
         if (Objects.nonNull(matchOptions.messageId())) {
             matchOpt |= MQConstants.MQMO_MATCH_MSG_ID;
         }
