@@ -34,12 +34,12 @@ public record MatchOptions(byte[] messageId, byte[] correlationId) {
 
     public MatchOptions(BMap<BString, Object> matchOptions) {
         this (
-                getValueIfPresent(matchOptions, MESSAGE_ID_FIELD),
-                getValueIfPresent(matchOptions, CORRELATION_ID_FIELD)
+                getByteArrIfPresent(matchOptions, MESSAGE_ID_FIELD),
+                getByteArrIfPresent(matchOptions, CORRELATION_ID_FIELD)
         );
     }
 
-    private static byte[] getValueIfPresent(BMap<BString, Object> matchOptions, BString key) {
+    private static byte[] getByteArrIfPresent(BMap<BString, Object> matchOptions, BString key) {
         if (!matchOptions.containsKey(key)) {
             return null;
         }
