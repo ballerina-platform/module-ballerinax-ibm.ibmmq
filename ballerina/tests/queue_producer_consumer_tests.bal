@@ -518,3 +518,100 @@ function produceAndConsumerMessageWithMultipleHeaderTypesWithJsonPayloadTest() r
     check queueManager.disconnect();
 }
 
+@test:Config {
+    groups: ["ibmmqQueue", "matchOptions"]
+}
+function produceConsumeWithMsgId() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+    
+    byte[] providedMsgId = "msg-id-1".toBytes();
+    string messageContent = "This is a sample message with a message-id.";
+    check queue->put({
+        messageId: providedMsgId,
+        payload: messageContent.toBytes()
+    });
+
+    Message? message = check queue->get(matchOptions = { messageId: providedMsgId });
+    test:assertTrue(message is Message, "Could not retrieve a message for a valid message identifier");
+
+    byte[]? payload = message?.payload;
+    test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent);
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue", "matchOptions"]
+}
+function produceConsumeWithInvalidMsgId() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+    
+    string messageContent = "This is a sample message with a message-id.";
+    check queue->put({
+        payload: messageContent.toBytes()
+    });
+
+    Message? message = check queue->get(matchOptions = { messageId: "test-msg-id-1".toBytes() });
+    test:assertTrue(message is (), "Retrieved a message for an invalid message identifier");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue", "matchOptions"]
+}
+function produceConsumeWithCorrId() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+    
+    byte[] providedCorrId = "msg-id-1".toBytes();
+    string messageContent = "This is a sample message with a message-id.";
+    check queue->put({
+        correlationId: providedCorrId,
+        payload: messageContent.toBytes()
+    });
+
+    Message? message = check queue->get(matchOptions = { correlationId: providedCorrId });
+    test:assertTrue(message is Message, "Could not retrieve a message for a valid correlation identifier");
+    
+    byte[]? correlationId = message?.correlationId;
+    test:assertTrue(correlationId is byte[], "Could not find the correlation identifier for the message");
+
+    byte[]? payload = message?.payload;
+    test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent);
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue", "matchOptions"]
+}
+function produceConsumeWithInvalidCorrId() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+    
+    string messageContent = "This is a sample message with a message-id.";
+    check queue->put({
+        payload: messageContent.toBytes()
+    });
+
+    Message? message = check queue->get(matchOptions = { correlationId: "test-msg-id-1".toBytes() });
+    test:assertTrue(message is (), "Retrieved a message for an invalid correlation identifier");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
