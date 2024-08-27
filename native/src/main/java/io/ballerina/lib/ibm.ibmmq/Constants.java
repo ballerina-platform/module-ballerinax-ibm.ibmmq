@@ -108,6 +108,7 @@ public interface Constants {
     BString PROPERTY_DESCRIPTOR = StringUtils.fromString("descriptor");
     BString WAIT_INTERVAL = StringUtils.fromString("waitInterval");
     BString OPTIONS = StringUtils.fromString("options");
+    BString MATCH_OPTIONS = StringUtils.fromString("matchOptions");
     BString FORMAT_FIELD = StringUtils.fromString("format");
     BString MESSAGE_ID_FIELD = StringUtils.fromString("messageId");
     BString CORRELATION_ID_FIELD = StringUtils.fromString("correlationId");

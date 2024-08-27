@@ -22,7 +22,10 @@ import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPropertyDescriptor;
+import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQHeaderList;
+import io.ballerina.lib.ibm.ibmmq.config.GetMessageOptions;
+import io.ballerina.lib.ibm.ibmmq.config.MatchOptions;
 import io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
@@ -66,7 +69,6 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PAYLOAD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTIES;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_TYPE_FIELD;
-import static io.ballerina.lib.ibm.ibmmq.Constants.OPTIONS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_CONTEXT;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_COPY_OPTIONS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_OPTIONS;
@@ -79,7 +81,6 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_VALUE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PUT_APPLICATION_TYPE_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QM_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
-import static io.ballerina.lib.ibm.ibmmq.Constants.WAIT_INTERVAL;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQCIHHeader.createMQCIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQIIHHeader.createMQIIHHeaderFromBHeader;
@@ -293,13 +294,40 @@ public class CommonUtils {
         return descriptor;
     }
 
-    public static MQGetMessageOptions getGetMessageOptions(BMap<BString, Object> bOptions) {
-        int waitInterval = bOptions.getIntValue(WAIT_INTERVAL).intValue();
-        int options = bOptions.getIntValue(OPTIONS).intValue();
-        MQGetMessageOptions getMessageOptions = new MQGetMessageOptions();
-        getMessageOptions.waitInterval = waitInterval * 1000;
-        getMessageOptions.options = options;
-        return getMessageOptions;
+    public static MQMessage getMqMessage(MatchOptions matchOptions) {
+        MQMessage message = new MQMessage();
+        if (Objects.isNull(matchOptions)) {
+            return message;
+        }
+
+        if (Objects.nonNull(matchOptions.messageId())) {
+            message.messageId = matchOptions.messageId();
+        }
+        if (Objects.nonNull(matchOptions.correlationId())) {
+            message.correlationId = matchOptions.correlationId();
+        }
+        return message;
+    }
+
+    public static MQGetMessageOptions getMqGetMsgOptions(GetMessageOptions getMsgOptions) {
+        MQGetMessageOptions mqGetMsgOptions = new MQGetMessageOptions();
+        mqGetMsgOptions.waitInterval = getMsgOptions.waitInterval();
+        mqGetMsgOptions.options = getMsgOptions.options();
+
+        MatchOptions matchOptions = getMsgOptions.matchOptions();
+        if (Objects.isNull(matchOptions)) {
+            return mqGetMsgOptions;
+        }
+
+        int matchOpt = MQConstants.MQMO_NONE;
+        if (Objects.nonNull(matchOptions.messageId())) {
+            matchOpt |= MQConstants.MQMO_MATCH_MSG_ID;
+        }
+        if (Objects.nonNull(matchOptions.correlationId())) {
+            matchOpt |= MQConstants.MQMO_MATCH_CORREL_ID;
+        }
+        mqGetMsgOptions.matchOptions = matchOpt;
+        return mqGetMsgOptions;
     }
 
     private static Object getBHeaders(Runtime runtime, MQMessage mqMessage) {
