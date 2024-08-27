@@ -319,13 +319,14 @@ public class CommonUtils {
             return mqGetMsgOptions;
         }
 
-        if (Objects.nonNull(matchOptions.messageId()) && Objects.nonNull(matchOptions.correlationId())) {
-            mqGetMsgOptions.matchOptions = MQConstants.MQMO_MATCH_MSG_ID | MQConstants.MQMO_MATCH_CORREL_ID;
-        } else if (Objects.nonNull(matchOptions.messageId())) {
-            mqGetMsgOptions.matchOptions = MQConstants.MQMO_MATCH_MSG_ID;
-        } else if (Objects.nonNull(matchOptions.correlationId())) {
-            mqGetMsgOptions.matchOptions = MQConstants.MQMO_MATCH_CORREL_ID;
+        int matchOpt = 0;
+        if (Objects.nonNull(matchOptions.messageId())) {
+            matchOpt |= MQConstants.MQMO_MATCH_MSG_ID;
         }
+        if (Objects.nonNull(matchOptions.correlationId())) {
+            matchOpt |= MQConstants.MQMO_MATCH_CORREL_ID;
+        }
+        mqGetMsgOptions.matchOptions = matchOpt;
         return mqGetMsgOptions;
     }
 
