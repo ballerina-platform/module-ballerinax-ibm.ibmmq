@@ -28,7 +28,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.WAIT_INTERVAL;
 /**
  * Represents the IBM MQ GET message options.
  *
- * @param options Get message option
+ * @param options      Get message option
  * @param waitInterval The maximum time (in seconds) that a `get` call waits for a suitable message to arrive.
  *                     It is used in conjunction with `MQGMO_WAIT`.
  * @param matchOptions Message selection criteria
@@ -36,7 +36,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.WAIT_INTERVAL;
 public record GetMessageOptions(int options, int waitInterval, MatchOptions matchOptions) {
 
     public GetMessageOptions(BMap<BString, Object> getMsgOptions) {
-        this (
+        this(
                 getMsgOptions.getIntValue(OPTIONS).intValue(),
                 getMsgOptions.getIntValue(WAIT_INTERVAL).intValue() * 1000,
                 getMatchOptions(getMsgOptions)

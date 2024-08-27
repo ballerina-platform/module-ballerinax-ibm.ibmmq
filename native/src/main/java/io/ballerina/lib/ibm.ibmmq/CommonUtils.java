@@ -323,7 +323,7 @@ public class CommonUtils {
             mqGetMsgOptions.matchOptions = MQConstants.MQMO_MATCH_MSG_ID | MQConstants.MQMO_MATCH_CORREL_ID;
         } else if (Objects.nonNull(matchOptions.messageId())) {
             mqGetMsgOptions.matchOptions = MQConstants.MQMO_MATCH_MSG_ID;
-        } else if (Objects.nonNull(matchOptions.correlationId())){
+        } else if (Objects.nonNull(matchOptions.correlationId())) {
             mqGetMsgOptions.matchOptions = MQConstants.MQMO_MATCH_CORREL_ID;
         }
         return mqGetMsgOptions;

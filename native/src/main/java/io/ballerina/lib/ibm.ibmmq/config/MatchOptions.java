@@ -27,13 +27,13 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ID_FIELD;
 /**
  * Represents the selection criteria that determine which message is retrieved.
  *
- * @param messageId The message identifier of the message which needs to be retrieved
+ * @param messageId     The message identifier of the message which needs to be retrieved
  * @param correlationId The Correlation identifier of the message which needs to be retrieved
  */
 public record MatchOptions(byte[] messageId, byte[] correlationId) {
 
     public MatchOptions(BMap<BString, Object> matchOptions) {
-        this (
+        this(
                 getByteArrIfPresent(matchOptions, MESSAGE_ID_FIELD),
                 getByteArrIfPresent(matchOptions, CORRELATION_ID_FIELD)
         );
