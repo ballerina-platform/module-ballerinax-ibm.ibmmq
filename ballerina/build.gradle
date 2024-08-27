@@ -180,10 +180,13 @@ publishing {
 
 updateTomlFiles.dependsOn copyStdlibs
 
- test.dependsOn startIBMMQServer
- build.finalizedBy stopIBMMQServer
+build.dependsOn ":${packageName}-native:build"
+build.dependsOn startIBMMQServer
+build.finalizedBy stopIBMMQServer
 
-build.dependsOn ":ibm.ibmmq-native:build"
-build.dependsOn "generatePomFileForMavenPublication"
-publishToMavenLocal.dependsOn build
+test.dependsOn ":${packageName}-native:build"
+test.dependsOn startIBMMQServer
+test.finalizedBy stopIBMMQServer
+
 publish.dependsOn build
+publishToMavenLocal.dependsOn build
