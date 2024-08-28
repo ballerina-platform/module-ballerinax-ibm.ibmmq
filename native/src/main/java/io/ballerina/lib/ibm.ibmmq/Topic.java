@@ -23,6 +23,7 @@ import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.CMQC;
+import io.ballerina.lib.ibm.ibmmq.config.GetMessageOptions;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BError;
@@ -60,15 +61,16 @@ public class Topic {
         return null;
     }
 
-    public static Object get(Environment environment, BObject topicObject, BMap<BString, Object> options) {
+    public static Object get(Environment environment, BObject topicObject, BMap<BString, Object> bGetMsgOptions) {
         MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
-        MQGetMessageOptions getMessageOptions = CommonUtils.getGetMessageOptions(options);
+        GetMessageOptions getMsgOptions = new GetMessageOptions(bGetMsgOptions);
+        MQMessage mqMessage = CommonUtils.getMqMessage(getMsgOptions.matchOptions());
+        MQGetMessageOptions mqGetMsgOptions = CommonUtils.getMqGetMsgOptions(getMsgOptions);
         Future future = environment.markAsync();
         topicExecutorService.execute(() -> {
             try {
-                MQMessage message = new MQMessage();
-                topic.get(message, getMessageOptions);
-                future.complete(CommonUtils.getBMessageFromMQMessage(environment.getRuntime(), message));
+                topic.get(mqMessage, mqGetMsgOptions);
+                future.complete(CommonUtils.getBMessageFromMQMessage(environment.getRuntime(), mqMessage));
             } catch (MQException e) {
                 if (e.reasonCode == CMQC.MQRC_NO_MSG_AVAILABLE) {
                     future.complete(null);

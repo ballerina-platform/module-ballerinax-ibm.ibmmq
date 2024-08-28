@@ -83,9 +83,20 @@ public type CertKey record {|
 # + options - Get message option 
 # + waitInterval - The maximum time (in seconds) that a `get` call waits for a suitable message to 
 # arrive. It is used in conjunction with `ibmmq.MQGMO_WAIT`.
+# + matchOptions - Message selection criteria
 public type GetMessageOptions record {|
     int options = MQGMO_NO_WAIT;
     int waitInterval = 10;
+    MatchOptions matchOptions?;
+|};
+
+# Represents the selection criteria that determine which message is retrieved.
+#
+# + messageId - The message identifier of the message which needs to be retrieved
+# + correlationId - The Correlation identifier of the message which needs to be retrieved
+public type MatchOptions record {|
+    byte[] messageId?;
+    byte[] correlationId?;
 |};
 
 # Represents an IBM MQ message property.

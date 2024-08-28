@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- [Add Support for Retrieving Messages from IBM MQ by Matching Correlation ID and Message ID](https://github.com/ballerina-platform/ballerina-library/issues/6918)
+
+## [1.0.0] - 2024-07-08
+
 ### Changed
 
 - [Decouple IBM MQ java client jar from the IBM MQ connector](https://github.com/ballerina-platform/ballerina-library/issues/6287)
