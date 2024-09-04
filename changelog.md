@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added 
+
+- [Introduce support to provide `MQPutMessageOptions` when invoking `put` operation on `ibmmq:Queue` or `ibmmq:Topic`](https://github.com/ballerina-platform/ballerina-library/issues/6966)
+
+## [1.1.0] - 2024-08-28
+
 ### Added
 
 - [Introduce missing MQMD fields to the `ibmmq:Message`](https://github.com/ballerina-platform/ballerina-library/issues/6964)

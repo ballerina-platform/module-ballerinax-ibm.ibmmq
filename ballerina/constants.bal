@@ -164,6 +164,50 @@ public const int CCSI_UTF8 = 1208;
 
 const string DEFAULT_BLANK_VALUE = "        ";
 
+# The request is to operate within the normal unit-of-work protocols. The message is not visible outside the 
+# unit of work until the unit of work is committed. If the unit of work is backed out, the message is deleted.
+public const int MQPMO_SYNCPOINT = 2;
+
+# The request is to operate outside the normal unit-of-work protocols. The message is available immediately, 
+# and it cannot be deleted by backing out a unit of work.
+public const int MQPMO_NO_SYNCPOINT = 4;
+
+# Both identity and origin context are set to indicate no context.
+public const int MQPMO_NO_CONTEXT = 16384;
+
+# The message is to have default context information associated with it, for both identity and origin.
+public const int MQPMO_DEFAULT_CONTEXT = 32;
+
+# The message is to have context information associated with it.
+public const int MQPMO_SET_IDENTITY_CONTEXT = 1024;
+
+# The message is to have context information associated with it.
+public const int MQPMO_SET_ALL_CONTEXT = 2048;
+
+# This option forces the MQPUT or MQPUT1 call to fail if the queue manager is in the quiescing state.
+public const int MQPMO_FAIL_IF_QUIESCING = 8192;
+
+# The queue manager replaces the contents of the MsgId field in MQMD with a new message identifier.
+public const int MQPMO_NEW_MSG_ID = 64;
+
+# The queue manager replaces the contents of the CorrelId field in MQMD with a new correlation identifier.
+public const int MQPMO_NEW_CORREL_ID = 128;
+
+# This option tells the queue manager how the application puts messages in groups and segments of logical messages.
+public const int MQPMO_LOGICAL_ORDER = 32768;
+
+# This indicates that the AlternateUserId field in the ObjDesc parameter of the MQPUT1 call contains a user identifier 
+# that is to be used to validate authority to put messages on the queue.
+public const int MQPMO_ALTERNATE_USER_AUTHORITY = 4096;
+
+# Use this option to fill ResolvedQName in the MQPMO structure with the name of the local queue to which 
+# the message is put, and ResolvedQMgrName with the name of the local queue manager that hosts the local queue.
+public const int MQPMO_RESOLVE_LOCAL_Q = 262144;
+
+# The MQPMO_ASYNC_RESPONSE option requests that an MQPUT or MQPUT1 operation is completed without the 
+# application waiting for the queue manager to complete the call.
+public const int MQPMO_ASYNC_RESPONSE = 65536;
+
 // SSL cipher suite related constants
 
 # SSL cipher suite using ECDHE-ECDSA for key exchange with 3DES encryption and SHA integrity.
