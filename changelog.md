@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added 
+
+- [Introduce support to provide `MQPutMessageOptions` when invoking `put` operation on `ibmmq:Queue` or `ibmmq:Topic`](https://github.com/ballerina-platform/ballerina-library/issues/6966)
+
+## [1.1.0] - 2024-08-28
+
 ### Added
 
 - [Add Support for Retrieving Messages from IBM MQ by Matching Correlation ID and Message ID](https://github.com/ballerina-platform/ballerina-library/issues/6918)

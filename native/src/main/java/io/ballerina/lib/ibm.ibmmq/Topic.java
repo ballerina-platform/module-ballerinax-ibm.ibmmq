@@ -21,6 +21,7 @@ package io.ballerina.lib.ibm.ibmmq;
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQGetMessageOptions;
 import com.ibm.mq.MQMessage;
+import com.ibm.mq.MQPutMessageOptions;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.CMQC;
 import io.ballerina.lib.ibm.ibmmq.config.GetMessageOptions;
@@ -44,13 +45,15 @@ public class Topic {
     private static final ExecutorService topicExecutorService = Executors.newCachedThreadPool(
             new MQThreadFactory("balx-ibmmq-topic-client-network-thread"));
 
-    public static Object put(Environment environment, BObject topicObject, BMap message) {
+    public static Object put(Environment environment, BObject topicObject, BMap message, long options) {
         MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
         MQMessage mqMessage = CommonUtils.getMqMessageFromBMessage(message);
         Future future = environment.markAsync();
         topicExecutorService.execute(() -> {
             try {
-                topic.put(mqMessage);
+                MQPutMessageOptions pmo = new MQPutMessageOptions();
+                pmo.options = (int) options;
+                topic.put(mqMessage, pmo);
                 future.complete(null);
             } catch (Exception e) {
                 BError bError = createError(IBMMQ_ERROR,
