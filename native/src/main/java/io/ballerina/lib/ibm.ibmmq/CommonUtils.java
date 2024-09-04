@@ -49,7 +49,42 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.ballerina.lib.ibm.ibmmq.Constants.*;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_COMPLETION_CODE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_DETAILS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_ERROR_CODE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_REASON_CODE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.EXPIRY_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQIIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ACCOUNTING_TOKEN;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_CHARSET;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ENCODING;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_HEADERS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ID_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PAYLOAD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTIES;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_TYPE_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_USERID;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_CONTEXT;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_COPY_OPTIONS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_OPTIONS;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_SUPPORT;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PD_VERSION;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PERSISTENCE_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PRIORITY_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_DESCRIPTOR;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_VALUE;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PUT_APPLICATION_TYPE_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QM_NAME_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQCIHHeader.createMQCIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQIIHHeader.createMQIIHHeaderFromBHeader;
@@ -105,6 +140,14 @@ public class CommonUtils {
             bMessage.put(PUT_APPLICATION_TYPE_FIELD, mqMessage.putApplicationType);
             bMessage.put(REPLY_TO_QUEUE_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueName.strip()));
             bMessage.put(REPLY_TO_QM_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueManagerName.strip()));
+            bMessage.put(MESSAGE_ENCODING, mqMessage.encoding);
+            bMessage.put(MESSAGE_CHARSET, mqMessage.characterSet);
+            if (Objects.nonNull(mqMessage.accountingToken)) {
+                bMessage.put(MESSAGE_ACCOUNTING_TOKEN, ValueCreator.createArrayValue(mqMessage.accountingToken));
+            }
+            if (Objects.nonNull(mqMessage.userId)) {
+                bMessage.put(MESSAGE_USERID, StringUtils.fromString(mqMessage.userId.strip()));
+            }
             byte[] payload = mqMessage.readStringOfByteLength(mqMessage.getDataLength())
                     .getBytes(StandardCharsets.UTF_8);
             bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
