@@ -22,6 +22,9 @@ public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 # Header types that are provided in the IBM MQ message.
 public type Header MQRFH2|MQRFH|MQCIH|MQIIH;
 
+# The coded character set used in application message data.
+public type MESSAGE_CHARSET CHARSET_ASCII|CHARSET_ASCII_ISO|CHARSET_EBCDIC|CHARSET_UNICODE|CHARSET_UTF8;
+
 # The SSL Cipher Suite to be used for secure communication with the IBM MQ server.
 public type SslCipherSuite SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
     |SSL_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256|SSL_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384|SSL_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
@@ -121,6 +124,12 @@ public type Property record {|
 # + putApplicationType - Type of application that put the message
 # + replyToQueueName - Name of reply queue
 # + replyToQueueManagerName - Name of reply queue manager
+# + encoding - Specifies the representation used for numeric values in the application message data. 
+#              This can be represented using as a combination of `ibmmq:ENC_INTEGER_NORMAL`, `ibmmq:ENC_INTEGER_REVERSED`, 
+#              `ibmmq:ENC_DECIMAL_NORMAL`, `ibmmq:ENC_DECIMAL_REVERSED`, `ibmmq:ENC_FLOAT_IEEE_NORMAL`, `ibmmq:ENC_FLOAT_IEEE_REVERSED`, and `ibmmq:ENC_FLOAT_S390`  
+# + characterSet - The coded character set identifier of character data in the application message data
+# + accountingToken - The accounting token, which is part of the message's identity and allows the work performed as a result of the message to be properly charged 
+# + userId - Id of the user who originated the message
 # + headers - Headers to be sent in the message
 # + payload - Message payload
 public type Message record {|
@@ -135,6 +144,10 @@ public type Message record {|
     int putApplicationType?;
     string replyToQueueName?;
     string replyToQueueManagerName?;
+    int encoding?;
+    MESSAGE_CHARSET characterSet?;
+    byte[] accountingToken?;
+    string userId?;
     Header[] headers?;
     byte[] payload;
 |};

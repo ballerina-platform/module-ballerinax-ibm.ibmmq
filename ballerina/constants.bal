@@ -104,6 +104,42 @@ public const int MQGMO_CONVERT = 16384;
 # Subscribe Option create
 public const int MQSO_CREATE = 2;
 
+# Encoding for normal integer representation (most significant byte first) or the big-endian format.
+public const int ENC_INTEGER_NORMAL = 1;
+
+# Encoding for reversed integer representation (least significant byte first) or the little-endian format.
+public const int ENC_INTEGER_REVERSED = 2;
+
+# Packed-decimal integers are represented in the conventional way: Each decimal digit in the printable form of the number is represented in packed decimal by a single hexadecimal digit in the range X'0' through X'9'.
+public const int ENC_DECIMAL_NORMAL = 16;
+
+# Packed-decimal integers are represented in the same way as `ENC_DECIMAL_NORMAL`, but with the bytes arranged in reverse order.
+public const int ENC_DECIMAL_REVERSED = 32;
+
+# Floating-point numbers are represented using the standard IEEE3 floating-point format
+public const int ENC_FLOAT_IEEE_NORMAL = 256;
+
+# Floating-point numbers are represented in the same way as `ENC_FLOAT_IEEE_NORMAL`, but with the bytes arranged in reverse order.
+public const int ENC_FLOAT_IEEE_REVERSED = 512;
+
+# Floating-point numbers are represented using the standard zSeries (System/390) floating-point format.
+public const int ENC_FLOAT_S390 = 768;
+
+# ASCII character set
+public const int CHARSET_ASCII = 850;
+
+# ISO standard ASCII character set 
+public const int CHARSET_ASCII_ISO = 819;
+
+# The American EBCDIC character set  
+public const int CHARSET_EBCDIC = 37;
+
+# Unicode character set
+public const int CHARSET_UNICODE = 1200;
+
+# UTF-8 character set
+public const int CHARSET_UTF8 = 1208;
+
 const string DEFAULT_BLANK_VALUE = "        ";
 
 // SSL cipher suite related constants
