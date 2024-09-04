@@ -519,6 +519,37 @@ function produceAndConsumerMessageWithMultipleHeaderTypesWithJsonPayloadTest() r
 }
 
 @test:Config {
+    groups: ["ibmmqQueue", "messageIdentification"]
+}
+function produceMessagesWithIdentification() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.ADMIN.SVRCONN", 
+        userID = "admin", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF | MQOO_SET_IDENTITY_CONTEXT);
+
+    string messageContent = "This is a sample message with a identification.";
+    string accountingToken = "accountint-token-1";
+    string userId = "user-1";
+    check queue->put({
+        accountingToken: accountingToken.toBytes(),
+        persistence: 1,
+        userId: userId,
+        payload: messageContent.toBytes()
+    });
+
+    Message? message = check queue->get();
+    test:assertTrue(message is Message, "Could not retrieve a message");
+
+    byte[]? payload = message?.payload;
+    test:assertEquals(message?.userId, userId, "Invalid userId");
+    test:assertEquals((string:fromBytes(check message?.accountingToken.ensureType())), accountingToken, "Invalid accounting token");
+    test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent, "Invalid message content");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
     groups: ["ibmmqQueue", "matchOptions"]
 }
 function produceConsumeWithMsgId() returns error? {
@@ -692,4 +723,3 @@ function produceConsumeWithMsgIdAndInvalidCorrId() returns error? {
     check queue->close();
     check queueManager.disconnect();
 }
-
