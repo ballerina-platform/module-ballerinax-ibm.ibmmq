@@ -125,6 +125,9 @@ public const int ENC_FLOAT_IEEE_REVERSED = 512;
 # Floating-point numbers are represented using the standard zSeries (System/390) floating-point format.
 public const int ENC_FLOAT_S390 = 768;
 
+# Character data in the message is in the queue manager's character set.
+public const int CCSI_Q_MGR = 0;
+
 # ASCII character set
 public const int CHARSET_ASCII = 850;
 
