@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- [Introduce missing MQMD fields to the `ibmmq:Message`](https://github.com/ballerina-platform/ballerina-library/issues/6964)
+
+## [1.1.0] - 2024-08-28
+
+### Added
+
 - [Add Support for Retrieving Messages from IBM MQ by Matching Correlation ID and Message ID](https://github.com/ballerina-platform/ballerina-library/issues/6918)
 
 ## [1.0.0] - 2024-07-08
