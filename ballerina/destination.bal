@@ -35,7 +35,8 @@ public isolated client class Queue {
     # ```
     # 
     # + message - IBM MQ message
-    # + options - Options controlling the action of the put operation. Can be a combination of one or more `ibmmq:MQPMO_*` options
+    # + options - Options controlling the action of the put operation. Can be a combination of 
+    #             one or more `ibmmq:MQPMO_*` options and values can combined using either '+' or '|' 
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function put(Message message, int options = MQPMO_NO_SYNCPOINT) returns Error? =
     @java:Method {
@@ -77,7 +78,8 @@ public isolated client class Topic {
     #```
     # 
     # + message - IBM MQ message
-    # + options - Options controlling the action of the put operation. Can be a combination of one or more `ibmmq:MQPMO_*` options
+    # + options - Options controlling the action of the put operation. Can be a combination of 
+    #             one or more `ibmmq:MQPMO_*` options and values can combined using either '+' or '|' 
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function put(Message message, int options = MQPMO_NO_SYNCPOINT) returns Error? =
     @java:Method {
