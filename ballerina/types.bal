@@ -145,8 +145,8 @@ public type Message record {|
     int putApplicationType?;
     string replyToQueueName?;
     string replyToQueueManagerName?;
-    int encoding?;
-    MESSAGE_CHARSET characterSet?;
+    int encoding = ENC_INTEGER_NORMAL|ENC_DECIMAL_NORMAL|ENC_FLOAT_IEEE_NORMAL;
+    MESSAGE_CHARSET characterSet = CCSI_Q_MGR;
     byte[] accountingToken?;
     string userId?;
     Header[] headers?;
