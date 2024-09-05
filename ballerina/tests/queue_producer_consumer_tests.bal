@@ -549,14 +549,6 @@ function produceMessagesWithIdentification() returns error? {
     check queueManager.disconnect();
 }
 
-function trimTrailingZeros(byte[] bytes) returns byte[] {
-    int i = bytes.length() - 1;
-    while (i >= 0 && bytes[i] == 0) {
-        i -= 1;
-    }
-    return bytes.slice(0, i + 1);
-}
-
 @test:Config {
     groups: ["ibmmqQueue", "charset"]
 }
@@ -795,4 +787,12 @@ function produceConsumeWithMsgIdAndInvalidCorrId() returns error? {
 
     check queue->close();
     check queueManager.disconnect();
+}
+
+function trimTrailingZeros(byte[] bytes) returns byte[] {
+    int i = bytes.length() - 1;
+    while (i >= 0 && bytes[i] == 0) {
+        i -= 1;
+    }
+    return bytes.slice(0, i + 1);
 }
