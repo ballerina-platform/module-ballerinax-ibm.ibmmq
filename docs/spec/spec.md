@@ -373,6 +373,13 @@ public type MQIIH record {|
 public type Header MQRFH2|MQRFH|MQCIH|MQIIH;
 ```
 
+- MessageCharset type represents coded character set used in application message data.
+
+```ballerina
+public type MessageCharset MQCCSI_APPL|MQCCSI_ASCII|MQCCSI_ASCII_ISO|MQCCSI_AS_PUBLISHED|MQCCSI_DEFAULT|
+    MQCCSI_EBCDIC|MQCCSI_EMBEDDED|MQCCSI_INHERIT|MQCCSI_Q_MGR|MQCCSI_UNDEFINED|MQCCSI_UNICODE|MQCCSI_UTF8;
+```
+
 - Message record represents an IBM MQ message.
 
 ```ballerina
@@ -399,6 +406,16 @@ public type Message record {|
     string replyToQueueName?;
     # Name of reply queue manager
     string replyToQueueManagerName?;
+    # Specifies the representation used for numeric values in the application message data. 
+    # This can be represented using as a combination of `ibmmq:MQENC_*` options
+    int encoding = ENC_INTEGER_NORMAL|ENC_DECIMAL_NORMAL|ENC_FLOAT_IEEE_NORMAL;
+    # The coded character set identifier of character data in the application message data
+    MESSAGE_CHARSET characterSet = CCSI_Q_MGR;
+    # The accounting token, which is part of the message's identity and allows the work performed as a result of 
+    # the message to be properly charged
+    byte[] accountingToken?;
+    # Id of the user who originated the message
+    string userId?;
     # Headers to be sent in the message
     Header[] headers?;
     # Message payload

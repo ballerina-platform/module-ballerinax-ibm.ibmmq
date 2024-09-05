@@ -104,6 +104,64 @@ public const int MQGMO_CONVERT = 16384;
 # Subscribe Option create
 public const int MQSO_CREATE = 2;
 
+# Encoding for normal integer representation (most significant byte first) or the big-endian format.
+public const int MQENC_INTEGER_NORMAL = 1;
+
+# Encoding for reversed integer representation (least significant byte first) or the little-endian format.
+public const int MQENC_INTEGER_REVERSED = 2;
+
+# Packed-decimal integers are represented in the conventional way: Each decimal digit in the printable form of the number is represented in packed decimal by a single hexadecimal digit in the range X'0' through X'9'.
+public const int MQENC_DECIMAL_NORMAL = 16;
+
+# Packed-decimal integers are represented in the same way as `ENC_DECIMAL_NORMAL`, but with the bytes arranged in reverse order.
+public const int MQENC_DECIMAL_REVERSED = 32;
+
+# Floating-point numbers are represented using the standard IEEE3 floating-point format.
+public const int MQENC_FLOAT_IEEE_NORMAL = 256;
+
+# Floating-point numbers are represented in the same way as `ENC_FLOAT_IEEE_NORMAL`, but with the bytes arranged in reverse order.
+public const int MQENC_FLOAT_IEEE_REVERSED = 512;
+
+# Floating-point numbers are represented using the standard zSeries (System/390) floating-point format.
+public const int MQENC_FLOAT_S390 = 768;
+
+# Coded Character Set Identifiers - Appl.
+public const int  MQCCSI_APPL = -3;
+
+# ASCII codeset.
+public const int MQCCSI_ASCII = 850;
+
+# ISO standard ASCII codeset.
+public const int MQCCSI_ASCII_ISO = 819;
+
+# Coded Character Set Identifiers - As Published.
+public const int MQCCSI_AS_PUBLISHED = -4;
+
+# The CodedCharSetId of the data in the String field is defined by the CodedCharSetId field in the header structure 
+# that precedes the MQCFH structure, or by the CodedCharSetId field in the MQMD if the MQCFH is at the start of the message.
+public const int MQCCSI_DEFAULT = 0;
+
+# The American EBCDIC codeset.
+public const int MQCCSI_EBCDIC = 37;
+
+# Coded Character Set Identifiers - Embedded.
+public const int MQCCSI_EMBEDDED = -1;
+
+# Character data in the message is in the same character set as this structure.
+public const int MQCCSI_INHERIT = -2;
+
+# Character data in the message is in the queue manager's character set.
+public const int MQCCSI_Q_MGR = 0;
+
+# Coded Character Set Identifiers - Undefined.
+public const int MQCCSI_UNDEFINED = 0;
+
+# Unicode codeset.
+public const int MQCCSI_UNICODE = 1200;
+
+# UTF-8 codeset.
+public const int MQCCSI_UTF8 = 1208;
+
 const string DEFAULT_BLANK_VALUE = "        ";
 
 # The request is to operate within the normal unit-of-work protocols. The message is not visible outside the 

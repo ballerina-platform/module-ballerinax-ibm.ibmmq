@@ -63,12 +63,16 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQIIH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ACCOUNTING_TOKEN;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_CHARSET;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ENCODING;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_HEADERS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PAYLOAD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTIES;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_TYPE_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_USERID;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_CONTEXT;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_COPY_OPTIONS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_OPTIONS;
@@ -136,6 +140,14 @@ public class CommonUtils {
             bMessage.put(PUT_APPLICATION_TYPE_FIELD, mqMessage.putApplicationType);
             bMessage.put(REPLY_TO_QUEUE_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueName.strip()));
             bMessage.put(REPLY_TO_QM_NAME_FIELD, StringUtils.fromString(mqMessage.replyToQueueManagerName.strip()));
+            bMessage.put(MESSAGE_ENCODING, mqMessage.encoding);
+            bMessage.put(MESSAGE_CHARSET, mqMessage.characterSet);
+            if (Objects.nonNull(mqMessage.accountingToken)) {
+                bMessage.put(MESSAGE_ACCOUNTING_TOKEN, ValueCreator.createArrayValue(mqMessage.accountingToken));
+            }
+            if (Objects.nonNull(mqMessage.userId)) {
+                bMessage.put(MESSAGE_USERID, StringUtils.fromString(mqMessage.userId.strip()));
+            }
             byte[] payload = mqMessage.readStringOfByteLength(mqMessage.getDataLength())
                     .getBytes(StandardCharsets.UTF_8);
             bMessage.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
@@ -238,6 +250,18 @@ public class CommonUtils {
         }
         if (bMessage.containsKey(REPLY_TO_QM_NAME_FIELD)) {
             mqMessage.replyToQueueManagerName = bMessage.getStringValue(REPLY_TO_QM_NAME_FIELD).getValue();
+        }
+        if (bMessage.containsKey(MESSAGE_ENCODING)) {
+            mqMessage.encoding = bMessage.getIntValue(MESSAGE_ENCODING).intValue();
+        }
+        if (bMessage.containsKey(MESSAGE_CHARSET)) {
+            mqMessage.characterSet = bMessage.getIntValue(MESSAGE_CHARSET).intValue();
+        }
+        if (bMessage.containsKey(MESSAGE_ACCOUNTING_TOKEN)) {
+            mqMessage.accountingToken = bMessage.getArrayValue(MESSAGE_ACCOUNTING_TOKEN).getByteArray();
+        }
+        if (bMessage.containsKey(MESSAGE_USERID)) {
+            mqMessage.userId = bMessage.getStringValue(MESSAGE_USERID).getValue();
         }
     }
 

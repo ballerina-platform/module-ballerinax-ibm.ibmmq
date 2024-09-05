@@ -119,4 +119,8 @@ public interface Constants {
     BString PUT_APPLICATION_TYPE_FIELD = StringUtils.fromString("putApplicationType");
     BString REPLY_TO_QUEUE_NAME_FIELD = StringUtils.fromString("replyToQueueName");
     BString REPLY_TO_QM_NAME_FIELD = StringUtils.fromString("replyToQueueManagerName");
+    BString MESSAGE_ENCODING = StringUtils.fromString("encoding");
+    BString MESSAGE_CHARSET = StringUtils.fromString("characterSet");
+    BString MESSAGE_ACCOUNTING_TOKEN = StringUtils.fromString("accountingToken");
+    BString MESSAGE_USERID = StringUtils.fromString("userId");
 }

@@ -519,6 +519,102 @@ function produceAndConsumerMessageWithMultipleHeaderTypesWithJsonPayloadTest() r
 }
 
 @test:Config {
+    groups: ["ibmmqQueue", "messageIdentification"]
+}
+function produceMessagesWithIdentification() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.ADMIN.SVRCONN", 
+        userID = "admin", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF | MQOO_SET_IDENTITY_CONTEXT);
+
+    string messageContent = "This is a sample message with an identification.";
+    string accountingToken = "accountint-token-1";
+    string userId = "user-1";
+    check queue->put({
+        accountingToken: accountingToken.toBytes(),
+        userId,
+        payload: messageContent.toBytes()
+    }, MQPMO_SET_IDENTITY_CONTEXT);
+
+    Message? message = check queue->get();
+    test:assertTrue(message is Message, "Could not retrieve a message");
+
+    byte[]? payload = message?.payload;
+    test:assertEquals(message?.userId, userId, "Invalid userId");
+    byte[] retrievedAccountingToken = trimTrailingZeros(check message?.accountingToken.ensureType());
+    test:assertEquals(retrievedAccountingToken, accountingToken.toBytes(), "Invalid accounting token");
+    test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent, "Invalid message content");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue", "charset"]
+}
+function produceMessagesWithCharacterSet() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+
+    MessageCharset characterSet = MQCCSI_UTF8;
+    string messageContent = "This is a sample UTF-8 charset based message";
+    check queue->put({
+        characterSet,
+        payload: messageContent.toBytes()
+    });
+
+    Message? message = check queue->get();
+    test:assertTrue(message is Message, "Could not retrieve a message");
+
+    test:assertEquals(message?.characterSet, characterSet, "Invalid character-set found");
+    byte[]? payload = message?.payload;
+    test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent, "Invalid message content");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue", "encoding"]
+}
+function produceMessageWithEncoding() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+
+    int encoding = MQENC_INTEGER_NORMAL;
+    json messageBody = {
+        user: "Doe, John",
+        id: 1234,
+        description: "Regular application developer"
+    };
+    byte[] payload = messageBody.toJsonString().toBytes();
+    check queue->put({
+        encoding,
+        payload
+    });
+
+    Message? message = check queue->get();
+    test:assertTrue(message is Message, "Could not retrieve a message");
+
+    test:assertEquals(message?.encoding, encoding, "Invalid encoding found");
+
+    byte[]? retrievedPayload = message?.payload;
+    if retrievedPayload is () {
+        test:assertFail("Could not find the message payload");
+    }
+    string rawMessageBody = check string:fromBytes(retrievedPayload);
+    json receivedMessage = check rawMessageBody.fromJsonString();
+    test:assertEquals(receivedMessage, messageBody, "Invalid message content");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
     groups: ["ibmmqQueue", "matchOptions"]
 }
 function produceConsumeWithMsgId() returns error? {
@@ -693,3 +789,10 @@ function produceConsumeWithMsgIdAndInvalidCorrId() returns error? {
     check queueManager.disconnect();
 }
 
+function trimTrailingZeros(byte[] bytes) returns byte[] {
+    int i = bytes.length() - 1;
+    while (i >= 0 && bytes[i] == 0) {
+        i -= 1;
+    }
+    return bytes.slice(0, i + 1);
+}
