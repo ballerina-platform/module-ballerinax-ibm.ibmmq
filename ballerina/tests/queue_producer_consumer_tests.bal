@@ -585,7 +585,7 @@ function produceMessageWithEncoding() returns error? {
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
 
-    int encoding = ENC_INTEGER_NORMAL;
+    int encoding = MQENC_INTEGER_NORMAL;
     json messageBody = {
         user: "Doe, John",
         id: 1234,
