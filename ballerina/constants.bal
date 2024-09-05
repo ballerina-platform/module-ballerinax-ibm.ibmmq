@@ -116,7 +116,7 @@ public const int MQENC_DECIMAL_NORMAL = 16;
 # Packed-decimal integers are represented in the same way as `ENC_DECIMAL_NORMAL`, but with the bytes arranged in reverse order.
 public const int MQENC_DECIMAL_REVERSED = 32;
 
-# Floating-point numbers are represented using the standard IEEE3 floating-point format
+# Floating-point numbers are represented using the standard IEEE3 floating-point format.
 public const int MQENC_FLOAT_IEEE_NORMAL = 256;
 
 # Floating-point numbers are represented in the same way as `ENC_FLOAT_IEEE_NORMAL`, but with the bytes arranged in reverse order.
@@ -128,10 +128,10 @@ public const int MQENC_FLOAT_S390 = 768;
 # Coded Character Set Identifiers - Appl.
 public const int  MQCCSI_APPL = -3;
 
-# ASCII codeset
+# ASCII codeset.
 public const int MQCCSI_ASCII = 850;
 
-# ISO standard ASCII codeset 
+# ISO standard ASCII codeset.
 public const int MQCCSI_ASCII_ISO = 819;
 
 # Coded Character Set Identifiers - As Published.
@@ -141,7 +141,7 @@ public const int MQCCSI_AS_PUBLISHED = -4;
 # that precedes the MQCFH structure, or by the CodedCharSetId field in the MQMD if the MQCFH is at the start of the message.
 public const int MQCCSI_DEFAULT = 0;
 
-# The American EBCDIC codeset  
+# The American EBCDIC codeset.
 public const int MQCCSI_EBCDIC = 37;
 
 # Coded Character Set Identifiers - Embedded.
@@ -156,10 +156,10 @@ public const int MQCCSI_Q_MGR = 0;
 # Coded Character Set Identifiers - Undefined.
 public const int MQCCSI_UNDEFINED = 0;
 
-# Unicode codeset
+# Unicode codeset.
 public const int MQCCSI_UNICODE = 1200;
 
-# UTF-8 codeset
+# UTF-8 codeset.
 public const int MQCCSI_UTF8 = 1208;
 
 const string DEFAULT_BLANK_VALUE = "        ";
