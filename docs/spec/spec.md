@@ -406,10 +406,8 @@ public type Message record {|
     string replyToQueueName?;
     # Name of reply queue manager
     string replyToQueueManagerName?;
-    # Specifies the representation used for numeric values in the application message data. This can be represented 
-    # using as a combination of `ibmmq:ENC_INTEGER_NORMAL`, `ibmmq:ENC_INTEGER_REVERSED`, `ibmmq:ENC_DECIMAL_NORMAL`, 
-    # `ibmmq:ENC_DECIMAL_REVERSED`, `ibmmq:ENC_FLOAT_IEEE_NORMAL`, `ibmmq:ENC_FLOAT_IEEE_REVERSED`, and 
-    # `ibmmq:ENC_FLOAT_S390`
+    # Specifies the representation used for numeric values in the application message data. 
+    # This can be represented using as a combination of `ibmmq:MQENC_*` options
     int encoding = ENC_INTEGER_NORMAL|ENC_DECIMAL_NORMAL|ENC_FLOAT_IEEE_NORMAL;
     # The coded character set identifier of character data in the application message data
     MESSAGE_CHARSET characterSet = CCSI_Q_MGR;
