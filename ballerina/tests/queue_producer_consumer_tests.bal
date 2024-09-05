@@ -532,8 +532,7 @@ function produceMessagesWithIdentification() returns error? {
     string userId = "user-1";
     check queue->put({
         accountingToken: accountingToken.toBytes(),
-        persistence: 1,
-        userId: userId,
+        userId,
         payload: messageContent.toBytes()
     }, MQPMO_SET_IDENTITY_CONTEXT);
 
@@ -567,7 +566,7 @@ function produceMessagesWithCharacterSet() returns error? {
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
 
-    MessageCharset characterSet = CCSI_UTF8;
+    MessageCharset characterSet = MQCCSI_UTF8;
     string messageContent = "This is a sample UTF-8 charset based message";
     check queue->put({
         characterSet,

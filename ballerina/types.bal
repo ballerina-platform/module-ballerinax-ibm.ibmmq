@@ -23,8 +23,8 @@ public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 public type Header MQRFH2|MQRFH|MQCIH|MQIIH;
 
 # The coded character set used in application message data.
-public type MessageCharset CCSI_APPL|CCSI_ASCII|CCSI_ASCII_ISO|CCSI_AS_PUBLISHED|CCSI_DEFAULT|
-    CCSI_EBCDIC|CCSI_EMBEDDED|CCSI_INHERIT|CCSI_Q_MGR|CCSI_UNDEFINED|CCSI_UNICODE|CCSI_UTF8;
+public type MessageCharset MQCCSI_APPL|MQCCSI_ASCII|MQCCSI_ASCII_ISO|MQCCSI_AS_PUBLISHED|MQCCSI_DEFAULT|
+    MQCCSI_EBCDIC|MQCCSI_EMBEDDED|MQCCSI_INHERIT|MQCCSI_Q_MGR|MQCCSI_UNDEFINED|MQCCSI_UNICODE|MQCCSI_UTF8;
 
 # The SSL Cipher Suite to be used for secure communication with the IBM MQ server.
 public type SslCipherSuite SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
@@ -145,7 +145,7 @@ public type Message record {|
     string replyToQueueName?;
     string replyToQueueManagerName?;
     int encoding = MQENC_INTEGER_NORMAL|MQENC_DECIMAL_NORMAL|MQENC_FLOAT_IEEE_NORMAL;
-    MessageCharset characterSet = CCSI_Q_MGR;
+    MessageCharset characterSet = MQCCSI_Q_MGR;
     byte[] accountingToken?;
     string userId?;
     Header[] headers?;

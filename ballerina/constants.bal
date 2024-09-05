@@ -126,41 +126,41 @@ public const int MQENC_FLOAT_IEEE_REVERSED = 512;
 public const int MQENC_FLOAT_S390 = 768;
 
 # Coded Character Set Identifiers - Appl.
-public const int  CCSI_APPL = -3;
+public const int  MQCCSI_APPL = -3;
 
 # ASCII codeset
-public const int CCSI_ASCII = 850;
+public const int MQCCSI_ASCII = 850;
 
 # ISO standard ASCII codeset 
-public const int CCSI_ASCII_ISO = 819;
+public const int MQCCSI_ASCII_ISO = 819;
 
 # Coded Character Set Identifiers - As Published.
-public const int CCSI_AS_PUBLISHED = -4;
+public const int MQCCSI_AS_PUBLISHED = -4;
 
 # The CodedCharSetId of the data in the String field is defined by the CodedCharSetId field in the header structure 
 # that precedes the MQCFH structure, or by the CodedCharSetId field in the MQMD if the MQCFH is at the start of the message.
-public const int CCSI_DEFAULT = 0;
+public const int MQCCSI_DEFAULT = 0;
 
 # The American EBCDIC codeset  
-public const int CCSI_EBCDIC = 37;
+public const int MQCCSI_EBCDIC = 37;
 
 # Coded Character Set Identifiers - Embedded.
-public const int CCSI_EMBEDDED = -1;
+public const int MQCCSI_EMBEDDED = -1;
 
 # Character data in the message is in the same character set as this structure.
-public const int CCSI_INHERIT = -2;
+public const int MQCCSI_INHERIT = -2;
 
 # Character data in the message is in the queue manager's character set.
-public const int CCSI_Q_MGR = 0;
+public const int MQCCSI_Q_MGR = 0;
 
 # Coded Character Set Identifiers - Undefined.
-public const int CCSI_UNDEFINED = 0;
+public const int MQCCSI_UNDEFINED = 0;
 
 # Unicode codeset
-public const int CCSI_UNICODE = 1200;
+public const int MQCCSI_UNICODE = 1200;
 
 # UTF-8 codeset
-public const int CCSI_UTF8 = 1208;
+public const int MQCCSI_UTF8 = 1208;
 
 const string DEFAULT_BLANK_VALUE = "        ";
 
