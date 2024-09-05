@@ -542,11 +542,20 @@ function produceMessagesWithIdentification() returns error? {
 
     byte[]? payload = message?.payload;
     test:assertEquals(message?.userId, userId, "Invalid userId");
-    test:assertEquals((string:fromBytes(check message?.accountingToken.ensureType())), accountingToken, "Invalid accounting token");
+    byte[] retrievedAccountingToken = trimTrailingZeros(check message?.accountingToken.ensureType());
+    test:assertEquals(retrievedAccountingToken, accountingToken.toBytes(), "Invalid accounting token");
     test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent, "Invalid message content");
 
     check queue->close();
     check queueManager.disconnect();
+}
+
+function trimTrailingZeros(byte[] bytes) returns byte[] {
+    int i = bytes.length() - 1;
+    while (i >= 0 && bytes[i] == 0) {
+        i -= 1;
+    }
+    return bytes.slice(0, i + 1);
 }
 
 @test:Config {
