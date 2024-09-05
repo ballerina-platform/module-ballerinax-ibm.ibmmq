@@ -527,7 +527,7 @@ function produceMessagesWithIdentification() returns error? {
         userID = "admin", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF | MQOO_SET_IDENTITY_CONTEXT);
 
-    string messageContent = "This is a sample message with a identification.";
+    string messageContent = "This is a sample message with an identification.";
     string accountingToken = "accountint-token-1";
     string userId = "user-1";
     check queue->put({
