@@ -535,7 +535,7 @@ function produceMessagesWithIdentification() returns error? {
         persistence: 1,
         userId: userId,
         payload: messageContent.toBytes()
-    });
+    }, MQPMO_SET_IDENTITY_CONTEXT);
 
     Message? message = check queue->get();
     test:assertTrue(message is Message, "Could not retrieve a message");
@@ -544,6 +544,71 @@ function produceMessagesWithIdentification() returns error? {
     test:assertEquals(message?.userId, userId, "Invalid userId");
     test:assertEquals((string:fromBytes(check message?.accountingToken.ensureType())), accountingToken, "Invalid accounting token");
     test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent, "Invalid message content");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue", "charset"]
+}
+function produceMessagesWithCharacterSet() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+
+    MessageCharset characterSet = CCSI_UTF8;
+    string messageContent = "This is a sample UTF-8 charset based message";
+    check queue->put({
+        characterSet,
+        payload: messageContent.toBytes()
+    });
+
+    Message? message = check queue->get();
+    test:assertTrue(message is Message, "Could not retrieve a message");
+
+    test:assertEquals(message?.characterSet, characterSet, "Invalid character-set found");
+    byte[]? payload = message?.payload;
+    test:assertEquals(string:fromBytes(check payload.ensureType()), messageContent, "Invalid message content");
+
+    check queue->close();
+    check queueManager.disconnect();
+}
+
+@test:Config {
+    groups: ["ibmmqQueue", "encoding"]
+}
+function produceMessageWithEncoding() returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
+
+    int encoding = ENC_INTEGER_NORMAL;
+    json messageBody = {
+        user: "Doe, John",
+        id: 1234,
+        description: "Regular application developer"
+    };
+    byte[] payload = messageBody.toJsonString().toBytes();
+    check queue->put({
+        encoding,
+        payload
+    });
+
+    Message? message = check queue->get();
+    test:assertTrue(message is Message, "Could not retrieve a message");
+
+    test:assertEquals(message?.encoding, encoding, "Invalid encoding found");
+
+    byte[]? retrievedPayload = message?.payload;
+    if retrievedPayload is () {
+        test:assertFail("Could not find the message payload");
+    }
+    string rawMessageBody = check string:fromBytes(retrievedPayload);
+    json receivedMessage = check rawMessageBody.fromJsonString();
+    test:assertEquals(receivedMessage, messageBody, "Invalid message content");
 
     check queue->close();
     check queueManager.disconnect();
