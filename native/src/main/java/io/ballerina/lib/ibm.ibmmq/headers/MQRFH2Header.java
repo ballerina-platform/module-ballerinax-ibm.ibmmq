@@ -21,13 +21,13 @@ package io.ballerina.lib.ibm.ibmmq.headers;
 import com.ibm.mq.MQMessage;
 import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.MQRFH2;
-import io.ballerina.lib.ibm.ibmmq.HeaderFieldValuesCallback;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -36,7 +36,6 @@ import io.ballerina.runtime.api.values.BTable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.CODED_CHARSET_ID_FIELD;
@@ -177,17 +176,21 @@ public class MQRFH2Header {
             }
         }
         BObject nativeUtilsObject = ValueCreator.createObjectValue(getModule(), NATIVE_UTILS_OBJECT_NAME);
-        CountDownLatch latch = new CountDownLatch(1);
-        HeaderFieldValuesCallback headerFieldValuesCallback = new HeaderFieldValuesCallback(latch);
-        runtime.invokeMethodAsyncConcurrently(nativeUtilsObject, ADD_FIELDS_TO_TABLE_FUNCTION_NAME, null,
-                null, headerFieldValuesCallback, null, PredefinedTypes.TYPE_ANY, fieldArray, true);
         try {
-            latch.await();
-        } catch (InterruptedException e) {
+            Object result = runtime.callMethod(nativeUtilsObject, ADD_FIELDS_TO_TABLE_FUNCTION_NAME, null, fieldArray);
+            if (result instanceof BTable bTable) {
+                return bTable;
+            } else if (result instanceof BError bError) {
+                bError.printStackTrace();
+                return ValueCreator.createTableValue(TypeCreator.createTableType(TypeCreator
+                        .createRecordType(MQRFH2FIELD_RECORD_NAME, getModule(), 0, false, 0), false));
+            }
+            return null;
+        } catch (BError bError) {
+            bError.printStackTrace();
             throw createError(IBMMQ_ERROR,
-                    String.format("Error occurred while adding MQRFH2 fields: %s", e.getMessage()), e);
+                    String.format("Error occurred while adding MQRFH2 fields: %s", bError.getMessage()), bError);
         }
-        return headerFieldValuesCallback.getHeaderValueTable();
     }
 
     private static Object getBValueForMQObjectValue(Object value) {
