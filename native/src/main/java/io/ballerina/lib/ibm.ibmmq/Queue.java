@@ -26,14 +26,9 @@ import com.ibm.mq.MQQueue;
 import com.ibm.mq.constants.CMQC;
 import io.ballerina.lib.ibm.ibmmq.config.GetMessageOptions;
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
@@ -42,27 +37,21 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
  * Representation of {@link com.ibm.mq.MQQueue} with utility methods to invoke as inter-op functions.
  */
 public class Queue {
-    private static final ExecutorService QUEUE_EXECUTOR_SERVICE = Executors.newCachedThreadPool(
-            new MQThreadFactory("balx-ibmmq-queue-client-network-thread"));
-
     public static Object put(Environment environment, BObject queueObject, BMap<BString, Object> message,
                              long options) {
         MQQueue queue = (MQQueue) queueObject.getNativeData(Constants.NATIVE_QUEUE);
         MQMessage mqMessage = CommonUtils.getMqMessageFromBMessage(message);
-        Future future = environment.markAsync();
-        QUEUE_EXECUTOR_SERVICE.execute(() -> {
+        return environment.yieldAndRun(() -> {
             try {
                 MQPutMessageOptions pmo = new MQPutMessageOptions();
                 pmo.options = (int) options;
                 queue.put(mqMessage, pmo);
-                future.complete(null);
+                return null;
             } catch (MQException e) {
-                BError bError = createError(IBMMQ_ERROR,
+                return createError(IBMMQ_ERROR,
                         String.format("Error occurred while putting a message to the queue: %s", e.getMessage()), e);
-                future.complete(bError);
             }
         });
-        return null;
     }
 
     public static Object get(Environment environment, BObject queueObject, BMap<BString, Object> bGetMsgOptions) {
@@ -70,38 +59,32 @@ public class Queue {
         GetMessageOptions getMsgOptions = new GetMessageOptions(bGetMsgOptions);
         MQMessage mqMessage = CommonUtils.getMqMessage(getMsgOptions.matchOptions());
         MQGetMessageOptions mqGetMsgOptions = CommonUtils.getMqGetMsgOptions(getMsgOptions);
-        Future future = environment.markAsync();
-        QUEUE_EXECUTOR_SERVICE.execute(() -> {
+        return environment.yieldAndRun(() -> {
             try {
                 queue.get(mqMessage, mqGetMsgOptions);
-                future.complete(CommonUtils.getBMessageFromMQMessage(environment.getRuntime(), mqMessage));
+                return CommonUtils.getBMessageFromMQMessage(environment.getRuntime(), mqMessage);
             } catch (MQException e) {
                 if (e.reasonCode == CMQC.MQRC_NO_MSG_AVAILABLE) {
-                    future.complete(null);
+                    return null;
                 } else {
-                    BError bError = createError(IBMMQ_ERROR,
+                    return createError(IBMMQ_ERROR,
                             String.format("Error occurred while getting a message from the queue: %s",
                                     e.getMessage()), e);
-                    future.complete(bError);
                 }
             }
         });
-        return null;
     }
 
     public static Object close(Environment env, BObject queueObject) {
         MQQueue queue = (MQQueue) queueObject.getNativeData(Constants.NATIVE_QUEUE);
-        Future future = env.markAsync();
-        QUEUE_EXECUTOR_SERVICE.execute(() -> {
+        return env.yieldAndRun(() -> {
             try {
                 queue.close();
-                future.complete(null);
+                return null;
             } catch (MQException e) {
-                BError bError = createError(IBMMQ_ERROR,
+                return createError(IBMMQ_ERROR,
                         String.format("Error occurred while closing the queue: %s", e.getMessage()), e);
-                future.complete(bError);
             }
         });
-        return null;
     }
 }

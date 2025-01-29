@@ -61,7 +61,7 @@ import ballerinax/ibm.ibmmq;
 Add `com.ibm.mq.allclient` as a platform dependency to the `Ballerina.toml`.
 
 ```toml
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 groupId = "com.ibm.mq"
 artifactId = "com.ibm.mq.allclient"
 version = "9.3.4.0"
@@ -169,7 +169,7 @@ This repository only contains the source code for the library.
 
 ### Set up the prerequisites
 
-1. Download and install Java SE Development Kit (JDK) version 17 (from one of the following locations).
+1. Download and install Java SE Development Kit (JDK) version 21 (from one of the following locations).
 
    * [Oracle](https://www.oracle.com/java/technologies/downloads/)
    * [OpenJDK](https://adoptium.net/)
