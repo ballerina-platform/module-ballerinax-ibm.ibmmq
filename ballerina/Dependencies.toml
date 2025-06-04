@@ -5,7 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.9.0"
+distribution-version = "2201.10.0"
 
 [[package]]
 org = "ballerina"
@@ -90,7 +90,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "ibm.ibmmq"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
