@@ -38,7 +38,7 @@ public type TopicConfig record {|
     string topicName;
     string? subscriptionName = ();
     boolean durable = true;
-    int options;
+    int options = MQSO_CREATE;
     MatchOptions matchOptions?;
 |};
 

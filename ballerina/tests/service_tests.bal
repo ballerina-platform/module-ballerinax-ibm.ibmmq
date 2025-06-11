@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/lang.runtime;
 import ballerina/test;
 
 byte[] payload1 = [];
@@ -60,6 +61,9 @@ service Service on ibmmqListener {
     groups: ["service"]
 }
 function testConsumeMessageFromServiceWithQueue() returns error? {
+    // Add a small delay to ensure listener is ready
+    runtime:sleep(1);
+
     QueueManager queueManager = check new (
         name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password"
@@ -70,6 +74,9 @@ function testConsumeMessageFromServiceWithQueue() returns error? {
     });
     check producer->close();
     check queueManager.disconnect();
+
+    // Add delay to allow service to process the message
+    runtime:sleep(2);
     test:assertEquals(string:fromBytes(payload1), "Hello World");
 }
 

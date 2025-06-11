@@ -20,8 +20,10 @@ package io.ballerina.lib.ibm.ibmmq;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -32,6 +34,7 @@ import javax.jms.MessageListener;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 
 /**
  * This class is an implementation of the MessageListener interface for Ballerina IBM MQ.
@@ -53,29 +56,72 @@ public class BallerinaMessageListener implements MessageListener {
     public void onMessage(Message message) {
         try {
             BMap<BString, Object> bMessage = MessageMapper.toBallerinaMessage(message);
+            StrandMetadata strandMetadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
+                    getModule().getVersion(), "onMessage");
+            MessageCallback callback = new MessageCallback();
+
+            // Java 17 pattern: Parameters must be doubled with boolean flags
+            Object[] params = new Object[] { bMessage, true };
+
             if (this.serviceValidator.isOnMessageIsolated()) {
                 this.runtime.invokeMethodAsyncConcurrently(
                         this.service,
                         this.serviceValidator.getOnMessageMethod().getName(),
                         null,
-                        null,
-                        null,
+                        strandMetadata,
+                        callback,
                         null,
                         this.returnType,
-                        bMessage, false);
+                        params);
             } else {
                 this.runtime.invokeMethodAsyncSequentially(
                         this.service,
                         this.serviceValidator.getOnMessageMethod().getName(),
                         null,
-                        null,
-                        null,
+                        strandMetadata,
+                        callback,
                         null,
                         this.returnType,
-                        bMessage, false);
+                        params);
             }
         } catch (JMSException e) {
-            throw createError(IBMMQ_ERROR, "Failed to map the IBMMQ message to a Ballerina message", e);
+            // Instead of throwing, invoke the onError method if available
+            if (this.serviceValidator.getOnErrorMethod() != null) {
+                BError ballerinaError = createError(IBMMQ_ERROR, "Failed to map the IBMMQ message to a Ballerina " +
+                        "message", e);
+
+                StrandMetadata errorStrandMetadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
+                        getModule().getVersion(), "onError");
+                MessageCallback errorCallback = new MessageCallback();
+
+                // Java 17 pattern: Parameters must be doubled with boolean flags
+                Object[] errorParams = new Object[] { ballerinaError, true };
+
+                if (this.serviceValidator.isOnErrorIsolated()) {
+                    this.runtime.invokeMethodAsyncConcurrently(
+                            this.service,
+                            this.serviceValidator.getOnErrorMethod().getName(),
+                            null,
+                            errorStrandMetadata,
+                            errorCallback,
+                            null,
+                            this.returnType,
+                            errorParams);
+                } else {
+                    this.runtime.invokeMethodAsyncSequentially(
+                            this.service,
+                            this.serviceValidator.getOnErrorMethod().getName(),
+                            null,
+                            errorStrandMetadata,
+                            errorCallback,
+                            null,
+                            this.returnType,
+                            errorParams);
+                }
+            } else {
+                // If no onError method, log the error but don't throw
+                createError(IBMMQ_ERROR, "Failed to map the IBMMQ message to a Ballerina message", e).printStackTrace();
+            }
         }
     }
 }

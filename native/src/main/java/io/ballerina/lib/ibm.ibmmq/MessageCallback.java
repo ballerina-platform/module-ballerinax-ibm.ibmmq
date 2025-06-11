@@ -21,27 +21,28 @@ package io.ballerina.lib.ibm.ibmmq;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * Callback for the Ballerina runtime.
  *
  * @since 1.3.0
  */
 public class MessageCallback implements Callback {
-    private CountDownLatch countDownLatch;
 
-    MessageCallback(CountDownLatch countDownLatch) {
-        this.countDownLatch = countDownLatch;
+    MessageCallback() {
+        // No-argument constructor for simple callback pattern
     }
 
     @Override
     public void notifySuccess(Object result) {
-        this.countDownLatch.countDown();
+        // Handle successful execution - could add logging or metrics here
+        if (result instanceof BError) {
+            ((BError) result).printStackTrace();
+        }
     }
 
     @Override
     public void notifyFailure(BError error) {
-        this.countDownLatch.countDown();
+        // Handle failure - log the error
+        error.printStackTrace();
     }
 }

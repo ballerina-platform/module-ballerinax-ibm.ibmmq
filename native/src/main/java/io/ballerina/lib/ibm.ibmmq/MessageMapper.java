@@ -25,8 +25,6 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -55,34 +53,36 @@ public class MessageMapper {
     public static BMap<BString, Object> toBallerinaMessage(Message message) throws JMSException {
         BMap<BString, Object> result = ValueCreator.createRecordValue(getModule(), Constants.BMESSAGE_NAME);
 
-        // Common properties
-        result.put(MESSAGE_ID_FIELD, safeBytes(message.getJMSMessageID())); // custom convert
-        result.put(CORRELATION_ID_FIELD, safeBytes(message.getJMSCorrelationID()));
+        // Common properties - convert byte arrays to Ballerina arrays
+        result.put(MESSAGE_ID_FIELD, ValueCreator.createArrayValue(safeBytes(message.getJMSMessageID())));
+        result.put(CORRELATION_ID_FIELD, ValueCreator.createArrayValue(safeBytes(message.getJMSCorrelationID())));
         result.put(PRIORITY_FIELD, message.getJMSPriority());
         result.put(EXPIRY_FIELD, (int) message.getJMSExpiration()); // or TTL
         result.put(PERSISTENCE_FIELD, message.getJMSDeliveryMode());
 
         result.put(REPLY_TO_QUEUE_NAME_FIELD, (message.getJMSReplyTo() != null)
-                ? message.getJMSReplyTo().toString() : null);
-        result.put(MESSAGE_USERID, message.getStringProperty("JMSXUserID")); // standard MQ header
+                ? StringUtils.fromString(message.getJMSReplyTo().toString()) : null);
+        String userIdProperty = message.getStringProperty("JMSXUserID");
+        result.put(MESSAGE_USERID, userIdProperty != null ? StringUtils.fromString(userIdProperty) : null);
 
-        // JMS doesn’t expose: format, putApplicationType, encoding, characterSet, accountingToken
+        // JMS doesn't expose: format, putApplicationType, encoding, characterSet, accountingToken
         // You may need to pass them via custom properties or switch to MQMessage for that
 
         // Custom Properties
-        Map<String, Object> props = new HashMap<>();
+        BMap<BString, Object> props = ValueCreator.createMapValue();
         Enumeration<?> propNames = message.getPropertyNames();
         while (propNames.hasMoreElements()) {
             String name = (String) propNames.nextElement();
             Object value = message.getObjectProperty(name);
-            props.put(name, value);
+            props.put(StringUtils.fromString(name), value);
         }
         result.put(MESSAGE_PROPERTIES, props);
 
-        // Payload
+        // Payload - convert byte arrays to Ballerina arrays
         if (message instanceof TextMessage) {
             try {
-                result.put(MESSAGE_PAYLOAD, ((TextMessage) message).getText().getBytes("UTF-8"));
+                byte[] payload = ((TextMessage) message).getText().getBytes("UTF-8");
+                result.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
             } catch (UnsupportedEncodingException e) {
                 throw createError(IBMMQ_ERROR, "Unsupported encoding for TextMessage payload: UTF-8", e);
             }
@@ -92,7 +92,7 @@ public class MessageMapper {
             BytesMessage bytesMessage = (BytesMessage) message;
             byte[] payload = new byte[(int) bytesMessage.getBodyLength()];
             bytesMessage.readBytes(payload);
-            result.put(MESSAGE_PAYLOAD, payload);
+            result.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(payload));
             result.put(FORMAT_FIELD, BINARY);
 
         } else {
@@ -103,7 +103,7 @@ public class MessageMapper {
             } catch (UnsupportedEncodingException e) {
                 throw createError(IBMMQ_ERROR, "Unsupported encoding for message body: UTF-8", e);
             }
-            result.put(MESSAGE_PAYLOAD, fallback);
+            result.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(fallback));
             result.put(FORMAT_FIELD, UNKNOWN);
         }
         return result;

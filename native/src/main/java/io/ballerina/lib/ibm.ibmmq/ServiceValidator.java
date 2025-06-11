@@ -73,6 +73,9 @@ public class ServiceValidator {
                 throw createError(IBMMQ_ERROR, "Invalid remote method name: " + remoteMethod.getName());
             }
         }
+        if (this.onMessageMethod == null) {
+            throw createError(IBMMQ_ERROR, "IBMMQ service must have an 'onMessage' remote method");
+        }
     }
 
     private void validateOnMessageMethod(RemoteMethodType remoteMethod) {

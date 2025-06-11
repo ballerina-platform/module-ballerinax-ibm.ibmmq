@@ -22,7 +22,7 @@ import ballerina/time;
 }
 function basicQueueProducerConsumerTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
@@ -45,7 +45,7 @@ function basicQueueProducerConsumerTest() returns error? {
 }
 function basicQueueProducerConsumerWithOneQueueObjectTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
     check queue->put({
@@ -66,7 +66,7 @@ function basicQueueProducerConsumerWithOneQueueObjectTest() returns error? {
 }
 function basicQueueProducerConsumerWithJsonPayloadTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
@@ -123,7 +123,7 @@ function basicQueueProducerConsumerWithJsonPayloadTest() returns error? {
 }
 function pubSubMultipleMessagesQueueProducerConsumerTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
@@ -150,7 +150,7 @@ function pubSubMultipleMessagesQueueProducerConsumerTest() returns error? {
 }
 function consumerWithoutProducingMessageTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
     Message|Error? result = consumer->get(options = MQGMO_WAIT, waitInterval = 5);
@@ -164,7 +164,7 @@ function consumerWithoutProducingMessageTest() returns error? {
 }
 function produceToNonExistingQueueTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue|Error result = queueManager.accessQueue("NON.EXISTING.QUEUE", MQOO_OUTPUT);
     if result is Error {
@@ -182,7 +182,7 @@ function produceToNonExistingQueueTest() returns error? {
 }
 function consumerConnectToNonExistingQueueTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue|Error result = queueManager.accessQueue("NON.EXISTING.QUEUE", MQOO_INPUT_AS_Q_DEF);
     if result is Error {
@@ -200,7 +200,7 @@ function consumerConnectToNonExistingQueueTest() returns error? {
 }
 function produceWithInvalidQueueNameTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue|Error result = queueManager.accessQueue("INVALID QUEUE", MQOO_INPUT_AS_Q_DEF);
     if result is Error {
@@ -218,7 +218,7 @@ function produceWithInvalidQueueNameTest() returns error? {
 }
 function consumeFromAnInvalidQueueNameTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue|Error result = queueManager.accessQueue("INVALID QUEUE", MQOO_INPUT_AS_Q_DEF);
     if result is Error {
@@ -236,7 +236,7 @@ function consumeFromAnInvalidQueueNameTest() returns error? {
 }
 function produceAndConsumerMessageWithAdditionalPropertiesTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
@@ -278,7 +278,7 @@ function produceAndConsumerMessageWithAdditionalPropertiesTest() returns error? 
 }
 function produceAndConsumerMessageWithAdditionalPropertiesWithJsonPayloadTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
@@ -355,7 +355,7 @@ function produceAndConsumerMessageWithAdditionalPropertiesWithJsonPayloadTest() 
 }
 function produceAndConsumerMessageWithMultipleHeaderTypesTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
@@ -422,7 +422,7 @@ function produceAndConsumerMessageWithMultipleHeaderTypesTest() returns error? {
 }
 function produceAndConsumerMessageWithMultipleHeaderTypesWithJsonPayloadTest() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT);
     Queue consumer = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_INPUT_AS_Q_DEF);
@@ -523,7 +523,7 @@ function produceAndConsumerMessageWithMultipleHeaderTypesWithJsonPayloadTest() r
 }
 function produceMessagesWithIdentification() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.ADMIN.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.ADMIN.SVRCONN",
         userID = "admin", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF | MQOO_SET_IDENTITY_CONTEXT);
 
@@ -554,7 +554,7 @@ function produceMessagesWithIdentification() returns error? {
 }
 function produceMessagesWithCharacterSet() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
 
@@ -581,7 +581,7 @@ function produceMessagesWithCharacterSet() returns error? {
 }
 function produceMessageWithEncoding() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.1", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
 
@@ -619,7 +619,7 @@ function produceMessageWithEncoding() returns error? {
 }
 function produceConsumeWithMsgId() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
     
@@ -645,10 +645,10 @@ function produceConsumeWithMsgId() returns error? {
 }
 function produceConsumeWithInvalidMsgId() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
-    
+
     string messageContent = "This is a sample message with a message-id.";
     check queue->put({
         payload: messageContent.toBytes()
@@ -666,10 +666,10 @@ function produceConsumeWithInvalidMsgId() returns error? {
 }
 function produceConsumeWithCorrId() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
-    
+
     byte[] providedCorrId = "corr-id-1".toBytes();
     string messageContent = "This is a sample message with a correlation-id.";
     check queue->put({
@@ -679,7 +679,7 @@ function produceConsumeWithCorrId() returns error? {
 
     Message? message = check queue->get(matchOptions = { correlationId: providedCorrId });
     test:assertTrue(message is Message, "Could not retrieve a message for a valid correlation identifier");
-    
+
     byte[]? correlationId = message?.correlationId;
     test:assertTrue(correlationId is byte[], "Could not find the correlation identifier for the message");
 
@@ -695,10 +695,10 @@ function produceConsumeWithCorrId() returns error? {
 }
 function produceConsumeWithInvalidCorrId() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
-    
+
     string messageContent = "This is a sample message with a message-id.";
     check queue->put({
         payload: messageContent.toBytes()
@@ -716,10 +716,10 @@ function produceConsumeWithInvalidCorrId() returns error? {
 }
 function produceConsumeWithMsgIdAndCorrId() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
-    
+
     byte[] providedMsgId = "msg-id-1".toBytes();
     byte[] providedCorrId = "corr-id-1".toBytes();
     string messageContent = "This is a sample message with a message-id and a correlation-id.";
@@ -745,10 +745,10 @@ function produceConsumeWithMsgIdAndCorrId() returns error? {
 }
 function produceConsumeWithInvalidMsgIdAndCorrId() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
-    
+
     byte[] providedMsgId = "msg-id-1".toBytes();
     byte[] providedCorrId = "corr-id-1".toBytes();
     string messageContent = "This is a sample message with a message-id and a correlation-id.";
@@ -770,10 +770,10 @@ function produceConsumeWithInvalidMsgIdAndCorrId() returns error? {
 }
 function produceConsumeWithMsgIdAndInvalidCorrId() returns error? {
     QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN", 
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
-    
+
     byte[] providedMsgId = "msg-id-1".toBytes();
     byte[] providedCorrId = "corr-id-1".toBytes();
     string messageContent = "This is a sample message with a message-id and a correlation-id.";
@@ -795,4 +795,27 @@ function trimTrailingZeros(byte[] bytes) returns byte[] {
         i -= 1;
     }
     return bytes.slice(0, i + 1);
+}
+
+// Utility function to clear all messages from a queue to ensure test isolation
+function clearQueue(string queueName) returns error? {
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
+        userID = "app", password = "password");
+    Queue queue = check queueManager.accessQueue(queueName, MQOO_INPUT_AS_Q_DEF);
+
+    // Clear all existing messages with a very short timeout
+    while true {
+        Message|Error? message = queue->get(options = MQGMO_WAIT, waitInterval = 1);
+        if message is () {
+            break; // No more messages
+        }
+        if message is Error {
+            break; // No more messages or error
+        }
+        // Message was consumed and discarded
+    }
+
+    check queue->close();
+    check queueManager.disconnect();
 }
