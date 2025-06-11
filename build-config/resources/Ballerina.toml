@@ -45,3 +45,9 @@ groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-databind"
 version = "@jackson.version@"
 path = "./lib/jackson-databind-@jackson.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "javax.jms"
+artifactId = "javax.jms-api"
+version = "@jms.version@"
+path = "./lib/javax.jms-api-@jms.version@.jar"

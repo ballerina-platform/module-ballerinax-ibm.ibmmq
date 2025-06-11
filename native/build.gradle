@@ -29,6 +29,7 @@ dependencies {
     implementation group: 'io.ballerina.stdlib', name: 'crypto-native', version: "${stdlibCryptoVersion}"
     implementation group: 'org.json', name: 'json', version: "${jsonVersion}"
     implementation group: 'com.ibm.mq', name: 'com.ibm.mq.allclient', version: "${ibmMQVersion}"
+    implementation group: 'javax.jms', name: 'javax.jms-api', version: "${jmsVersion}"
 }
 
 def excludePattern = '**/module-info.java'

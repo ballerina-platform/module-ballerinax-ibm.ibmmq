@@ -16,6 +16,42 @@
 
 import ballerina/crypto;
 
+# Represents an IBMMQ service object that can be attached to an `ibmmq:Listener`.
+public type Service distinct service object {};
+
+# Configuration for an IBM MQ queue.
+#
+# + queueName - The name of the queue to consume messages from.
+public type QueueConfig record {|
+    string queueName;
+|};
+
+# Configuration for an IBM MQ topic subscription.
+#
+# + topicName - The name of the topic to subscribe to.
+# + subscriptionName - The name of the subscription. This is required only if the durable flag is set to `true`.
+# + durable - Indicates whether the subscription is durable. Set this to `false` to stop receiving messages sent to the
+# topic/queue while the listener is offline.
+# + options - Options to control message retrieval.
+# + matchOptions - Message selection criteria
+public type TopicConfig record {|
+    string topicName;
+    string? subscriptionName = ();
+    boolean durable = true;
+    int options;
+    MatchOptions matchOptions?;
+|};
+
+# The service configuration type for the `ibmmq:Service`.
+#
+# + config - The topic or queue configuration to subscribe to.
+public type ServiceConfigType record {|
+    QueueConfig|TopicConfig config;
+|};
+
+# Annotation to configure the `ibmmq:Service`.
+public annotation ServiceConfigType ServiceConfig on service;
+
 # Options which can be provided when opening an IBM MQ topic.
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
 
@@ -39,14 +75,14 @@ public type SslCipherSuite SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_ECDSA
 
 # IBM MQ queue manager configurations.
 #
-# + name - Name of the queue manager  
-# + host - IBM MQ server host  
-# + port - IBM MQ server port  
-# + channel - IBM MQ channel  
-# + userID - IBM MQ userId  
-# + password - IBM MQ user password  
+# + name - Name of the queue manager
+# + host - IBM MQ server host
+# + port - IBM MQ server port
+# + channel - IBM MQ channel
+# + userID - IBM MQ userId
+# + password - IBM MQ user password
 # + secureSocket - Configurations related to SSL/TLS encryption
-# + sslCipherSuite - Defines the combination of key exchange, encryption, 
+# + sslCipherSuite - Defines the combination of key exchange, encryption,
 #   and integrity algorithms used for establishing a secure SSL/TLS connection
 public type QueueManagerConfiguration record {|
     string name;
@@ -84,8 +120,8 @@ public type CertKey record {|
 
 # IBM MQ get message options.
 #
-# + options - Get message option 
-# + waitInterval - The maximum time (in seconds) that a `get` call waits for a suitable message to 
+# + options - Get message option
+# + waitInterval - The maximum time (in seconds) that a `get` call waits for a suitable message to
 #                  arrive. It is used in conjunction with `ibmmq:MQGMO_WAIT`.
 # + matchOptions - Message selection criteria
 public type GetMessageOptions record {|
@@ -105,7 +141,7 @@ public type MatchOptions record {|
 
 # Represents an IBM MQ message property.
 #
-# + descriptor - Property descriptor  
+# + descriptor - Property descriptor
 # + value - Property value
 public type Property record {|
     map<int> descriptor?;
@@ -125,10 +161,10 @@ public type Property record {|
 # + putApplicationType - Type of application that put the message
 # + replyToQueueName - Name of reply queue
 # + replyToQueueManagerName - Name of reply queue manager
-# + encoding - Specifies the representation used for numeric values in the application message data. 
-#              This can be represented using as a combination of `ibmmq:MQENC_*` options 
+# + encoding - Specifies the representation used for numeric values in the application message data.
+#              This can be represented using as a combination of `ibmmq:MQENC_*` options
 # + characterSet - The coded character set identifier of character data in the application message data
-# + accountingToken - The accounting token, which is part of the message's identity and allows the work performed as a result of the message to be properly charged 
+# + accountingToken - The accounting token, which is part of the message's identity and allows the work performed as a result of the message to be properly charged
 # + userId - Id of the user who originated the message
 # + headers - Headers to be sent in the message
 # + payload - Message payload
@@ -154,19 +190,19 @@ public type Message record {|
 
 # Header record representing the MQRFH2 structure.
 #
-# + flags - Flag of the header  
-# + encoding - Numeric encoding of data that follows NameValueData  
+# + flags - Flag of the header
+# + encoding - Numeric encoding of data that follows NameValueData
 # + codedCharSetId - Character set identifier of data that follows NameValueData
-# + folderStrings - Contents of the variable part of the structure  
-# + nameValueCCSID - Coded character set for the NameValue data  
-# + nameValueData - NameValueData variable-length field  
-# + nameValueLength - Length of NameValueData  
-# + format - Format name of data that follows NameValueData.The name should be padded with  
-# blanks to the length of the field.  
-# + strucId - Structure identifier  
-# + strucLength - Length of the structure  
-# + version - Structure version number  
-# + fieldValues - Table containing all occurrences of field values matching  
+# + folderStrings - Contents of the variable part of the structure
+# + nameValueCCSID - Coded character set for the NameValue data
+# + nameValueData - NameValueData variable-length field
+# + nameValueLength - Length of NameValueData
+# + format - Format name of data that follows NameValueData.The name should be padded with
+# blanks to the length of the field.
+# + strucId - Structure identifier
+# + strucLength - Length of the structure
+# + version - Structure version number
+# + fieldValues - Table containing all occurrences of field values matching
 # the specified field name in the folder
 public type MQRFH2 record {|
     int flags = 0;
@@ -196,11 +232,11 @@ public type MQRFH2Field record {|
 
 # Header record representing the MQRFH structure.
 #
-# + flags - Flag of the header  
-# + encoding - Numeric encoding of data that follows NameValueString  
-# + strucId - Structure identifier  
-# + strucLength - Length of the structure  
-# + version - Structure version number  
+# + flags - Flag of the header
+# + encoding - Numeric encoding of data that follows NameValueString
+# + strucId - Structure identifier
+# + strucLength - Length of the structure
+# + version - Structure version number
 # + codedCharSetId - Character set identifier of data that follows NameValueString
 # + format - Format name of data that follows NameValueString
 # + nameValuePairs - Related name-value pairs
@@ -217,36 +253,36 @@ public type MQRFH record {|
 
 # Header record representing the MQCIH structure.
 #
-# + flags - Flag of the header  
-# + encoding - Numeric encoding of data that follows NameValueData 
+# + flags - Flag of the header
+# + encoding - Numeric encoding of data that follows NameValueData
 # + codedCharSetId - Character set identifier of data that follows NameValueString
 # + format - MQ format name of data that follows MQCIH
-# + strucId - Structure identifier  
-# + strucLength - Length of the structure  
-# + version - Structure version number  
-# + returnCode - Return code from bridge  
-# + compCode - MQ completion code or CICS EIBRESP  
-# + reason - MQ reason or feedback code, or CICS EIBRESP2  
-# + UOWControl - Unit-of-work control  
-# + waitInterval - Wait interval for MQGET call issued by bridge task  
-# + linkType - Link type  
-# + facilityKeepTime - Bridge facility release time  
-# + ADSDescriptor - Send/receive ADS descriptor  
-# + conversationalTask - Whether task can be conversational  
-# + taskEndStatus - Status at end of task  
-# + facility - Bridge facility token  
-# + 'function - MQ call name or CICS EIBFN function  
-# + abendCode - Abend code  
-# + authenticator - Password or passticket  
-# + replyToFormat - MQ format name of reply message  
-# + remoteSysId - Remote CICS system Id to use  
-# + remoteTransId - CICS RTRANSID to use  
-# + transactionId - Transaction to attach  
-# + facilityLike - Terminal emulated attributes  
-# + attentionId - AID key  
-# + startCode - Transaction start code  
-# + cancelCode - Abend transaction code  
-# + nextTransactionId - Next transaction to attach  
+# + strucId - Structure identifier
+# + strucLength - Length of the structure
+# + version - Structure version number
+# + returnCode - Return code from bridge
+# + compCode - MQ completion code or CICS EIBRESP
+# + reason - MQ reason or feedback code, or CICS EIBRESP2
+# + UOWControl - Unit-of-work control
+# + waitInterval - Wait interval for MQGET call issued by bridge task
+# + linkType - Link type
+# + facilityKeepTime - Bridge facility release time
+# + ADSDescriptor - Send/receive ADS descriptor
+# + conversationalTask - Whether task can be conversational
+# + taskEndStatus - Status at end of task
+# + facility - Bridge facility token
+# + 'function - MQ call name or CICS EIBFN function
+# + abendCode - Abend code
+# + authenticator - Password or passticket
+# + replyToFormat - MQ format name of reply message
+# + remoteSysId - Remote CICS system Id to use
+# + remoteTransId - CICS RTRANSID to use
+# + transactionId - Transaction to attach
+# + facilityLike - Terminal emulated attributes
+# + attentionId - AID key
+# + startCode - Transaction start code
+# + cancelCode - Abend transaction code
+# + nextTransactionId - Next transaction to attach
 # + inputItem - Reserved
 public type MQCIH record {|
     int flags = 0;
@@ -284,16 +320,16 @@ public type MQCIH record {|
 
 # Header record representing the MQIIH structure.
 #
-# + flags - Flag of the header  
-# + encoding - Numeric encoding of data that follows NameValueString  
-# + strucId - Structure identifier  
-# + strucLength - Length of the structure  
-# + version - Structure version number  
-# + codedCharSetId - Character set identifier of data that follows NameValueString  
-# + format - Format name of data that follows NameValueString  
+# + flags - Flag of the header
+# + encoding - Numeric encoding of data that follows NameValueString
+# + strucId - Structure identifier
+# + strucLength - Length of the structure
+# + version - Structure version number
+# + codedCharSetId - Character set identifier of data that follows NameValueString
+# + format - Format name of data that follows NameValueString
 # + lTermOverride - The logical terminal override, placed in the IO PCB field
 # + mfsMapName - The message format services map name, placed in the IO PCB field
-# + replyToFormat - This is the MQ format name of the reply message that is sent 
+# + replyToFormat - This is the MQ format name of the reply message that is sent
 #                   in response to the current message
 # + authenticator - RACF password or passticket
 # + tranInstanceId - This is the transaction instance identifier

@@ -69,9 +69,9 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.QUEUE_MANAGER_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SECURE_SOCKET;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SSL_CIPHER_SUITE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_2;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3;
-import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
 
@@ -104,7 +104,7 @@ public class QueueManager {
         return null;
     }
 
-    private static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations)
+    static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations)
             throws Exception {
         Hashtable<String, Object> properties = new Hashtable<>();
         String host = configurations.getStringValue(HOST).getValue();
@@ -135,7 +135,7 @@ public class QueueManager {
         }
     }
 
-    private static String getSslProtocol(BMap<BString, Object> configurations) {
+    static String getSslProtocol(BMap<BString, Object> configurations) {
         Optional<String> cipherSuiteOpt = getOptionalStringProperty(configurations, SSL_CIPHER_SUITE);
         if (cipherSuiteOpt.isEmpty()) {
             return TLS_V_1_2;
@@ -147,7 +147,7 @@ public class QueueManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
+    static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
             throws Exception {
         Object bCert = secureSocket.get(CERT);
         BMap<BString, BString> keyRecord = (BMap<BString, BString>) secureSocket.getMapValue(KEY);
