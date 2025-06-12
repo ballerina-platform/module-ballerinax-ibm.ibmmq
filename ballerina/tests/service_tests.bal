@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/test;
 
@@ -36,34 +35,15 @@ listener Listener ibmmqListener = new Listener({
 }
 service Service on ibmmqListener {
     remote function onMessage(Message message) returns Error? {
-        io:println("Received message: ", message.payload);
         payload1 = message.payload;
         return;
     }
 }
 
-// @ServiceConfig {
-//     config: {
-//         topicName: "DEV.TOPIC.1",
-//         subscriptionName: "SUB1",
-//         options: MQPMO_NO_SYNCPOINT
-//     }
-// }
-// service Service on ibmmqListener {
-//     remote function onMessage(Message message) returns Error? {
-//         io:println("Received message: ", message.payload);
-//         payload2 = message.payload;
-//         return;
-//     }
-// }
-
 @test:Config {
     groups: ["service"]
 }
 function testConsumeMessageFromServiceWithQueue() returns error? {
-    // Add a small delay to ensure listener is ready
-    runtime:sleep(1);
-
     QueueManager queueManager = check new (
         name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password"
@@ -74,26 +54,6 @@ function testConsumeMessageFromServiceWithQueue() returns error? {
     });
     check producer->close();
     check queueManager.disconnect();
-
-    // Add delay to allow service to process the message
     runtime:sleep(2);
     test:assertEquals(string:fromBytes(payload1), "Hello World");
 }
-
-// @test:Config {
-//     groups: ["service"]
-// }
-// function testConsumeMessageFromServiceWithTopic() returns error? {
-//     QueueManager queueManager = check new (
-//         name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
-//         userID = "app", password = "password"
-//     );
-//     Topic producer = check queueManager.accessTopic("dev", "DEV.BASE.TOPIC", OPEN_AS_SUBSCRIPTION, MQSO_CREATE);
-//     check producer->put({
-//         payload: "Hello World".toBytes()
-//     });
-//     check producer->close();
-//     check queueManager.disconnect();
-//     test:assertEquals(string:fromBytes(payload2), "Hello World");
-// }
-

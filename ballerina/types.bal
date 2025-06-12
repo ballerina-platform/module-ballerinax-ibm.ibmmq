@@ -45,8 +45,10 @@ public type TopicConfig record {|
 # The service configuration type for the `ibmmq:Service`.
 #
 # + config - The topic or queue configuration to subscribe to.
+# + pollingInterval - The polling interval in seconds.
 public type ServiceConfigType record {|
     QueueConfig|TopicConfig config;
+    decimal pollingInterval = 1;
 |};
 
 # Annotation to configure the `ibmmq:Service`.

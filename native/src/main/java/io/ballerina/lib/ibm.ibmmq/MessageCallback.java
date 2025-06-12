@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.ibm.ibmmq;
 
+import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 
@@ -26,23 +27,20 @@ import io.ballerina.runtime.api.values.BError;
  *
  * @since 1.3.0
  */
-public class MessageCallback implements Callback {
+public final class MessageCallback implements Callback {
+    private final Future future;
 
-    MessageCallback() {
-        // No-argument constructor for simple callback pattern
+    public MessageCallback(Future future) {
+        this.future = future;
     }
 
     @Override
     public void notifySuccess(Object result) {
-        // Handle successful execution - could add logging or metrics here
-        if (result instanceof BError) {
-            ((BError) result).printStackTrace();
-        }
+        this.future.complete(result);
     }
 
     @Override
     public void notifyFailure(BError error) {
-        // Handle failure - log the error
-        error.printStackTrace();
+        this.future.complete(error);
     }
 }
