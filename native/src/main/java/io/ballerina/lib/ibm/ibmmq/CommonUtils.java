@@ -90,15 +90,11 @@ import static io.ballerina.lib.ibm.ibmmq.headers.MQCIHHeader.createMQCIHHeaderFr
 import static io.ballerina.lib.ibm.ibmmq.headers.MQIIHHeader.createMQIIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header.createMQRFH2HeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQRFHHeader.createMQRFHHeaderFromBHeader;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 
 /**
  * {@code CommonUtils} contains the common utility functions for the Ballerina IBM MQ connector.
  */
 public class CommonUtils {
-
-    private static final String SERVICE_CONFIG_ANNOTATION_NAME = "ServiceConfig";
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
     private static final ArrayType BHeaderUnionType = TypeCreator.createArrayType(
             TypeCreator.createUnionType(List.of(
@@ -399,11 +395,5 @@ public class CommonUtils {
             return Optional.of(config.getStringValue(fieldName).getValue());
         }
         return Optional.empty();
-    }
-
-    static BString getServiceConfigAnnotationName() {
-        return StringUtils.fromString(getModule().getOrg() + ORG_NAME_SEPARATOR +
-                getModule().getName() + VERSION_SEPARATOR + getModule().getMajorVersion() + VERSION_SEPARATOR +
-                SERVICE_CONFIG_ANNOTATION_NAME);
     }
 }

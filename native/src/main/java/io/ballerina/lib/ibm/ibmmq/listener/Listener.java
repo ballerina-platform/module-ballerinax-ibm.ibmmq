@@ -16,18 +16,19 @@
  *  under the License.
  */
 
-package io.ballerina.lib.ibm.ibmmq;
+package io.ballerina.lib.ibm.ibmmq.listener;
 
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
+import io.ballerina.lib.ibm.ibmmq.Constants;
+import io.ballerina.lib.ibm.ibmmq.MessageCallback;
+import io.ballerina.lib.ibm.ibmmq.MessageMapper;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
-import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -36,6 +37,7 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -53,7 +55,6 @@ import javax.jms.Topic;
 import javax.net.ssl.SSLSocketFactory;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
-import static io.ballerina.lib.ibm.ibmmq.CommonUtils.getServiceConfigAnnotationName;
 import static io.ballerina.lib.ibm.ibmmq.Constants.HOST;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PORT;
@@ -74,13 +75,14 @@ public final class Listener {
     static final String NATIVE_JMS_CONSUMER = "JMSConsumer";
     static final String NATIVE_JMS_SESSION = "JMSSession";
     static final String NATIVE_SERVICE_LIST = "ServiceList";
+    static final String NATIVE_MESSAGE_POLLER = "MessagePoller";
+    private static final String ON_MESSAGE_METHOD_NAME = "onMessage";
+    private static final String ON_ERROR_METHOD_NAME = "onError";
 
-    static final BString CONFIG = StringUtils.fromString("config");
     static final BString QUEUE_NAME = StringUtils.fromString("queueName");
     static final BString TOPIC_NAME = StringUtils.fromString("topicName");
     static final BString DURABLE = StringUtils.fromString("durable");
     static final BString SUBSCRIPTION_NAME = StringUtils.fromString("subscriptionName");
-    static final BString POLLING_INTERVAL = StringUtils.fromString("pollingInterval");
 
     private Listener() {
     }
@@ -103,11 +105,10 @@ public final class Listener {
                 SSLSocketFactory sslSocketFactory = getSecureSocketFactory(sslProtocol, secureSocket);
                 connectionFactory.setSSLSocketFactory(sslSocketFactory);
             }
-
             String user = configs.getStringValue(USER_ID).getValue();
             String pass = configs.getStringValue(Constants.PASSWORD).getValue();
             Connection connection = connectionFactory.createConnection(user, pass);
-            connection.setClientID(configs.getStringValue(Constants.QUEUE_MANAGER_NAME).getValue());
+            connection.setClientID(UUID.randomUUID().toString());
             listener.addNativeData(NATIVE_JMS_CONNECTION, connection);
             listener.addNativeData(NATIVE_SERVICE_LIST, new ArrayList<BObject>());
         } catch (Exception e) {
@@ -117,18 +118,8 @@ public final class Listener {
     }
 
     public static Object attach(Environment environment, BObject listener, BObject service, Object name) {
-        AnnotatableType serviceType = (AnnotatableType) TypeUtils.getType(service);
-        BMap<BString, Object> serviceConfig =
-                (BMap<BString, Object>) serviceType.getAnnotation(getServiceConfigAnnotationName());
-        if (serviceConfig == null) {
-            return createError(IBMMQ_ERROR, "Service configuration annotation is required");
-        }
-
-        BMap<BString, Object> configs = (BMap<BString, Object>) serviceConfig.getMapValue(CONFIG);
-        if (configs == null) {
-            return createError(IBMMQ_ERROR, "Service configuration 'config' field is required");
-        }
-        BDecimal pollingInterval = (BDecimal) serviceConfig.get(POLLING_INTERVAL);
+        IbmmqService nativeService = new IbmmqService(service);
+        nativeService.validate();
         Connection connection = (Connection) listener.getNativeData(NATIVE_JMS_CONNECTION);
         if (connection == null) {
             return createError(IBMMQ_ERROR, "JMS connection is not initialized");
@@ -136,15 +127,12 @@ public final class Listener {
         try {
             Session session = connection.createSession();
             MessageConsumer consumer;
-            if (configs.containsKey(QUEUE_NAME)) {
-                consumer = getQueueConsumer(session, configs);
-            } else if (configs.containsKey(TOPIC_NAME)) {
-                consumer = getTopicConsumer(session, configs);
+            if (nativeService.isTopic()) {
+                consumer = getTopicConsumer(session, nativeService.getConfig());
             } else {
-                return createError(IBMMQ_ERROR,
-                        "Either queueName or topicName must be specified in service configuration");
+                consumer = getQueueConsumer(session, nativeService.getConfig());
             }
-
+            BDecimal pollingInterval = nativeService.getPollingInterval();
             long pollingIntervalInMs = pollingInterval.intValue() * 1000;
             schedulePollingTask(environment, consumer, service, pollingIntervalInMs);
 
@@ -163,11 +151,11 @@ public final class Listener {
 
     private static void schedulePollingTask(Environment environment, MessageConsumer consumer, BObject service,
                                             long pollingInterval) {
-        ServiceValidator serviceValidator = new ServiceValidator(service);
-        serviceValidator.validate();
-        IBMMQMessagePoller poller = new IBMMQMessagePoller(environment, consumer, service, serviceValidator,
+        IbmmqService ibmmqService = new IbmmqService(service);
+        ibmmqService.validate();
+        IBMMQMessagePoller poller = new IBMMQMessagePoller(environment, consumer, service, ibmmqService,
                 pollingInterval);
-        service.addNativeData("MESSAGE_POLLER", poller);
+        service.addNativeData(NATIVE_MESSAGE_POLLER, poller);
         poller.startPolling();
     }
 
@@ -175,7 +163,7 @@ public final class Listener {
         private final Environment environment;
         private final MessageConsumer consumer;
         private final BObject service;
-        private final ServiceValidator serviceValidator;
+        private final IbmmqService ibmmqService;
         private final AtomicBoolean closed = new AtomicBoolean(false);
         private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         private ScheduledFuture<?> pollTaskFuture;
@@ -183,11 +171,11 @@ public final class Listener {
         private static final long STOP_TIMEOUT_MS = 5000;
 
         public IBMMQMessagePoller(Environment environment, MessageConsumer consumer, BObject service,
-                                  ServiceValidator serviceValidator, long pollingInterval) {
+                                  IbmmqService ibmmqService, long pollingInterval) {
             this.environment = environment;
             this.consumer = consumer;
             this.service = service;
-            this.serviceValidator = serviceValidator;
+            this.ibmmqService = ibmmqService;
             this.pollingInterval = pollingInterval;
         }
 
@@ -213,7 +201,7 @@ public final class Listener {
                 }
             } catch (Exception e) {
                 if (!closed.get()) {
-                    createError(IBMMQ_ERROR, "Unexpected error during polling", e).printStackTrace();
+                    throw createError(IBMMQ_ERROR, "Unexpected error during polling", e);
                 }
             }
         }
@@ -222,19 +210,18 @@ public final class Listener {
             if (closed.get()) {
                 return;
             }
-
             try {
                 BMap<BString, Object> bMessage = MessageMapper.toBallerinaMessage(message);
                 StrandMetadata strandMetadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
-                        getModule().getMajorVersion(), "onMessage");
+                        getModule().getMajorVersion(), ON_MESSAGE_METHOD_NAME);
                 Semaphore semaphore = new Semaphore(0);
                 Future future = this.environment.markAsync();
                 IbmmqPollCycleCallback callback = new IbmmqPollCycleCallback(future, semaphore);
                 Object[] params = new Object[]{bMessage, true};
-                if (serviceValidator.isOnMessageIsolated()) {
+                if (ibmmqService.isOnMessageIsolated()) {
                     this.environment.getRuntime().invokeMethodAsyncConcurrently(
                             service,
-                            serviceValidator.getOnMessageMethod().getName(),
+                            ibmmqService.getOnMessageMethod().getName(),
                             null,
                             strandMetadata,
                             callback,
@@ -244,7 +231,7 @@ public final class Listener {
                 } else {
                     this.environment.getRuntime().invokeMethodAsyncSequentially(
                             service,
-                            serviceValidator.getOnMessageMethod().getName(),
+                            ibmmqService.getOnMessageMethod().getName(),
                             null,
                             strandMetadata,
                             callback,
@@ -265,34 +252,34 @@ public final class Listener {
         }
 
         private void handlePollingError(JMSException e) {
-            if (serviceValidator.getOnErrorMethod() != null) {
+            if (ibmmqService.getOnErrorMethod() != null) {
                 BError ballerinaError = createError(IBMMQ_ERROR, "Failed to poll messages", e);
                 invokeOnError(ballerinaError);
             } else {
-                createError(IBMMQ_ERROR, "Failed to poll messages", e).printStackTrace();
+                throw createError(IBMMQ_ERROR, "Failed to poll messages", e);
             }
         }
 
         private void handleMessageProcessingError(JMSException e) {
-            if (serviceValidator.getOnErrorMethod() != null) {
-                BError ballerinaError = createError(IBMMQ_ERROR, "Failed to process message", e);
+            if (ibmmqService.getOnErrorMethod() != null) {
+                BError ballerinaError = createError(IBMMQ_ERROR, "Failed to process the message", e);
                 invokeOnError(ballerinaError);
             } else {
-                createError(IBMMQ_ERROR, "Failed to process message", e).printStackTrace();
+                throw createError(IBMMQ_ERROR, "Failed to process the message", e);
             }
         }
 
         private void invokeOnError(BError ballerinaError) {
             StrandMetadata errorStrandMetadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
-                    getModule().getVersion(), "onError");
+                    getModule().getMajorVersion(), ON_ERROR_METHOD_NAME);
 
             Future future = this.environment.markAsync();
             MessageCallback errorCallback = new MessageCallback(future);
             Object[] errorParams = new Object[]{ballerinaError, true};
-            if (serviceValidator.isOnErrorIsolated()) {
+            if (ibmmqService.isOnErrorIsolated()) {
                 this.environment.getRuntime().invokeMethodAsyncConcurrently(
                         service,
-                        serviceValidator.getOnErrorMethod().getName(),
+                        ibmmqService.getOnErrorMethod().getName(),
                         null,
                         errorStrandMetadata,
                         errorCallback,
@@ -302,7 +289,7 @@ public final class Listener {
             } else {
                 this.environment.getRuntime().invokeMethodAsyncSequentially(
                         service,
-                        serviceValidator.getOnErrorMethod().getName(),
+                        ibmmqService.getOnErrorMethod().getName(),
                         null,
                         errorStrandMetadata,
                         errorCallback,

@@ -18,9 +18,8 @@ import ballerina/lang.runtime;
 import ballerina/test;
 
 byte[] payload1 = [];
-byte[] payload2 = [];
 
-listener Listener ibmmqListener = new Listener({
+listener Listener ibmmqListener1 = new Listener({
     channel: "DEV.APP.SVRCONN",
     host: "localhost",
     name: "QM1",
@@ -33,7 +32,7 @@ listener Listener ibmmqListener = new Listener({
         queueName: "DEV.QUEUE.3"
     }
 }
-service Service on ibmmqListener {
+service Service on ibmmqListener1 {
     remote function onMessage(Message message) returns Error? {
         payload1 = message.payload;
         return;
@@ -41,7 +40,7 @@ service Service on ibmmqListener {
 }
 
 @test:Config {
-    groups: ["service"]
+    groups: ["service", "queue"]
 }
 function testConsumeMessageFromServiceWithQueue() returns error? {
     QueueManager queueManager = check new (
@@ -50,10 +49,10 @@ function testConsumeMessageFromServiceWithQueue() returns error? {
     );
     Queue producer = check queueManager.accessQueue("DEV.QUEUE.3", MQOO_OUTPUT);
     check producer->put({
-        payload: "Hello World".toBytes()
+        payload: "Hello World from queue".toBytes()
     });
     check producer->close();
     check queueManager.disconnect();
     runtime:sleep(2);
-    test:assertEquals(string:fromBytes(payload1), "Hello World");
+    test:assertEquals(string:fromBytes(payload1), "Hello World from queue");
 }

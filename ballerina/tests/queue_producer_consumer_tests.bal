@@ -622,7 +622,7 @@ function produceConsumeWithMsgId() returns error? {
         name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password");
     Queue queue = check queueManager.accessQueue("DEV.QUEUE.2", MQOO_OUTPUT | MQOO_INPUT_AS_Q_DEF);
-    
+
     byte[] providedMsgId = "msg-id-1".toBytes();
     string messageContent = "This is a sample message with a message-id.";
     check queue->put({
@@ -795,27 +795,4 @@ function trimTrailingZeros(byte[] bytes) returns byte[] {
         i -= 1;
     }
     return bytes.slice(0, i + 1);
-}
-
-// Utility function to clear all messages from a queue to ensure test isolation
-function clearQueue(string queueName) returns error? {
-    QueueManager queueManager = check new (
-        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
-        userID = "app", password = "password");
-    Queue queue = check queueManager.accessQueue(queueName, MQOO_INPUT_AS_Q_DEF);
-
-    // Clear all existing messages with a very short timeout
-    while true {
-        Message|Error? message = queue->get(options = MQGMO_WAIT, waitInterval = 1);
-        if message is () {
-            break; // No more messages
-        }
-        if message is Error {
-            break; // No more messages or error
-        }
-        // Message was consumed and discarded
-    }
-
-    check queue->close();
-    check queueManager.disconnect();
 }

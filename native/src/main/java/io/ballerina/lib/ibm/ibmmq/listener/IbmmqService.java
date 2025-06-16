@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.lib.ibm.ibmmq;
+package io.ballerina.lib.ibm.ibmmq.listener;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -25,13 +25,23 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+
+import java.util.UUID;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.SUBSCRIPTION_NAME;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.TOPIC_NAME;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 
 /**
  * Validates a Ballerina IBMMQ service.
@@ -39,15 +49,23 @@ import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
  *
  * @since 1.3.0
  */
-public class ServiceValidator {
+public class IbmmqService {
+    private static final String SERVICE_CONFIG_ANNOTATION_NAME = "ServiceConfig";
+    private static final BString CONFIG = StringUtils.fromString("config");
+    private static final BString POLLING_INTERVAL = StringUtils.fromString("pollingInterval");
+    private static final String CLIENT_NAME = "BALLERINA_IBMMQ_CLIENT";
+
     private final ServiceType serviceType;
     private RemoteMethodType onMessageMethod;
     private RemoteMethodType onErrorMethod;
     private boolean isServiceIsolated;
     private boolean isOnMessageIsolated;
     private boolean isOnErrorIsolated;
+    private BMap<BString, Object> serviceConfig;
+    private BMap<BString, Object> config;
+    private BDecimal pollingInterval;
 
-    ServiceValidator(BObject service) {
+    IbmmqService(BObject service) {
         this.serviceType = (ServiceType) TypeUtils.getType(service);
         this.isServiceIsolated = ((ObjectType) TypeUtils.getReferredType(serviceType)).isIsolated();
     }
@@ -61,6 +79,18 @@ public class ServiceValidator {
             throw createError(IBMMQ_ERROR, "IBMMQ service must have exactly one or two remote methods");
         }
         validateRemoteMethods(remoteMethods);
+        this.setAnnotation();
+    }
+
+    private void setAnnotation() {
+        BMap<BString, Object> serviceConfig =
+                (BMap<BString, Object>) this.serviceType.getAnnotation(getServiceConfigAnnotationName());
+        if (serviceConfig == null) {
+            throw createError(IBMMQ_ERROR, "Service configuration annotation is required");
+        }
+        BMap<BString, Object> config = (BMap<BString, Object>) serviceConfig.getMapValue(CONFIG);
+        this.serviceConfig = serviceConfig;
+        this.config = config;
     }
 
     private void validateRemoteMethods(RemoteMethodType[] remoteMethods) {
@@ -117,5 +147,38 @@ public class ServiceValidator {
 
     public boolean isOnErrorIsolated() {
         return this.isServiceIsolated && this.isOnErrorIsolated;
+    }
+
+    private static BString getServiceConfigAnnotationName() {
+        return StringUtils.fromString(getModule().getOrg() + ORG_NAME_SEPARATOR +
+                getModule().getName() + VERSION_SEPARATOR + getModule().getMajorVersion() + VERSION_SEPARATOR +
+                SERVICE_CONFIG_ANNOTATION_NAME);
+    }
+
+    BDecimal getPollingInterval() {
+        if (this.pollingInterval != null) {
+            return this.pollingInterval;
+        }
+        this.pollingInterval = (BDecimal) this.serviceConfig.get(POLLING_INTERVAL);
+        return this.pollingInterval;
+    }
+
+    boolean isTopic() {
+        return this.config.containsKey(TOPIC_NAME);
+    }
+
+    public BMap<BString, Object> getServiceConfig() {
+        return this.serviceConfig;
+    }
+
+    public BMap<BString, Object> getConfig() {
+        return this.config;
+    }
+
+    public String getSubscriptionName() {
+        if (this.config.containsKey(SUBSCRIPTION_NAME)) {
+            return this.config.getStringValue(SUBSCRIPTION_NAME).getValue();
+        }
+        return CLIENT_NAME + UUID.randomUUID();
     }
 }
