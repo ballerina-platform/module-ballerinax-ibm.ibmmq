@@ -159,9 +159,11 @@ The following example shows how to use the `ibm.ibmmq` connector to produce and 
 
 7. [Consume MQIIH headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-mqrfh2-headers) - Consume messages with the MQRFH2 header from an IBM MQ queue.
 
-## Issues and projects 
+8. [Consume messages using a service](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-messages-service) - Consume messages from an IBM MQ queue using a Ballerina service.
 
-Issues and Projects tabs are disabled for this repository as this is part of the Ballerina Standard Library. To report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina Standard Library parent repository](https://github.com/ballerina-platform/ballerina-standard-library). 
+## Issues and projects
+
+Issues and Projects tabs are disabled for this repository as this is part of the Ballerina Standard Library. To report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina Standard Library parent repository](https://github.com/ballerina-platform/ballerina-standard-library).
 
 This repository only contains the source code for the library.
 
@@ -189,7 +191,7 @@ This repository only contains the source code for the library.
 Execute the commands below to build from the source.
 
 1. To build the library:
-   ```    
+   ```
    ./gradlew clean build
    ```
 
@@ -228,7 +230,7 @@ Execute the commands below to build from the source.
 
 ## Contribute to Ballerina
 
-As an open source project, Ballerina welcomes contributions from the community. 
+As an open source project, Ballerina welcomes contributions from the community.
 
 For more information, go to the [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md).
 
