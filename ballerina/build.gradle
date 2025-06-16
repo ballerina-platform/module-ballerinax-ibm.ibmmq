@@ -59,7 +59,6 @@ ballerina {
     packageOrganization = packageOrg
     module = packageName
     langVersion = ballerinaLangVersion
-    testCoverageParam = "--code-coverage --coverage-format=xml --includes=*"
 }
 
 configurations {
@@ -85,18 +84,20 @@ dependencies {
     externalJars(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}") {
         transitive = false
     }
+    /* JMS dependencies */
+    externalJars(group: 'javax.jms', name: 'javax.jms-api', version: "${jmsVersion}") {
+        transitive = false
+    }
 }
 
 task updateTomlFiles {
     doLast {
-        def stdlibDependentIbmMQVersion = project.ibmMQVersion
-        def stdlibDependentJsonVersion = project.jsonVersion
-        def stdlibDependentJacksonVersion = project.jacksonVersion;
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         newConfig = newConfig.replace("@toml.version@", tomlVersion)
-        newConfig = newConfig.replace("@ibmmq.version@", stdlibDependentIbmMQVersion)
-        newConfig = newConfig.replace("@json.version@", stdlibDependentJsonVersion)
-        newConfig = newConfig.replace("@jackson.version@", stdlibDependentJacksonVersion)
+        newConfig = newConfig.replace("@ibmmq.version@", project.ibmMQVersion)
+        newConfig = newConfig.replace("@json.version@", project.jsonVersion)
+        newConfig = newConfig.replace("@jackson.version@", project.jacksonVersion)
+        newConfig = newConfig.replace("@jms.version@", project.jmsVersion)
         ballerinaTomlFile.text = newConfig
     }
 }
@@ -123,13 +124,12 @@ task commitTomlFiles {
                 standardOutput = stdOut
             }
             if (!stdOut.toString().contains("ibmmq-test")) {
-                println "Starting IBMMQ server."
+                println "Starting IBMMQ server and waiting for it to be healthy..."
                 exec {
-                    commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml up -d"
+                    commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml up --wait"
                     standardOutput = stdOut
                 }
-                println stdOut.toString()
-                sleep(10 * 1000)
+                println "IBMMQ server is ready."
             } else {
                 println "IBMMQ server is already running."
             }
@@ -148,11 +148,10 @@ task commitTomlFiles {
             if (stdOut.toString().contains("ibmmq-test")) {
                 println "Stopping IBMMQ server."
                 exec {
-                    commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml rm -svf"
+                    commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml down"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
-                sleep(10 * 1000)
             } else {
                 println "IBMMQ server is not started."
             }

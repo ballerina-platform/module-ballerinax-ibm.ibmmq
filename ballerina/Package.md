@@ -154,6 +154,8 @@ The following example shows how to use the `ibm.ibmmq` connector to produce and 
 
 7. [Consume MQIIH headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-mqrfh2-headers) - Consume messages with the MQRFH2 header from an IBM MQ queue.
 
+8. [Consume messages using a service](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-messages-service) - Consume messages from an IBM MQ queue using a Ballerina service.
+
 ## Report Issues
 
 To report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina library parent repository](https://github.com/ballerina-platform/ballerina-library).

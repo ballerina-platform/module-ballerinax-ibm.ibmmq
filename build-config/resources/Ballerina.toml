@@ -7,7 +7,7 @@ keywords = ["ibm.ibmmq", "client", "messaging", "network", "pubsub"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.9.0"
+distribution = "2201.10.0"
 
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
@@ -45,3 +45,9 @@ groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-databind"
 version = "@jackson.version@"
 path = "./lib/jackson-databind-@jackson.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "javax.jms"
+artifactId = "javax.jms-api"
+version = "@jms.version@"
+path = "./lib/javax.jms-api-@jms.version@.jar"
