@@ -1,4 +1,4 @@
-// Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+// Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,19 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/ibm.ibmmq;
 import ballerina/io;
+import ballerinax/ibm.ibmmq;
 
-configurable string queueManagerName = ?;
+configurable string name = ?;
 configurable string host = ?;
 configurable int port = ?;
 configurable string channel = ?;
 configurable string userID = ?;
 configurable string password = ?;
 configurable string queueName = ?;
+configurable decimal pollingInterval = ?;
 
 listener ibmmq:Listener consumer = new({
-    name: queueManagerName,
+    name,
     host,
     port,
     channel,
@@ -36,11 +37,9 @@ listener ibmmq:Listener consumer = new({
 
 @ibmmq:ServiceConfig {
     config: {
-        topicName,
-        subscriptionName: "DEV.BASE.TOPIC",
-        durable: false
+        queueName
     },
-    pollingInterval: 1
+    pollingInterval
 }
 service ibmmq:Service on consumer {
     remote function onMessage(ibmmq:Message message) returns error? {
