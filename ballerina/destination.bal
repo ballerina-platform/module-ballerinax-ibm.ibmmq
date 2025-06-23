@@ -110,14 +110,20 @@ public isolated client class Topic {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 
-    # Sends a message to an IBM MQ topic in a durable way.
-    # Use this method to send messages to an IBM MQ topic to guarantee durable delivery.
+    # Sends a message to an IBM MQ topic.
+    #
+    # This method supports JMS-compliant message delivery, including compatibility with
+    # durable subscriptions and asynchronous message listeners.
+    #
+    # Unlike the `put` method (which uses IBM MQ's native APIs), this method uses the JMS APIs and
+    # is recommended for interoperability with JMS-based consumers.
+    #
     # ```ballerina
     # check topic->send({payload: "Hello World".toBytes()});
     # ```
     #
-    # + message - IBM MQ message
-    # + return - An `ibmmq:Error` if the operation fails or else `()`
+    # + message - The message to be sent to the topic.
+    # + return - An `ibmmq:Error` if the operation fails; otherwise, `()`
     isolated remote function send(Message message) returns Error? = @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;

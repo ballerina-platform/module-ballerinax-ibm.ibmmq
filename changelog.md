@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - [Introduce listener support for IBM MQ](https://github.com/ballerina-platform/ballerina-library/issues/7991)
+- [Introduce `topic->send()` method for sending messages in a JMS-compatible way](https://github.com/ballerina-platform/ballerina-library/issues/7991)
 
 ## [1.2.0] - 2024-09-05
 

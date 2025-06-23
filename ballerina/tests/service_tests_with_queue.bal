@@ -55,5 +55,3 @@ function testConsumeMessageFromServiceWithQueue() returns error? {
     check queueManager.disconnect();
     test:assertEquals(string:fromBytes(queuePayload), "Hello World from queue");
 }
-
-

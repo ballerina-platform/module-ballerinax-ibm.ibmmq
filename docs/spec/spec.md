@@ -1,6 +1,6 @@
 # Specification: Ballerina `ibm.ibmmq` Library
 
-_Authors_: @ayeshLK \
+_Authors_: @ayeshLK @ThisaruGuruge \
 _Reviewers_: @NipunaRanasinghe @dilanSachi \
 _Created_: 2024/01/28 \
 _Updated_: 2024/02/14 \
@@ -533,17 +533,25 @@ isolated remote function put(ibmmq:Message message, int options = ibmmq:MQPMO_NO
 isolated remote function get(*ibmmq:GetMessageOptions getMessageOptions) returns ibmmq:Message|ibmmq:Error?;
 ```
 
-- To close the Topic client, the `close` function can be used.
+- To receive a message using JMS-compliant APIs, the `send` function can be used.
 
-```ballerina
-# Closes the IBM MQ topic object. No further operations on this object are permitted after it is closed.
-# ```
-# check check topic->close();
-# ```
-#
-# + return - An `ibmmq:Error` if the operation fails or else `()`
-isolated remote function close() returns ibmmq:Error?
 ```
+ # Sends a message to an IBM MQ topic.
+ #
+ # This method supports JMS-compliant message delivery, including compatibility with
+ # durable subscriptions and asynchronous message listeners.
+ #
+ # Unlike the `put` method (which uses IBM MQ's native APIs), this method uses the JMS APIs and
+ # is recommended for interoperability with JMS-based consumers.
+ #
+ # ```ballerina
+ # check topic->send({payload: "Hello World".toBytes()});
+ # ```
+ #
+ # + message - The message to be sent to the topic.
+ # + return - An `ibmmq:Error` if the operation fails; otherwise, `()`
+ isolated remote function send(Message message) returns Error?
+ ```
 
 ## 7. Listener
 
