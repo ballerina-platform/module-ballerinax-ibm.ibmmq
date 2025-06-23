@@ -68,30 +68,30 @@ public const int MQGMO_SYNCPOINT = 2;
 # The request is to operate outside the normal unit-of-work protocols.
 public const int MQGMO_NO_SYNCPOINT = 4;
 
-# When a queue is opened with the MQOO_BROWSE option, a browse cursor is established, positioned logically 
+# When a queue is opened with the MQOO_BROWSE option, a browse cursor is established, positioned logically
 # before the first message on the queue.
 public const int MQGMO_BROWSE_FIRST = 16;
 
-# Advance the browse cursor to the next message on the queue that satisfies the selection criteria specified 
+# Advance the browse cursor to the next message on the queue that satisfies the selection criteria specified
 # on the MQGET call.
 public const int MQGMO_BROWSE_NEXT = 32;
 
-# Retrieve the message pointed to by the browse cursor nondestructively, regardless of the MQMO_* options 
+# Retrieve the message pointed to by the browse cursor nondestructively, regardless of the MQMO_* options
 # specified in the MatchOptions field in MQGMO.
 public const int MQGMO_BROWSE_MSG_UNDER_CURSOR = 2048;
 
-# Retrieve the message pointed to by the browse cursor, regardless of the MQMO_* options specified in the 
+# Retrieve the message pointed to by the browse cursor, regardless of the MQMO_* options specified in the
 # MatchOptions field in MQGMO.
 public const int MQGMO_MSG_UNDER_CURSOR = 256;
 
 # Lock the message that is browsed, so that the message becomes invisible to any other handle open for the queue.
 public const int MQGMO_LOCK = 512;
 
-# Unlock a message. The message to be unlocked must have been previously locked by an MQGET call with the 
+# Unlock a message. The message to be unlocked must have been previously locked by an MQGET call with the
 # MQGMO_LOCK option.
 public const int MQGMO_UNLOCK = 1024;
 
-# If the message buffer is too small to hold the complete message, allow the MQGET call to fill the 
+# If the message buffer is too small to hold the complete message, allow the MQGET call to fill the
 # buffer with as much of the message as the buffer can hold.
 public const int MQGMO_ACCEPT_TRUNCATED_MSG = 64;
 
@@ -137,7 +137,7 @@ public const int MQCCSI_ASCII_ISO = 819;
 # Coded Character Set Identifiers - As Published.
 public const int MQCCSI_AS_PUBLISHED = -4;
 
-# The CodedCharSetId of the data in the String field is defined by the CodedCharSetId field in the header structure 
+# The CodedCharSetId of the data in the String field is defined by the CodedCharSetId field in the header structure
 # that precedes the MQCFH structure, or by the CodedCharSetId field in the MQMD if the MQCFH is at the start of the message.
 public const int MQCCSI_DEFAULT = 0;
 
@@ -164,11 +164,11 @@ public const int MQCCSI_UTF8 = 1208;
 
 const string DEFAULT_BLANK_VALUE = "        ";
 
-# The request is to operate within the normal unit-of-work protocols. The message is not visible outside the 
+# The request is to operate within the normal unit-of-work protocols. The message is not visible outside the
 # unit of work until the unit of work is committed. If the unit of work is backed out, the message is deleted.
 public const int MQPMO_SYNCPOINT = 2;
 
-# The request is to operate outside the normal unit-of-work protocols. The message is available immediately, 
+# The request is to operate outside the normal unit-of-work protocols. The message is available immediately,
 # and it cannot be deleted by backing out a unit of work.
 public const int MQPMO_NO_SYNCPOINT = 4;
 
@@ -196,15 +196,15 @@ public const int MQPMO_NEW_CORREL_ID = 128;
 # This option tells the queue manager how the application puts messages in groups and segments of logical messages.
 public const int MQPMO_LOGICAL_ORDER = 32768;
 
-# This indicates that the AlternateUserId field in the ObjDesc parameter of the MQPUT1 call contains a user identifier 
+# This indicates that the AlternateUserId field in the ObjDesc parameter of the MQPUT1 call contains a user identifier
 # that is to be used to validate authority to put messages on the queue.
 public const int MQPMO_ALTERNATE_USER_AUTHORITY = 4096;
 
-# Use this option to fill ResolvedQName in the MQPMO structure with the name of the local queue to which 
+# Use this option to fill ResolvedQName in the MQPMO structure with the name of the local queue to which
 # the message is put, and ResolvedQMgrName with the name of the local queue manager that hosts the local queue.
 public const int MQPMO_RESOLVE_LOCAL_Q = 262144;
 
-# The MQPMO_ASYNC_RESPONSE option requests that an MQPUT or MQPUT1 operation is completed without the 
+# The MQPMO_ASYNC_RESPONSE option requests that an MQPUT or MQPUT1 operation is completed without the
 # application waiting for the queue manager to complete the call.
 public const int MQPMO_ASYNC_RESPONSE = 65536;
 

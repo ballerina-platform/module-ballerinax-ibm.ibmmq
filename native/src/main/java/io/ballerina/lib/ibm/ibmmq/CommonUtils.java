@@ -49,9 +49,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
-import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_COMPLETION_CODE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_DETAILS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_ERROR_CODE;
@@ -59,20 +59,20 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_REASON_CODE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.EXPIRY_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQIIH_RECORD_NAME;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ACCOUNTING_TOKEN;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_CHARSET;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ENCODING;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_HEADERS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PAYLOAD;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTIES;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_TYPE_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_USERID;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQIIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_CONTEXT;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_COPY_OPTIONS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_OPTIONS;
@@ -95,7 +95,6 @@ import static io.ballerina.lib.ibm.ibmmq.headers.MQRFHHeader.createMQRFHHeaderFr
  * {@code CommonUtils} contains the common utility functions for the Ballerina IBM MQ connector.
  */
 public class CommonUtils {
-
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
     private static final ArrayType BHeaderUnionType = TypeCreator.createArrayType(
             TypeCreator.createUnionType(List.of(
@@ -372,8 +371,15 @@ public class CommonUtils {
         return headerArray;
     }
 
+    public static BError createError(String errorType, String message) {
+        return createError(errorType, message, null);
+    }
+
     public static BError createError(String errorType, String message, Throwable throwable) {
-        BError cause = ErrorCreator.createError(throwable);
+        BError cause = null;
+        if (throwable != null) {
+            cause = ErrorCreator.createError(throwable);
+        }
         BMap<BString, Object> errorDetails = ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
         if (throwable instanceof MQException exception) {
             errorDetails.put(ERROR_REASON_CODE, exception.getReason());

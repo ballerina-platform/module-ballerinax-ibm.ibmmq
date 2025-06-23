@@ -69,9 +69,9 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.QUEUE_MANAGER_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SECURE_SOCKET;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SSL_CIPHER_SUITE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_2;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3;
-import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
 
@@ -83,7 +83,7 @@ public class QueueManager {
     /**
      * Creates an IBM MQ queue manager with the provided configurations.
      *
-     * @param queueManager Ballerina queue-manager object
+     * @param queueManager   Ballerina queue-manager object
      * @param configurations IBM MQ connection configurations
      * @return A Ballerina `ibmmq:Error` if there are connection problems
      */
@@ -95,16 +95,17 @@ public class QueueManager {
             queueManager.addNativeData(NATIVE_QUEUE_MANAGER, mqQueueManager);
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while initializing the connection manager: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while initializing the connection manager: %s",
+                            e.getMessage()), e);
         } catch (Exception e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Unexpected error occurred while initializing the connection manager: %s",
+                    java.lang.String.format("Unexpected error occurred while initializing the connection manager: %s",
                             e.getMessage()), e);
         }
         return null;
     }
 
-    private static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations)
+    static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations)
             throws Exception {
         Hashtable<String, Object> properties = new Hashtable<>();
         String host = configurations.getStringValue(HOST).getValue();
@@ -135,7 +136,7 @@ public class QueueManager {
         }
     }
 
-    private static String getSslProtocol(BMap<BString, Object> configurations) {
+    public static String getSslProtocol(BMap<BString, Object> configurations) {
         Optional<String> cipherSuiteOpt = getOptionalStringProperty(configurations, SSL_CIPHER_SUITE);
         if (cipherSuiteOpt.isEmpty()) {
             return TLS_V_1_2;
@@ -147,7 +148,7 @@ public class QueueManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
+    public static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
             throws Exception {
         Object bCert = secureSocket.get(CERT);
         BMap<BString, BString> keyRecord = (BMap<BString, BString>) secureSocket.getMapValue(KEY);
@@ -260,7 +261,7 @@ public class QueueManager {
             return bQueue;
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while accessing queue: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while accessing queue: %s", e.getMessage()), e);
         }
     }
 
@@ -275,7 +276,7 @@ public class QueueManager {
             return bTopic;
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
         }
     }
 
@@ -285,7 +286,7 @@ public class QueueManager {
             queueManager.disconnect();
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while disconnecting queue manager: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while disconnecting queue manager: %s", e.getMessage()), e);
         }
         return null;
     }

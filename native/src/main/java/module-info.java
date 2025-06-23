@@ -18,6 +18,8 @@
 
 module io.ballerina.lib.ibm.ibmmq {
     requires io.ballerina.runtime;
+    requires io.ballerina.lang;
     requires io.ballerina.stdlib.crypto;
     requires com.ibm.mq.javax;
+    requires javax.jms.api;
 }
