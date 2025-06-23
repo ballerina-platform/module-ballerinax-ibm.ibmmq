@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
+import java.io.PrintStream;
+
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
@@ -35,6 +37,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
  * Implements the IBMMQ {@code MessageListener} class for the Ballerina IBM MQ connector.
  */
 public class BallerinaIbmmqListener implements MessageListener {
+    private static final PrintStream OUT = System.out;
     private static final String ON_MESSAGE = "onMessage";
     private static final String ON_ERROR = "onError";
 
@@ -57,6 +60,7 @@ public class BallerinaIbmmqListener implements MessageListener {
                 StrandMetadata strandMetadata = new StrandMetadata(isIsolated, null);
                 this.runtime.callMethod(this.service, ON_MESSAGE, strandMetadata, ballerinaMessage);
             } catch (Throwable e) {
+                OUT.println("Error occurred while processing the message: " + e.getMessage());
                 BError error = createError(IBMMQ_ERROR, "Failed to fetch the message", e);
                 if (this.nativeService.hasOnError()) {
                     boolean isIsolated = this.nativeService.isOnErrorIsolated();

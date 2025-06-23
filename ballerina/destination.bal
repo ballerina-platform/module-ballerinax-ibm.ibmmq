@@ -33,10 +33,10 @@ public isolated client class Queue {
     # ```ballerina
     # check queue->put({payload: "Hello World".toBytes()});
     # ```
-    # 
+    #
     # + message - IBM MQ message
-    # + options - Options controlling the action of the put operation. Can be a combination of 
-    #             one or more `ibmmq:MQPMO_*` options and values can combined using either '+' or '|' 
+    # + options - Options controlling the action of the put operation. Can be a combination of
+    #             one or more `ibmmq:MQPMO_*` options and values can combined using either '+' or '|'
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function put(Message message, int options = MQPMO_NO_SYNCPOINT) returns Error? =
     @java:Method {
@@ -47,9 +47,9 @@ public isolated client class Queue {
     # ```ballerina
     # ibmmq:Message? message = check queue->get();
     # ```
-    # 
+    #
     # + getMessageOptions - Options to control message retrieval
-    # + return - An `ibmmq:Message` if there is a message in the queue, `()` if there 
+    # + return - An `ibmmq:Message` if there is a message in the queue, `()` if there
     #           is no message or else `ibmmq:Error` if the operation fails
     isolated remote function get(*GetMessageOptions getMessageOptions) returns Message|Error? =
     @java:Method {
@@ -60,7 +60,7 @@ public isolated client class Queue {
     # ```ballerina
     # check queue->close();
     # ```
-    # 
+    #
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function close() returns Error? =
     @java:Method {
@@ -76,10 +76,10 @@ public isolated client class Topic {
     #```ballerina
     # check topic->put({payload: "Hello World".toBytes()});
     #```
-    # 
+    #
     # + message - IBM MQ message
-    # + options - Options controlling the action of the put operation. Can be a combination of 
-    #             one or more `ibmmq:MQPMO_*` options and values can combined using either '+' or '|' 
+    # + options - Options controlling the action of the put operation. Can be a combination of
+    #             one or more `ibmmq:MQPMO_*` options and values can combined using either '+' or '|'
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function put(Message message, int options = MQPMO_NO_SYNCPOINT) returns Error? =
     @java:Method {
@@ -90,11 +90,11 @@ public isolated client class Topic {
     #```ballerina
     # ibmmq:Message? message = check topic->get();
     #```
-    # 
+    #
     # + getMessageOptions - Options to control message retrieval
-    # + return - An `ibmmq:Message` if there is a message in the topic, `()` if there 
+    # + return - An `ibmmq:Message` if there is a message in the topic, `()` if there
     #           is no message or else `ibmmq:Error` if the operation fails
-    isolated remote function get(*GetMessageOptions getMessageOptions) returns Message|Error?  =
+    isolated remote function get(*GetMessageOptions getMessageOptions) returns Message|Error? =
     @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
@@ -103,10 +103,22 @@ public isolated client class Topic {
     # ```ballerina
     # check topic->close();
     # ```
-    # 
+    #
     # + return - An `ibmmq:Error` if the operation fails or else `()`
     isolated remote function close() returns Error? =
     @java:Method {
+        'class: "io.ballerina.lib.ibm.ibmmq.Topic"
+    } external;
+
+    # Sends a message to an IBM MQ topic in a durable way.
+    # Use this method to send messages to an IBM MQ topic to guarantee durable delivery.
+    # ```ballerina
+    # check topic->send({payload: "Hello World".toBytes()});
+    # ```
+    #
+    # + message - IBM MQ message
+    # + return - An `ibmmq:Error` if the operation fails or else `()`
+    isolated remote function send(Message message) returns Error? = @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.Topic"
     } external;
 };

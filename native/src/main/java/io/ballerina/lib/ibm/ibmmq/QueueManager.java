@@ -23,6 +23,7 @@ import com.ibm.mq.MQQueue;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
+import io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -74,6 +75,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_2;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_CONNECTION_MAP;
 
 /**
  * Representation of {@link com.ibm.mq.MQQueueManager} with utility methods to invoke as inter-op functions.
@@ -89,6 +91,9 @@ public class QueueManager {
      */
     public static Object init(BObject queueManager, BMap<BString, Object> configurations) {
         try {
+            ConnectionMap connectionMap = new ConnectionMap(configurations);
+            connectionMap.setupConnectionFactory();
+            queueManager.addNativeData(NATIVE_CONNECTION_MAP, connectionMap);
             Hashtable<String, Object> connectionProperties = getConnectionProperties(configurations);
             String queueManagerName = configurations.getStringValue(QUEUE_MANAGER_NAME).getValue();
             MQQueueManager mqQueueManager = new MQQueueManager(queueManagerName, connectionProperties);
@@ -268,11 +273,14 @@ public class QueueManager {
     public static Object accessTopic(BObject queueManagerObject, BString topicName,
                                      BString topicString, Long openTopicOption, Long options) {
         MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
+        ConnectionMap connectionMap = (ConnectionMap) queueManagerObject.getNativeData(NATIVE_CONNECTION_MAP);
         try {
             MQTopic mqTopic = queueManager.accessTopic(topicName.getValue(), topicString.getValue(),
                     openTopicOption.intValue(), options.intValue());
             BObject bTopic = ValueCreator.createObjectValue(ModuleUtils.getModule(), BTOPIC);
+            bTopic.addNativeData(NATIVE_CONNECTION_MAP, connectionMap);
             bTopic.addNativeData(Constants.NATIVE_TOPIC, mqTopic);
+
             return bTopic;
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
@@ -283,6 +291,10 @@ public class QueueManager {
     public static Object disconnect(BObject queueManagerObject) {
         MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
         try {
+            ConnectionMap connectionMap = (ConnectionMap) queueManagerObject.getNativeData(NATIVE_CONNECTION_MAP);
+            if (connectionMap != null) {
+                connectionMap.close();
+            }
             queueManager.disconnect();
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,

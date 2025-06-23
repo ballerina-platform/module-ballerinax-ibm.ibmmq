@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.runtime;
 import ballerina/test;
 
-byte[] topicPayload = [];
+byte[] durableTopicPayload = [];
+byte[] nonDurableTopicPayload = [];
 
 listener Listener ibmmqListener2 = new Listener({
     name: "QM1",
@@ -37,7 +37,19 @@ listener Listener ibmmqListener2 = new Listener({
 }
 service Service on ibmmqListener2 {
     remote function onMessage(Message message) returns Error? {
-        topicPayload = message.payload;
+        durableTopicPayload = message.payload;
+        return;
+    }
+}
+
+@ServiceConfig {
+    config: {
+        topicName: "DEV.TOPIC.2"
+    }
+}
+service Service on ibmmqListener2 {
+    remote function onMessage(Message message) returns Error? {
+        nonDurableTopicPayload = message.payload;
         return;
     }
 }
@@ -46,17 +58,34 @@ service Service on ibmmqListener2 {
     groups: ["service", "topic"]
 }
 function testConsumeMessageFromServiceWithTopic() returns error? {
-    runtime:sleep(SLEEP_TIME);
+    string payload = "Hello World from durable topic";
     QueueManager queueManager = check new (
         name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
         userID = "app", password = "password"
     );
     Topic producer = check queueManager.accessTopic("DEV.TOPIC.1", "DEV.TOPIC.1", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
-    check producer->put({
-        payload: "Hello World from topic".toBytes()
+    check producer->send({
+        payload: payload.toBytes()
     });
     check producer->close();
     check queueManager.disconnect();
-    runtime:sleep(SLEEP_TIME);
-    test:assertEquals(string:fromBytes(topicPayload), "Hello World from topic");
+    test:assertEquals(string:fromBytes(durableTopicPayload), payload);
+}
+
+@test:Config {
+    groups: ["service", "topic"]
+}
+function testConsumeMessageFromServiceWithNonDurableTopic() returns error? {
+    string payload = "Hello World from non-durable topic";
+    QueueManager queueManager = check new (
+        name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
+        userID = "app", password = "password"
+    );
+    Topic producer = check queueManager.accessTopic("DEV.TOPIC.2", "DEV.TOPIC.2", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+    check producer->send({
+        payload: payload.toBytes()
+    });
+    check producer->close();
+    check queueManager.disconnect();
+    test:assertEquals(string:fromBytes(nonDurableTopicPayload), payload);
 }

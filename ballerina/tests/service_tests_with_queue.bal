@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.runtime;
 import ballerina/test;
 
 const decimal SLEEP_TIME = 4;
@@ -54,7 +53,6 @@ function testConsumeMessageFromServiceWithQueue() returns error? {
     });
     check producer->close();
     check queueManager.disconnect();
-    runtime:sleep(SLEEP_TIME);
     test:assertEquals(string:fromBytes(queuePayload), "Hello World from queue");
 }
 

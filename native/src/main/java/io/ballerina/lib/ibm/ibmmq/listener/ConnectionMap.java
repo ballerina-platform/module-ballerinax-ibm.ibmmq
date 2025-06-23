@@ -139,4 +139,24 @@ public final class ConnectionMap {
             throw createError(Constants.IBMMQ_ERROR, "Failed to start the durable connection", e);
         }
     }
+
+    public void close() {
+        if (this.sharedConnection != null) {
+            try {
+                this.sharedConnection.close();
+            } catch (Exception e) {
+                throw createError(Constants.IBMMQ_ERROR, "Failed to close the shared connection", e);
+            }
+        }
+        this.durableConnectionMap.forEach((clientId, connection) -> {
+            try {
+                connection.close();
+            } catch (Exception e) {
+                throw createError(Constants.IBMMQ_ERROR,
+                        "Failed to close the durable connection for client ID: " + clientId, e);
+            }
+        });
+        this.durableConnectionMap.clear();
+        this.sharedConnection = null;
+    }
 }

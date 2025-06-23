@@ -43,7 +43,7 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
  * @since 1.3.0
  */
 public final class Listener {
-    static final String NATIVE_CONNECTION_MAP = "native.connection.map";
+    public static final String NATIVE_CONNECTION_MAP = "native.connection.map";
     static final String NATIVE_SERVICE_LIST = "native.service.list";
     static final String NATIVE_SERVICE = "native.service";
 
@@ -89,13 +89,13 @@ public final class Listener {
     }
 
     public static void gracefulStop(BObject listener) {
-        List<BObject> serviceList = (List<BObject>) listener.getNativeData(NATIVE_SERVICE_LIST);
-        closeServiceList(serviceList);
+        ConnectionMap connectionMap = (ConnectionMap) listener.getNativeData(NATIVE_CONNECTION_MAP);
+        connectionMap.close();
     }
 
     public static void immediateStop(BObject listener) {
-        List<BObject> serviceList = (List<BObject>) listener.getNativeData(NATIVE_SERVICE_LIST);
-        closeServiceList(serviceList);
+        ConnectionMap connectionMap = (ConnectionMap) listener.getNativeData(NATIVE_CONNECTION_MAP);
+        connectionMap.close();
     }
 
     private static MessageConsumer getQueueConsumer(MQSession session, String queueName)
@@ -137,17 +137,6 @@ public final class Listener {
             return consumer;
         } catch (Exception e) {
             throw createError(IBMMQ_ERROR, "Failed to create consumer", e);
-        }
-    }
-
-    private static void closeServiceList(List<BObject> serviceList) {
-        if (serviceList != null) {
-            for (BObject service : serviceList) {
-                IbmmqService nativeService = (IbmmqService) service.getNativeData(NATIVE_SERVICE);
-                if (nativeService != null) {
-                    nativeService.close();
-                }
-            }
         }
     }
 }

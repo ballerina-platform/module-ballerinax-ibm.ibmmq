@@ -24,19 +24,34 @@ import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPutMessageOptions;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.CMQC;
+import com.ibm.mq.jms.MQConnectionFactory;
 import io.ballerina.lib.ibm.ibmmq.config.GetMessageOptions;
+import io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap;
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
+import static io.ballerina.lib.ibm.ibmmq.CommonUtils.getJmsMessageFromBMessage;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_CONNECTION_MAP;
 
 /**
  * Representation of {@link com.ibm.mq.MQTopic} with utility methods to invoke as inter-op functions.
  */
 public class Topic {
+    private static final String NATIVE_CONNECTION = "native.connection";
+    private static final BString TOPIC_NAME = StringUtils.fromString("topicName");
+    private static final ConnectionFactory connectionFactory = new MQConnectionFactory();
+
     public static Object put(Environment environment, BObject topicObject, BMap message, long options) {
         MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
         MQMessage mqMessage = CommonUtils.getMqMessageFromBMessage(message);
@@ -85,5 +100,31 @@ public class Topic {
                         String.format("Error occurred while closing the topic: %s", e.getMessage()), e);
             }
         });
+    }
+
+    public static Object send(BObject topicObject, BMap<BString, Object> message) {
+
+        try {
+            Connection connection = getConnection(topicObject);
+            Session session = connection.createSession();
+            MQTopic mqTopic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
+            MessageProducer producer = session.createProducer(session.createTopic(mqTopic.getName()));
+            Message jmsMessage = getJmsMessageFromBMessage(session, message);
+            producer.send(jmsMessage);
+        } catch (Exception e) {
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while creating the topic: %s", e.getMessage()), e);
+        }
+        return null;
+    }
+
+    private static Connection getConnection(BObject topicObject) {
+        ConnectionMap connectionMap = (ConnectionMap) topicObject.getNativeData(NATIVE_CONNECTION_MAP);
+        if (topicObject.getNativeData(NATIVE_CONNECTION) != null) {
+            return (Connection) topicObject.getNativeData(NATIVE_CONNECTION);
+        }
+        Connection connection = connectionMap.getConnection(false, null);
+        topicObject.addNativeData(NATIVE_CONNECTION, connection);
+        return connection;
     }
 }

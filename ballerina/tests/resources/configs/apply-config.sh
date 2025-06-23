@@ -24,8 +24,10 @@ if [ -f "/etc/configs/mqconfig.mqsc" ]; then
 else
     echo "No MQSC config file found, applying basic topic configuration..."
     echo "DEFINE TOPIC(DEV.TOPIC.1) TOPICSTR('DEV.TOPIC.1') TYPE(LOCAL)" | runmqsc $QMGR_NAME
+    echo "DEFINE TOPIC(DEV.TOPIC.2) TOPICSTR('DEV.TOPIC.2') TYPE(LOCAL)" | runmqsc $QMGR_NAME
     echo "Setting authority record for app user..."
     echo "SET AUTHREC OBJTYPE(TOPIC) PROFILE('DEV.TOPIC.1') PRINCIPAL('app') AUTHADD(ALL)" | runmqsc $QMGR_NAME
+    echo "SET AUTHREC OBJTYPE(TOPIC) PROFILE('DEV.TOPIC.2') PRINCIPAL('app') AUTHADD(ALL)" | runmqsc $QMGR_NAME
 fi
 
 echo "Configuration applied successfully to $QMGR_NAME at $(date)!"
