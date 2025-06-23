@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
 import ballerina/test;
 
-const decimal SLEEP_TIME = 4;
+const decimal SLEEP_TIME = 2;
 byte[] queuePayload = [];
 
 listener Listener ibmmqListener1 = new Listener({
@@ -51,6 +52,7 @@ function testConsumeMessageFromServiceWithQueue() returns error? {
     check producer->put({
         payload: "Hello World from queue".toBytes()
     });
+    runtime:sleep(SLEEP_TIME);
     check producer->close();
     check queueManager.disconnect();
     test:assertEquals(string:fromBytes(queuePayload), "Hello World from queue");

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
 import ballerina/test;
 
 byte[] durableTopicPayload = [];
@@ -67,6 +68,7 @@ function testConsumeMessageFromServiceWithTopic() returns error? {
     check producer->send({
         payload: payload.toBytes()
     });
+    runtime:sleep(SLEEP_TIME);
     check producer->close();
     check queueManager.disconnect();
     test:assertEquals(string:fromBytes(durableTopicPayload), payload);
@@ -85,6 +87,7 @@ function testConsumeMessageFromServiceWithNonDurableTopic() returns error? {
     check producer->send({
         payload: payload.toBytes()
     });
+    runtime:sleep(SLEEP_TIME);
     check producer->close();
     check queueManager.disconnect();
     test:assertEquals(string:fromBytes(nonDurableTopicPayload), payload);
