@@ -1,16 +1,16 @@
-## Overview
+## Package overview
 
-[IBM MQ](https://www.ibm.com/products/mq) is a powerful messaging middleware platform designed for facilitating reliable 
-communication between disparate systems and applications. IBM MQ ensures the secure and orderly exchange of messages 
-asynchronously, decoupling senders and receivers for efficient and scalable communication. It supports both 
+[IBM MQ](https://www.ibm.com/products/mq) is a powerful messaging middleware platform designed for facilitating reliable
+communication between disparate systems and applications. IBM MQ ensures the secure and orderly exchange of messages
+asynchronously, decoupling senders and receivers for efficient and scalable communication. It supports both
 point-to-point and publish/subscribe messaging models via queues and topics.
 
 The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ server using Ballerina. The current connector is compatible with IBM MQ server versions up to 9.3.
 
 ## Setup guide
 
-To use the Ballerina IBM MQ connector, you need to have an IBM MQ instance running or possess an IBM MQ cloud account. 
-For setting up IBM MQ locally, you can refer to the [IBM MQ official documentation](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=migrating-installing-uninstalling). 
+To use the Ballerina IBM MQ connector, you need to have an IBM MQ instance running or possess an IBM MQ cloud account.
+For setting up IBM MQ locally, you can refer to the [IBM MQ official documentation](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=migrating-installing-uninstalling).
 Alternatively, to use IBM MQ on the cloud, [sign up](https://cloud.ibm.com/registration) for an IBM MQ cloud account.
 
 ### Create a queue
@@ -152,4 +152,15 @@ The following example shows how to use the `ibm.ibmmq` connector to produce and 
 
 6. [Produce MQRFH2 headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/produce-mqrfh2-headers) - Produce IBM MQ messages to an IBM MQ queue with the MQRFH2 headers.
 
-7. [Consume MQRFH2 headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-mqrfh2-headers) - Consume messages with the MQRFH2 header from an IBM MQ queue.
+7. [Consume MQIIH headers](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-mqrfh2-headers) - Consume messages with the MQRFH2 header from an IBM MQ queue.
+
+8. [Consume messages using a service](https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-messages-service) - Consume messages from an IBM MQ queue using a Ballerina service.
+
+## Report Issues
+
+To report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina library parent repository](https://github.com/ballerina-platform/ballerina-library).
+
+## Useful Links
+
+- Chat live with us via our [Discord server](https://discord.gg/ballerinalang).
+- Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.

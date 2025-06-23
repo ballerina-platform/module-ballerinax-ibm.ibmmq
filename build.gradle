@@ -15,15 +15,11 @@
 // under the License.
 
 plugins {
-    id "com.github.spotbugs-base"
+    id "com.github.spotbugs"
     id "com.github.johnrengelman.shadow"
     id "de.undercouch.download"
     id "net.researchgate.release"
 }
-
-ext.ballerinaLangVersion = project.ballerinaLangVersion
-ext.ibmMQVersion = project.ibmMQVersion
-ext.jsonVersion = project.jsonVersion
 
 allprojects {
     group = project.group
@@ -66,20 +62,23 @@ subprojects {
 
     configurations {
         ballerinaStdLibs
+        jbalTools
     }
 
     dependencies {
+        jbalTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
+            transitive = false
+        }
+
         /* Standard libraries */
+        ballerinaStdLibs "io.ballerina.stdlib:io-ballerina:${stdlibIoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:time-ballerina:${stdlibTimeVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:crypto-ballerina:${stdlibCryptoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:log-ballerina:${stdlibLogVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:uuid-ballerina:${stdlibUuidVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:crypto-ballerina:${stdlibCryptoVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:io-ballerina:${stdlibIoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:observe-ballerina:${observeVersion}"
         ballerinaStdLibs "io.ballerina:observe-ballerina:${observeInternalVersion}"
     }
-
-    task allDeps(type: DependencyReportTask) {}
 }
 
 def moduleVersion = project.version.replace("-SNAPSHOT", "")
