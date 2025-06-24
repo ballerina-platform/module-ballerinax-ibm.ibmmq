@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/jballerina.java;
 
+import ballerina/jballerina.java;
 
 # Represents an IBMMQ Listener endpoint that can be used to receive messages from an IBMMQ queue.
 public isolated class Listener {

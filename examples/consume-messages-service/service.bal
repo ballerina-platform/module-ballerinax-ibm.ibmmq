@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/log;
 import ballerinax/ibm.ibmmq;
 
 configurable string name = ?;
@@ -43,6 +43,6 @@ listener ibmmq:Listener consumer = new({
 }
 service ibmmq:Service on consumer {
     remote function onMessage(ibmmq:Message message) returns error? {
-        io:println(string:fromBytes(message.payload));
+        log:printInfo(string:fromBytes(message.payload));
     }
 }
