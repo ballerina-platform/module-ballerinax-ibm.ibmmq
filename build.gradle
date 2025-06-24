@@ -19,13 +19,13 @@ plugins {
     id "com.github.johnrengelman.shadow"
     id "de.undercouch.download"
     id "net.researchgate.release"
+    id 'jacoco'
 }
 
 allprojects {
     group = project.group
     version = project.version
 
-    apply plugin: 'jacoco'
     apply plugin: 'maven-publish'
 
     repositories {
