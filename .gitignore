@@ -43,3 +43,5 @@ native/.settings/
 test-utils/.classpath
 test-utils/.project
 test-utils/.settings/
+
+mqjms.log*

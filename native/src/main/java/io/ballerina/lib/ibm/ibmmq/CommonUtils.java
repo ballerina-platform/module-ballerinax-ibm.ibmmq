@@ -49,9 +49,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
-import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
+import javax.jms.BytesMessage;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+
 import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
+import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_COMPLETION_CODE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_DETAILS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_ERROR_CODE;
@@ -59,20 +66,20 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.ERROR_REASON_CODE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.EXPIRY_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQIIH_RECORD_NAME;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ACCOUNTING_TOKEN;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_CHARSET;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ENCODING;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_HEADERS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PAYLOAD;
-import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTIES;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_TYPE_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_USERID;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQCIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQIIH_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH2_RECORD_NAME;
+import static io.ballerina.lib.ibm.ibmmq.Constants.MQRFH_RECORD_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_CONTEXT;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_COPY_OPTIONS;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PD_OPTIONS;
@@ -85,6 +92,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_VALUE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PUT_APPLICATION_TYPE_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QM_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQCIHHeader.createMQCIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQIIHHeader.createMQIIHHeaderFromBHeader;
@@ -95,7 +103,6 @@ import static io.ballerina.lib.ibm.ibmmq.headers.MQRFHHeader.createMQRFHHeaderFr
  * {@code CommonUtils} contains the common utility functions for the Ballerina IBM MQ connector.
  */
 public class CommonUtils {
-
     private static final MQPropertyDescriptor defaultPropertyDescriptor = new MQPropertyDescriptor();
     private static final ArrayType BHeaderUnionType = TypeCreator.createArrayType(
             TypeCreator.createUnionType(List.of(
@@ -123,6 +130,64 @@ public class CommonUtils {
                     String.format("Error occurred while populating payload: %s", e.getMessage()), e);
         }
         return mqMessage;
+    }
+
+    public static Message getJmsMessageFromBMessage(Session session, BMap bMessage) {
+        try {
+            byte[] payload = bMessage.getArrayValue(MESSAGE_PAYLOAD).getBytes();
+            BytesMessage message = session.createBytesMessage();
+            message.writeBytes(payload);
+            if (bMessage.containsKey(MESSAGE_PROPERTIES)) {
+                populateMessageProperties(bMessage.getMapValue(MESSAGE_PROPERTIES), message);
+            }
+
+            // Optional fields
+            if (bMessage.containsKey(CORRELATION_ID_FIELD)) {
+                byte[] correlationId = bMessage.getArrayValue(CORRELATION_ID_FIELD).getBytes();
+                message.setJMSCorrelationIDAsBytes(correlationId);
+            }
+
+            if (bMessage.containsKey(MESSAGE_ID_FIELD)) {
+                byte[] messageId = bMessage.getArrayValue(MESSAGE_ID_FIELD).getBytes();
+                message.setJMSMessageID(new String(messageId, StandardCharsets.UTF_8));
+            }
+
+            if (bMessage.containsKey(PRIORITY_FIELD)) {
+                int priority = ((Long) bMessage.get(PRIORITY_FIELD)).intValue();
+                message.setJMSPriority(priority);
+            }
+
+            if (bMessage.containsKey(EXPIRY_FIELD)) {
+                long ttl = ((Long) bMessage.get(EXPIRY_FIELD)).longValue();
+                message.setJMSExpiration(ttl);
+            }
+
+            if (bMessage.containsKey(PERSISTENCE_FIELD)) {
+                int persistence = ((Long) bMessage.get(PERSISTENCE_FIELD)).intValue();
+                int deliveryMode = (persistence == 1) ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT;
+                message.setJMSDeliveryMode(deliveryMode); // Note: normally set via producer.send(...)
+            }
+
+            if (bMessage.containsKey(USER_ID)) {
+                String userId = bMessage.getStringValue(USER_ID).getValue();
+                message.setStringProperty("JMSXUserID", userId);
+            }
+
+            if (bMessage.containsKey(REPLY_TO_QUEUE_NAME_FIELD)) {
+                String replyToQueue = bMessage.getStringValue(REPLY_TO_QUEUE_NAME_FIELD).getValue();
+                Destination replyTo = session.createQueue(replyToQueue);
+                message.setJMSReplyTo(replyTo);
+            }
+            return message;
+        } catch (JMSException e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Error occurred while creating JMS message from Ballerina message: %s",
+                            e.getMessage()), e);
+        } catch (Exception e) {
+            throw createError(IBMMQ_ERROR,
+                    String.format("Unexpected error occurred while creating JMS message from Ballerina message: %s",
+                            e.getMessage()), e);
+        }
     }
 
     public static BMap<BString, Object> getBMessageFromMQMessage(Runtime runtime, MQMessage mqMessage) {
@@ -193,6 +258,17 @@ public class CommonUtils {
         }
     }
 
+    private static void populateMessageProperties(BMap<BString, Object> properties, Message jmsMessage) {
+        for (BString key : properties.getKeys()) {
+            try {
+                handleMessagePropertyValues(properties, jmsMessage, key);
+            } catch (Exception e) {
+                throw createError(IBMMQ_ERROR,
+                        String.format("Error occurred while setting message properties: %s", e.getMessage()), e);
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private static void handlePropertyValue(BMap<BString, Object> properties, MQMessage mqMessage, BString key)
             throws MQException {
@@ -217,6 +293,27 @@ public class CommonUtils {
             mqMessage.setDoubleProperty(key.getValue(), propertyDescriptor, doubleValue);
         } else if (value instanceof BString stringValue) {
             mqMessage.setStringProperty(key.getValue(), propertyDescriptor, stringValue.getValue());
+        }
+    }
+
+    private static void handleMessagePropertyValues(BMap<BString, Object> properties, Message jmsMessage, BString key)
+            throws Exception {
+        BMap<BString, Object> property = (BMap<BString, Object>) properties.getMapValue(key);
+        Object value = property.get(PROPERTY_VALUE);
+        if (value instanceof Long longValue) {
+            jmsMessage.setLongProperty(key.getValue(), longValue);
+        } else if (value instanceof Boolean booleanValue) {
+            jmsMessage.setBooleanProperty(key.getValue(), booleanValue);
+        } else if (value instanceof Byte byteValue) {
+            jmsMessage.setByteProperty(key.getValue(), byteValue);
+        } else if (value instanceof byte[] bytesValue) {
+            jmsMessage.setObjectProperty(key.getValue(), bytesValue);
+        } else if (value instanceof Float floatValue) {
+            jmsMessage.setFloatProperty(key.getValue(), floatValue);
+        } else if (value instanceof Double doubleValue) {
+            jmsMessage.setDoubleProperty(key.getValue(), doubleValue);
+        } else if (value instanceof BString stringValue) {
+            jmsMessage.setStringProperty(key.getValue(), stringValue.getValue());
         }
     }
 
@@ -372,8 +469,15 @@ public class CommonUtils {
         return headerArray;
     }
 
+    public static BError createError(String errorType, String message) {
+        return createError(errorType, message, null);
+    }
+
     public static BError createError(String errorType, String message, Throwable throwable) {
-        BError cause = ErrorCreator.createError(throwable);
+        BError cause = null;
+        if (throwable != null) {
+            cause = ErrorCreator.createError(throwable);
+        }
         BMap<BString, Object> errorDetails = ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
         if (throwable instanceof MQException exception) {
             errorDetails.put(ERROR_REASON_CODE, exception.getReason());

@@ -12,11 +12,15 @@ services:
       - MQ_QMGR_NAME=QM1
       - MQ_ADMIN_PASSWORD=password
       - MQ_APP_PASSWORD=password
+      - MQ_DEV=true
     healthcheck:
       test: ["CMD-SHELL", "chkmqstarted"]
       interval: 10s
       timeout: 5s
       retries: 3
+    volumes:
+      - ./configs/apply-config.sh:/etc/mqm/apply-config.sh
+    entrypoint: ["sh", "-c", "runmqdevserver & /etc/mqm/apply-config.sh && wait"]
 
   mq-tls:
     image: icr.io/ibm-messaging/mq:latest
@@ -26,8 +30,11 @@ services:
     environment:
       - LICENSE=accept
       - MQ_QMGR_NAME=QM2
+      - MQ_ADMIN_PASSWORD=password
       - MQ_APP_PASSWORD=password
+      - MQ_DEV=true
     volumes:
+      - ./configs/apply-config.sh:/etc/mqm/apply-config.sh
       - ./secrets/server.crt:/etc/mqm/pki/keys/mykey/server.crt
       - ./secrets/server.key:/etc/mqm/pki/keys/mykey/server.key
       - ./secrets/client.crt:/etc/mqm/pki/trust/0/client.crt
@@ -36,3 +43,4 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    entrypoint: ["sh", "-c", "runmqdevserver & /etc/mqm/apply-config.sh && wait"]

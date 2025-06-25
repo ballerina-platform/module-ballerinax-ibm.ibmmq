@@ -23,6 +23,7 @@ import com.ibm.mq.MQQueue;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.MQConstants;
+import io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -69,11 +70,12 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.QUEUE_MANAGER_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SECURE_SOCKET;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SSL_CIPHER_SUITE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_2;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3;
-import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_CONNECTION_MAP;
 
 /**
  * Representation of {@link com.ibm.mq.MQQueueManager} with utility methods to invoke as inter-op functions.
@@ -83,28 +85,32 @@ public class QueueManager {
     /**
      * Creates an IBM MQ queue manager with the provided configurations.
      *
-     * @param queueManager Ballerina queue-manager object
+     * @param queueManager   Ballerina queue-manager object
      * @param configurations IBM MQ connection configurations
      * @return A Ballerina `ibmmq:Error` if there are connection problems
      */
     public static Object init(BObject queueManager, BMap<BString, Object> configurations) {
         try {
+            ConnectionMap connectionMap = new ConnectionMap(configurations);
+            connectionMap.setupConnectionFactory();
+            queueManager.addNativeData(NATIVE_CONNECTION_MAP, connectionMap);
             Hashtable<String, Object> connectionProperties = getConnectionProperties(configurations);
             String queueManagerName = configurations.getStringValue(QUEUE_MANAGER_NAME).getValue();
             MQQueueManager mqQueueManager = new MQQueueManager(queueManagerName, connectionProperties);
             queueManager.addNativeData(NATIVE_QUEUE_MANAGER, mqQueueManager);
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while initializing the connection manager: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while initializing the connection manager: %s",
+                            e.getMessage()), e);
         } catch (Exception e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Unexpected error occurred while initializing the connection manager: %s",
+                    java.lang.String.format("Unexpected error occurred while initializing the connection manager: %s",
                             e.getMessage()), e);
         }
         return null;
     }
 
-    private static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations)
+    static Hashtable<String, Object> getConnectionProperties(BMap<BString, Object> configurations)
             throws Exception {
         Hashtable<String, Object> properties = new Hashtable<>();
         String host = configurations.getStringValue(HOST).getValue();
@@ -135,7 +141,7 @@ public class QueueManager {
         }
     }
 
-    private static String getSslProtocol(BMap<BString, Object> configurations) {
+    public static String getSslProtocol(BMap<BString, Object> configurations) {
         Optional<String> cipherSuiteOpt = getOptionalStringProperty(configurations, SSL_CIPHER_SUITE);
         if (cipherSuiteOpt.isEmpty()) {
             return TLS_V_1_2;
@@ -147,7 +153,7 @@ public class QueueManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
+    public static SSLSocketFactory getSecureSocketFactory(String protocol, BMap<BString, Object> secureSocket)
             throws Exception {
         Object bCert = secureSocket.get(CERT);
         BMap<BString, BString> keyRecord = (BMap<BString, BString>) secureSocket.getMapValue(KEY);
@@ -260,32 +266,39 @@ public class QueueManager {
             return bQueue;
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while accessing queue: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while accessing queue: %s", e.getMessage()), e);
         }
     }
 
     public static Object accessTopic(BObject queueManagerObject, BString topicName,
                                      BString topicString, Long openTopicOption, Long options) {
         MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
+        ConnectionMap connectionMap = (ConnectionMap) queueManagerObject.getNativeData(NATIVE_CONNECTION_MAP);
         try {
             MQTopic mqTopic = queueManager.accessTopic(topicName.getValue(), topicString.getValue(),
                     openTopicOption.intValue(), options.intValue());
             BObject bTopic = ValueCreator.createObjectValue(ModuleUtils.getModule(), BTOPIC);
+            bTopic.addNativeData(NATIVE_CONNECTION_MAP, connectionMap);
             bTopic.addNativeData(Constants.NATIVE_TOPIC, mqTopic);
+
             return bTopic;
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while accessing topic: %s", e.getMessage()), e);
         }
     }
 
     public static Object disconnect(BObject queueManagerObject) {
         MQQueueManager queueManager = (MQQueueManager) queueManagerObject.getNativeData(NATIVE_QUEUE_MANAGER);
         try {
+            ConnectionMap connectionMap = (ConnectionMap) queueManagerObject.getNativeData(NATIVE_CONNECTION_MAP);
+            if (connectionMap != null) {
+                connectionMap.close();
+            }
             queueManager.disconnect();
         } catch (MQException e) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error occurred while disconnecting queue manager: %s", e.getMessage()), e);
+                    java.lang.String.format("Error occurred while disconnecting queue manager: %s", e.getMessage()), e);
         }
         return null;
     }
