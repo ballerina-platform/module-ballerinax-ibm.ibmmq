@@ -44,11 +44,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPAR
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 
 /**
- * This is the native representation of the Ballerina JMS service object.
- * This does the relevant configuration and method validation related to the JMS service. Ideally this validations
+ * This is the native representation of the Ballerina IBM MQ service object.
+ * This does the relevant configuration and method validation related to the IBM MQ service. Ideally this validations
  * should be replaced by a compiler plugin.
  *
- * @since 1.2.0
+ * @since 1.3.0
  */
 public class Service {
     private static final Type MSG_TYPE = ValueCreator.createRecordValue(getModule(), BMESSAGE_NAME)

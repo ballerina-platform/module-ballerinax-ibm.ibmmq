@@ -54,6 +54,20 @@ public enum AcknowledgementMode {
 # Configuration for an IBM MQ queue.
 #
 # + sessionAckMode - Configuration indicating how messages received by the session will be acknowledged
+# + queueName - The name of the queue to consume messages from
+# + messageSelector - Only messages with properties matching the message selector expression are delivered. 
+#                     If this value is not set that indicates that there is no message selector for the message consumer
+#                     For example, to only receive messages with a property `priority` set to `'high'`, use:
+#                     `"priority = 'high'"`. If this value is not set, all messages in the queue will be delivered.
+public type QueueConfig record {|
+  AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
+  string queueName;
+  string messageSelector?;
+|};
+
+# Configuration for an IBM MQ topic subscription.
+#
+# + sessionAckMode - Configuration indicating how messages received by the session will be acknowledged
 # + topicName - The name of the topic to subscribe to
 # + messageSelector - Only messages with properties matching the message selector expression are delivered. 
 #                     If this value is not set that indicates that there is no message selector for the message consumer
@@ -63,20 +77,6 @@ public enum AcknowledgementMode {
 #             with the same client identifier, will not be added to the durable subscription.
 # + consumerType - The message consumer type
 # + subscriberName - the name used to identify the subscription
-public type QueueConfig record {|
-  AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
-  string queueName;
-  string messageSelector?;
-|};
-
-# Configuration for an IBM MQ topic subscription.
-#
-# + topicName - The name of the topic to subscribe to.
-# + subscriptionName - The name of the subscription. This is required only if the durable flag is set to `true`.
-# + durable - Indicates whether the subscription is durable. Set this to `false` to stop receiving messages sent to the
-# topic/queue while the listener is offline.
-# + options - Options to control message retrieval.
-# + matchOptions - Message selection criteria
 public type TopicConfig record {|
   AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
   string topicName;
