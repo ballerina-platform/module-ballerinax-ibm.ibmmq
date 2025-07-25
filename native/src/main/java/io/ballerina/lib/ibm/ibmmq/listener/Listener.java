@@ -45,14 +45,14 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
  *
  * @since 1.3.0
  */
-public final class ListenerV2 {
+public final class Listener {
     static final String NATIVE_CONNECTION = "native.connection";
     static final String NATIVE_SERVICE = "native.service";
     static final String NATIVE_SESSION = "native.session";
     static final String NATIVE_CONSUMER = "native.consumer";
     static final String NATIVE_MESSAGE = "native.message";
 
-    private ListenerV2() {
+    private Listener() {
     }
 
     public static Object init(BObject bListener, BMap<BString, Object> configurations) {

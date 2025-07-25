@@ -30,8 +30,8 @@ import javax.jms.Session;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
-import static io.ballerina.lib.ibm.ibmmq.listener.ListenerV2.NATIVE_MESSAGE;
-import static io.ballerina.lib.ibm.ibmmq.listener.ListenerV2.NATIVE_SESSION;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_MESSAGE;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_SESSION;
 
 /**
  * Native class for the Ballerina IBM MQ Caller.

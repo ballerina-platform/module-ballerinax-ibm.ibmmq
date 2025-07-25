@@ -41,7 +41,7 @@ import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.BCALLER_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
-import static io.ballerina.lib.ibm.ibmmq.listener.ListenerV2.NATIVE_SESSION;
+import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_SESSION;
 
 /**
  * A {@link javax.jms.MessageListener} implementation used to dispatch messages to a Ballerina IBM MQ service.
