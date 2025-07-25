@@ -135,7 +135,7 @@ public final class ListenerV2 {
                 return createError(IBMMQ_ERROR, "Could not find the native JMS session");
             }
             if (Objects.isNull(consumer)) {
-                return createError(IBMMQ_ERROR,"Could not find the native JMS consumer");
+                return createError(IBMMQ_ERROR, "Could not find the native JMS consumer");
             }
 
             consumer.close();
