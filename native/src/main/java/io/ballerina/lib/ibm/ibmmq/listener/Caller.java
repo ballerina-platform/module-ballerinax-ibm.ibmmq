@@ -49,7 +49,7 @@ public class Caller {
             nativeSession.commit();
         } catch (JMSException exception) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error while committing the JMS transaction: %s", exception.getMessage()), exception);
+                    String.format("Error while committing the transaction: %s", exception.getMessage()), exception);
         }
         return null;
     }
@@ -60,7 +60,7 @@ public class Caller {
             nativeSession.rollback();
         } catch (JMSException exception) {
             return createError(IBMMQ_ERROR,
-                    String.format("Error while rolling back the JMS transaction: %s", exception.getMessage()),
+                    String.format("Error while rolling back the transaction: %s", exception.getMessage()),
                     exception);
         }
         return null;
