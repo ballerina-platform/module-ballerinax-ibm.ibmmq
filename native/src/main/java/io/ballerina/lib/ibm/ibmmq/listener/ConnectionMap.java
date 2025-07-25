@@ -38,8 +38,8 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.QUEUE_MANAGER_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SECURE_SOCKET;
 import static io.ballerina.lib.ibm.ibmmq.Constants.SSL_CIPHER_SUITE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
-import static io.ballerina.lib.ibm.ibmmq.QueueManager.getSecureSocketFactory;
-import static io.ballerina.lib.ibm.ibmmq.QueueManager.getSslProtocol;
+import static io.ballerina.lib.ibm.ibmmq.SslUtils.getSecureSocketFactory;
+import static io.ballerina.lib.ibm.ibmmq.SslUtils.getSslProtocol;
 
 /**
  * Represents a connection map for the Ballerina IBM MQ connector.

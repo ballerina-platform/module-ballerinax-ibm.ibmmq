@@ -24,8 +24,11 @@ import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPropertyDescriptor;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQHeaderList;
+import com.ibm.mq.jms.MQConnectionFactory;
+import com.ibm.msg.client.wmq.WMQConstants;
 import io.ballerina.lib.ibm.ibmmq.config.GetMessageOptions;
 import io.ballerina.lib.ibm.ibmmq.config.MatchOptions;
+import io.ballerina.lib.ibm.ibmmq.config.QueueManagerConfiguration;
 import io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -50,11 +53,13 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.jms.BytesMessage;
+import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
+import javax.net.ssl.SSLSocketFactory;
 
 import static io.ballerina.lib.ibm.ibmmq.Constants.BMESSAGE_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
@@ -92,8 +97,15 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_VALUE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PUT_APPLICATION_TYPE_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QM_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_2;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3;
+import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_3_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.USER_ID;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
+import static io.ballerina.lib.ibm.ibmmq.SslUtils.getSecureSocketFactory;
+import static io.ballerina.lib.ibm.ibmmq.SslUtils.getSslProtocol;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQCIHHeader.createMQCIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQIIHHeader.createMQIIHHeaderFromBHeader;
 import static io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header.createMQRFH2HeaderFromBHeader;
@@ -130,6 +142,33 @@ public class CommonUtils {
                     String.format("Error occurred while populating payload: %s", e.getMessage()), e);
         }
         return mqMessage;
+    }
+
+    public static Connection getJmsConnection(QueueManagerConfiguration config) {
+        try {
+            MQConnectionFactory connectionFactory = new MQConnectionFactory();
+            connectionFactory.setQueueManager(config.queueManagerName());
+            connectionFactory.setHostName(config.host());
+            connectionFactory.setPort(config.port());
+            connectionFactory.setChannel(config.channel());
+            connectionFactory.setTransportType(WMQConstants.WMQ_CM_CLIENT);
+            if (Objects.nonNull(config.sslCipherSuite())) {
+                connectionFactory.setSSLCipherSuite(config.sslCipherSuite());
+            }
+            if (Objects.nonNull(config.secureSocket())) {
+                String sslProtocol = getSslProtocol(config.sslCipherSuite());
+                SSLSocketFactory sslSocketFactory = getSecureSocketFactory(sslProtocol, config.secureSocket());
+                connectionFactory.setSSLSocketFactory(sslSocketFactory);
+            }
+            if (Objects.nonNull(config.userID()) && Objects.nonNull(config.password())) {
+                if (!config.userID().isBlank()) {
+                    return connectionFactory.createConnection(config.userID(), config.password());
+                }
+            }
+            return connectionFactory.createConnection();
+        } catch (Exception e) {
+            throw createError(Constants.IBMMQ_ERROR, "Failed to create the IBM MQ connection", e);
+        }
     }
 
     public static Message getJmsMessageFromBMessage(Session session, BMap bMessage) {

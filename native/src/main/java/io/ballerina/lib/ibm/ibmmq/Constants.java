@@ -25,7 +25,7 @@ import java.util.List;
 
 public interface Constants {
     // Error names for IBM MQ package
-    public static final String IBMMQ_ERROR = "Error";
+    String IBMMQ_ERROR = "Error";
 
     // IBM MQ Error details related field names
     String ERROR_DETAILS = "ErrorDetails";
@@ -58,6 +58,7 @@ public interface Constants {
     String BQUEUE = "Queue";
     String BPROPERTY = "Property";
     String BMESSAGE_NAME = "Message";
+    String BCALLER_NAME = "Caller";
 
     // IBM MQ queue manager related configuration names
     BString QUEUE_MANAGER_NAME = StringUtils.fromString("name");
@@ -123,4 +124,11 @@ public interface Constants {
     BString MESSAGE_CHARSET = StringUtils.fromString("characterSet");
     BString MESSAGE_ACCOUNTING_TOKEN = StringUtils.fromString("accountingToken");
     BString MESSAGE_USERID = StringUtils.fromString("userId");
+
+    /**
+     * JMS Acknowledge Modes.
+     */
+    static final String AUTO_ACKNOWLEDGE_MODE = "AUTO_ACKNOWLEDGE";
+    static final String CLIENT_ACKNOWLEDGE_MODE = "CLIENT_ACKNOWLEDGE";
+    static final String SESSION_TRANSACTED_MODE = "SESSION_TRANSACTED";
 }

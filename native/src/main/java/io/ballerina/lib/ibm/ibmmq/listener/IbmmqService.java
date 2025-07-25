@@ -97,7 +97,7 @@ public class IbmmqService {
             } else if (remoteMethod.getName().equals("onError")) {
                 validateOnErrorMethod(remoteMethod);
             } else {
-                throw createError(IBMMQ_ERROR, "Invalid remote method name: " + remoteMethod.getName());
+                throw createError(IBMMQ_ERROR, "Invalid remote method queueManagerName: " + remoteMethod.getName());
             }
         }
         if (this.onMessageMethod == null) {
@@ -156,7 +156,7 @@ public class IbmmqService {
         if (this.isTopicConsumer()) {
             return this.config.getStringValue(TOPIC_NAME).getValue();
         }
-        throw new IllegalStateException("Topic name is not available for non-topic consumers");
+        throw new IllegalStateException("Topic queueManagerName is not available for non-topic consumers");
     }
 
     public boolean isDurableConsumer() {
@@ -177,7 +177,7 @@ public class IbmmqService {
         if (!this.isTopicConsumer()) {
             return this.config.getStringValue(QUEUE_NAME).getValue();
         }
-        throw new IllegalStateException("Queue name is not available for topic consumers");
+        throw new IllegalStateException("Queue queueManagerName is not available for topic consumers");
     }
 
     @Override

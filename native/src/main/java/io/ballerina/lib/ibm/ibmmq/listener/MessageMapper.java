@@ -45,6 +45,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.PERSISTENCE_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PRIORITY_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
+import static io.ballerina.lib.ibm.ibmmq.listener.ListenerV2.NATIVE_MESSAGE;
 
 public class MessageMapper {
     static final BString TEXT = StringUtils.fromString("text");
@@ -107,6 +108,7 @@ public class MessageMapper {
             result.put(MESSAGE_PAYLOAD, ValueCreator.createArrayValue(fallback));
             result.put(FORMAT_FIELD, UNKNOWN);
         }
+        result.addNativeData(NATIVE_MESSAGE, message);
         return result;
     }
 
