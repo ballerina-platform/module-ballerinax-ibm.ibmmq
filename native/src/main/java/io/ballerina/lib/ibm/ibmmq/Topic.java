@@ -24,17 +24,15 @@ import com.ibm.mq.MQMessage;
 import com.ibm.mq.MQPutMessageOptions;
 import com.ibm.mq.MQTopic;
 import com.ibm.mq.constants.CMQC;
-import com.ibm.mq.jms.MQConnectionFactory;
 import io.ballerina.lib.ibm.ibmmq.config.GetMessageOptions;
-import io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap;
+import io.ballerina.lib.ibm.ibmmq.config.QueueManagerConfiguration;
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -42,15 +40,15 @@ import javax.jms.Session;
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.getJmsMessageFromBMessage;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
-import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_CONNECTION_MAP;
+import static io.ballerina.lib.ibm.ibmmq.QueueManager.QUEUE_MNG_CONFIG;
 
 /**
  * Representation of {@link com.ibm.mq.MQTopic} with utility methods to invoke as inter-op functions.
  */
 public class Topic {
     private static final String NATIVE_CONNECTION = "native.connection";
-    private static final BString TOPIC_NAME = StringUtils.fromString("topicName");
-    private static final ConnectionFactory connectionFactory = new MQConnectionFactory();
+    private static final String NATIVE_SESSION = "native.session";
+    private static final String NATIVE_PRODUCER = "native.producer";
 
     public static Object put(Environment environment, BObject topicObject, BMap message, long options) {
         MQTopic topic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
@@ -105,25 +103,45 @@ public class Topic {
     public static Object send(BObject topicObject, BMap<BString, Object> message) {
 
         try {
-            Connection connection = getConnection(topicObject);
-            Session session = connection.createSession();
             MQTopic mqTopic = (MQTopic) topicObject.getNativeData(Constants.NATIVE_TOPIC);
-            MessageProducer producer = session.createProducer(session.createTopic(mqTopic.getName()));
+            Session session = getSession(topicObject);
+            MessageProducer producer = getProducer(session, topicObject, mqTopic.getName());
             Message jmsMessage = getJmsMessageFromBMessage(session, message);
             producer.send(jmsMessage);
-        } catch (Exception e) {
+        } catch (JMSException | MQException e) {
             return createError(IBMMQ_ERROR,
                     String.format("Error occurred while creating the topic: %s", e.getMessage()), e);
         }
         return null;
     }
 
+    private static MessageProducer getProducer(Session session, BObject topicObject, String topicName)
+            throws JMSException {
+        if (topicObject.getNativeData(NATIVE_PRODUCER) != null) {
+            return (MessageProducer) topicObject.getNativeData(NATIVE_PRODUCER);
+        }
+        MessageProducer producer = session.createProducer(session.createTopic(topicName));
+        topicObject.addNativeData(NATIVE_PRODUCER, producer);
+        return producer;
+    }
+
+    private static Session getSession(BObject topicObject) throws JMSException {
+        if (topicObject.getNativeData(NATIVE_SESSION) != null) {
+            return (Session) topicObject.getNativeData(NATIVE_SESSION);
+        }
+        Connection connection = getConnection(topicObject);
+        Session session = connection.createSession();
+        topicObject.addNativeData(NATIVE_SESSION, session);
+        return session;
+    }
+
     private static Connection getConnection(BObject topicObject) {
-        ConnectionMap connectionMap = (ConnectionMap) topicObject.getNativeData(NATIVE_CONNECTION_MAP);
         if (topicObject.getNativeData(NATIVE_CONNECTION) != null) {
             return (Connection) topicObject.getNativeData(NATIVE_CONNECTION);
         }
-        Connection connection = connectionMap.getConnection(false, null);
+        QueueManagerConfiguration queueMngConfig = (QueueManagerConfiguration) topicObject
+                .getNativeData(QUEUE_MNG_CONFIG);
+        Connection connection = CommonUtils.getJmsConnection(queueMngConfig);
         topicObject.addNativeData(NATIVE_CONNECTION, connection);
         return connection;
     }

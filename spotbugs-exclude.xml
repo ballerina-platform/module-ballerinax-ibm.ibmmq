@@ -36,18 +36,10 @@
         <Class name="io.ballerina.lib.ibm.ibmmq.config.MatchOptions"/>
         <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
-<!--    <Match>-->
-<!--        <Class name="io.ballerina.lib.ibm.ibmmq.listener.MessageDispatcher"/>-->
-<!--        <Bug pattern="DM_EXIT"/>-->
-<!--    </Match>-->
     <Match>
         <Class name="io.ballerina.lib.ibm.ibmmq.listener.MessageDispatcher"/>
         <Bug pattern="SF_SWITCH_NO_DEFAULT"/>
     </Match>
-<!--    <Match>-->
-<!--        <Class name="io.ballerina.lib.ibm.ibmmq.listener.MessageDispatcher"/>-->
-<!--        <Bug pattern="EI_EXPOSE_REP2"/>-->
-<!--    </Match>-->
     <Match>
         <Class name="io.ballerina.lib.ibm.ibmmq.config.QueueManagerConfiguration"/>
         <Bug pattern="EI_EXPOSE_REP"/>
@@ -78,14 +70,6 @@
     </Match>
     <Match>
         <Class name="io.ballerina.lib.ibm.ibmmq.listener.ServiceContext"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
 </FindBugsFilter>
