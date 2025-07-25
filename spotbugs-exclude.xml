@@ -61,10 +61,6 @@
         <Bug pattern="IL_INFINITE_RECURSIVE_LOOP"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.IbmmqService"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
         <Class name="io.ballerina.lib.ibm.ibmmq.listener.ServiceContext"/>
         <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
