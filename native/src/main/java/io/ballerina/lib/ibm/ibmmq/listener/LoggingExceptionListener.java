@@ -18,9 +18,10 @@
 
 package io.ballerina.lib.ibm.ibmmq.listener;
 
+import java.io.PrintStream;
+
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
-import java.io.PrintStream;
 
 /**
  * Logging exception listener class for JMS {@link javax.jms.Connection}.
