@@ -19,11 +19,54 @@ import ballerina/crypto;
 # Represents an IBMMQ service object that can be attached to an `ibmmq:Listener`.
 public type Service distinct service object {};
 
+# Defines the supported JMS message consumer types for IBM MQ.
+public enum ConsumerType {
+    # Represents JMS durable subscriber
+    DURABLE = "DURABLE", 
+    # Represents JMS shared consumer
+    SHARED = "SHARED", 
+    # Represents JMS shared durable subscriber
+    SHARED_DURABLE = "SHARED_DURABLE", 
+    # Represents JMS default consumer
+    DEFAULT = "DEFAULT"
+}
+
+# Defines the JMS session acknowledgement modes for IBM MQ.
+public enum AcknowledgementMode {
+    # Indicates that the session will use a local transaction which may subsequently 
+    # be committed or rolled back by calling the session's `commit` or `rollback` methods. 
+    SESSION_TRANSACTED = "SESSION_TRANSACTED",
+    # Indicates that the session automatically acknowledges a client's receipt of a message 
+    # either when the session has successfully returned from a call to `receive` or when 
+    # the message listener the session has called to process the message successfully returns.
+    AUTO_ACKNOWLEDGE = "AUTO_ACKNOWLEDGE",
+    # Indicates that the client acknowledges a consumed message by calling the 
+    # MessageConsumer's or Caller's `acknowledge` method. Acknowledging a consumed message 
+    # acknowledges all messages that the session has consumed.
+    CLIENT_ACKNOWLEDGE = "CLIENT_ACKNOWLEDGE",
+    # Indicates that the session to lazily acknowledge the delivery of messages. 
+    # This is likely to result in the delivery of some duplicate messages if the JMS provider fails, 
+    # so it should only be used by consumers that can tolerate duplicate messages. 
+    # Use of this mode can reduce session overhead by minimizing the work the session does to prevent duplicates.
+    DUPS_OK_ACKNOWLEDGE = "DUPS_OK_ACKNOWLEDGE"
+}
+
 # Configuration for an IBM MQ queue.
 #
-# + queueName - The name of the queue to consume messages from.
+# + sessionAckMode - Configuration indicating how messages received by the session will be acknowledged
+# + topicName - The name of the topic to subscribe to
+# + messageSelector - Only messages with properties matching the message selector expression are delivered. 
+#                     If this value is not set that indicates that there is no message selector for the message consumer
+#                     For example, to only receive messages with a property `priority` set to `'high'`, use:
+#                     `"priority = 'high'"`. If this value is not set, all messages in the queue will be delivered.
+# + noLocal - If true then any messages published to the topic using this session's connection, or any other connection 
+#             with the same client identifier, will not be added to the durable subscription.
+# + consumerType - The message consumer type
+# + subscriberName - the name used to identify the subscription
 public type QueueConfig record {|
-    string queueName;
+  AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
+  string queueName;
+  string messageSelector?;
 |};
 
 # Configuration for an IBM MQ topic subscription.
@@ -35,24 +78,19 @@ public type QueueConfig record {|
 # + options - Options to control message retrieval.
 # + matchOptions - Message selection criteria
 public type TopicConfig record {|
-    string topicName;
-    string subscriptionName?;
-    boolean durable = false;
-    int options = OPEN_AS_SUBSCRIPTION;
-    MatchOptions matchOptions?;
+  AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
+  string topicName;
+  string messageSelector?;
+  boolean noLocal = false;
+  ConsumerType consumerType = DEFAULT;
+  string subscriberName?;
 |};
 
 # The service configuration type for the `ibmmq:Service`.
-#
-# + config - The topic or queue configuration to subscribe to.
-# + pollingInterval - The polling interval in seconds.
-public type ServiceConfigType record {|
-    QueueConfig|TopicConfig config;
-    decimal pollingInterval = 1;
-|};
+public type ServiceConfiguration QueueConfig|TopicConfig;
 
-# Annotation to configure the `ibmmq:Service`.
-public annotation ServiceConfigType ServiceConfig on service;
+# Annotation to configure the `jms:Service`.
+public annotation ServiceConfiguration ServiceConfig on service;
 
 # Options which can be provided when opening an IBM MQ topic.
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;

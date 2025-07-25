@@ -31,35 +31,35 @@ public isolated class Listener {
     # + name - The name of the queue/topic to attach to
     # + return - An error if the attaching failed, nil otherwise
     public isolated function attach(Service s, string[]|string? name = ()) returns Error? = @java:Method {
-        'class: "io.ballerina.lib.ibm.ibmmq.listener.Listener"
+        'class: "io.ballerina.lib.ibm.ibmmq.listener.ListenerV2"
     } external;
 
     # Detaches an IBMMQ service from the IBMMQ listener.
     # + s - The IBMMQ Service to detach
     # + return - An error if the detaching failed, nil otherwise
     public isolated function detach(Service s) returns Error? = @java:Method {
-        'class: "io.ballerina.lib.ibm.ibmmq.listener.Listener"
+        'class: "io.ballerina.lib.ibm.ibmmq.listener.ListenerV2"
     } external;
 
     # Starts the IBMMQ listener.
     # + return - An error if the starting failed, nil otherwise
     public isolated function 'start() returns Error? = @java:Method {
-        'class: "io.ballerina.lib.ibm.ibmmq.listener.Listener"
+        'class: "io.ballerina.lib.ibm.ibmmq.listener.ListenerV2"
     } external;
 
     # Gracefully stops the IBMMQ listener.
     # + return - An error if the stopping failed, nil otherwise
     public isolated function gracefulStop() returns Error? = @java:Method {
-        'class: "io.ballerina.lib.ibm.ibmmq.listener.Listener"
+        'class: "io.ballerina.lib.ibm.ibmmq.listener.ListenerV2"
     } external;
 
     # Immediately stops the IBMMQ listener.
     # + return - An error if the stopping failed, nil otherwise
     public isolated function immediateStop() returns Error? = @java:Method {
-        'class: "io.ballerina.lib.ibm.ibmmq.listener.Listener"
+        'class: "io.ballerina.lib.ibm.ibmmq.listener.ListenerV2"
     } external;
 
     isolated function initListener(QueueManagerConfiguration configurations) returns Error? = @java:Method {
-        'class: "io.ballerina.lib.ibm.ibmmq.listener.Listener"
+        'class: "io.ballerina.lib.ibm.ibmmq.listener.ListenerV2"
     } external;
 }

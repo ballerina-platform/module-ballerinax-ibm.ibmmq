@@ -30,11 +30,9 @@ listener Listener ibmmqListener2 = new Listener({
 });
 
 @ServiceConfig {
-    config: {
-        topicName: "DEV.TOPIC.1",
-        subscriptionName: "DEV.SUB.1",
-        durable: true
-    }
+    topicName: "DEV.TOPIC.1",
+    subscriberName: "DEV.SUB.1",
+    consumerType: DURABLE
 }
 service Service on ibmmqListener2 {
     remote function onMessage(Message message) returns Error? {
@@ -44,9 +42,7 @@ service Service on ibmmqListener2 {
 }
 
 @ServiceConfig {
-    config: {
-        topicName: "DEV.TOPIC.2"
-    }
+    topicName: "DEV.TOPIC.2"
 }
 service Service on ibmmqListener2 {
     remote function onMessage(Message message) returns Error? {

@@ -29,9 +29,7 @@ listener Listener ibmmqListener1 = new Listener({
 });
 
 @ServiceConfig {
-    config: {
-        queueName: "DEV.QUEUE.3"
-    }
+    queueName: "DEV.QUEUE.3"
 }
 service Service on ibmmqListener1 {
     remote function onMessage(Message message) returns Error? {
