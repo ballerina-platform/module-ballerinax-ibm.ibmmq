@@ -19,8 +19,11 @@
 package io.ballerina.lib.ibm.ibmmq.listener;
 
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+
+import static io.ballerina.lib.ibm.ibmmq.Constants.MILLISECOND_MULTIPLIER;
 
 /**
  * Represents configuration details for consuming messages from a IBM MQ JMS queue.
@@ -32,18 +35,30 @@ import io.ballerina.runtime.api.values.BString;
  * @param messageSelector An optional JMS message selector expression. Only messages with properties
  *                        matching this selector will be delivered to the consumer.
  *                        If this value is {@code null}, no selector is applied.
+ * @param pollingInterval   The polling interval in milliseconds
+ * @param receiveTimeout    The timeout to wait till a `receive` action finishes when there are no messages
+ *
  * @since 1.3.0
  */
-public record QueueConfig(String ackMode, String queueName, String messageSelector) implements ServiceConfig {
+public record QueueConfig(String ackMode, String queueName, String messageSelector, long pollingInterval,
+                          long receiveTimeout) implements ServiceConfig {
     private static final BString SESSION_ACK_MODE = StringUtils.fromString("sessionAckMode");
     private static final BString QUEUE_NAME = StringUtils.fromString("queueName");
     private static final BString MSG_SELECTOR = StringUtils.fromString("messageSelector");
+    private static final BString POLLING_INTERVAL = StringUtils.fromString("pollingInterval");
+    private static final BString RECEIVE_TIMEOUT = StringUtils.fromString("receiveTimeout");
 
     QueueConfig(BMap<BString, Object> configurations) {
         this(
                 configurations.getStringValue(SESSION_ACK_MODE).getValue(),
                 configurations.getStringValue(QUEUE_NAME).getValue(),
-                configurations.containsKey(MSG_SELECTOR) ? configurations.getStringValue(MSG_SELECTOR).getValue() : null
+                configurations.containsKey(MSG_SELECTOR) ?
+                        configurations.getStringValue(MSG_SELECTOR).getValue() : null,
+                ((BDecimal) configurations.get(POLLING_INTERVAL)).decimalValue().multiply(MILLISECOND_MULTIPLIER)
+                        .longValue(),
+                ((BDecimal) configurations.get(RECEIVE_TIMEOUT)).decimalValue().multiply(MILLISECOND_MULTIPLIER)
+                        .longValue()
+
         );
     }
 }

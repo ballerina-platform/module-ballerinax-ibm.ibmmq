@@ -25,4 +25,8 @@ package io.ballerina.lib.ibm.ibmmq.listener;
  */
 public interface ServiceConfig {
     String ackMode();
+
+    long pollingInterval();
+
+    long receiveTimeout();
 }

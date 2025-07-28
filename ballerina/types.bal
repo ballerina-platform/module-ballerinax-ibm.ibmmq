@@ -59,10 +59,14 @@ public enum AcknowledgementMode {
 #                     If this value is not set that indicates that there is no message selector for the message consumer
 #                     For example, to only receive messages with a property `priority` set to `'high'`, use:
 #                     `"priority = 'high'"`. If this value is not set, all messages in the queue will be delivered.
+# + pollingInterval - The polling interval in seconds
+# + receiveTimeout - The timeout to wait till a `receive` action finishes when there are no messages
 public type QueueConfig record {|
   AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
   string queueName;
   string messageSelector?;
+  decimal pollingInterval = 10;
+  decimal receiveTimeout = 5;
 |};
 
 # Configuration for an IBM MQ topic subscription.
@@ -77,6 +81,8 @@ public type QueueConfig record {|
 #             with the same client identifier, will not be added to the durable subscription.
 # + consumerType - The message consumer type
 # + subscriberName - the name used to identify the subscription
+# + pollingInterval - The polling interval in seconds
+# + receiveTimeout - The timeout to wait till a `receive` action finishes when there are no messages
 public type TopicConfig record {|
   AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
   string topicName;
@@ -84,6 +90,8 @@ public type TopicConfig record {|
   boolean noLocal = false;
   ConsumerType consumerType = DEFAULT;
   string subscriberName?;
+  decimal pollingInterval = 10;
+  decimal receiveTimeout = 5;
 |};
 
 # The service configuration type for the `ibmmq:Service`.

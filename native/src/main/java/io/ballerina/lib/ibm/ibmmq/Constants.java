@@ -21,6 +21,7 @@ package io.ballerina.lib.ibm.ibmmq;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface Constants {
@@ -131,4 +132,6 @@ public interface Constants {
     static final String AUTO_ACKNOWLEDGE_MODE = "AUTO_ACKNOWLEDGE";
     static final String CLIENT_ACKNOWLEDGE_MODE = "CLIENT_ACKNOWLEDGE";
     static final String SESSION_TRANSACTED_MODE = "SESSION_TRANSACTED";
+
+    BigDecimal MILLISECOND_MULTIPLIER = new BigDecimal(1000);
 }

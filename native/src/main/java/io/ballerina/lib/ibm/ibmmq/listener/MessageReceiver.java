@@ -46,7 +46,7 @@ public class MessageReceiver {
     private final Session session;
     private final MessageConsumer consumer;
     private final MessageDispatcher messageDispatcher;
-    private final long pollingInterval;
+    private final long receiveInterval;
     private final long receiveTimeout;
     private long stopTimeout = 30000;
 
@@ -57,7 +57,7 @@ public class MessageReceiver {
         this.session = session;
         this.consumer = consumer;
         this.messageDispatcher = messageDispatcher;
-        this.pollingInterval = pollingInterval;
+        this.receiveInterval = pollingInterval;
         this.receiveTimeout = receiveTimeout;
     }
 
@@ -94,7 +94,7 @@ public class MessageReceiver {
 
     public void consume() {
         this.pollingTaskFuture = this.executorService.scheduleAtFixedRate(
-                this::poll, 0, this.pollingInterval, TimeUnit.MILLISECONDS);
+                this::poll, 0, this.receiveInterval, TimeUnit.MILLISECONDS);
     }
 
     public void stop() throws Exception {
