@@ -47,7 +47,9 @@ isolated function beforeMessageListenerTests() returns error? {
 }
 isolated function testQueueService() returns error? {
     Service consumerSvc = @ServiceConfig {
-        queueName: "DEV.QUEUE.3"
+        queueName: "DEV.QUEUE.3",
+        pollingInterval: 1,
+        receiveTimeout: 1
     } service object {
         remote function onMessage(Message message) returns error? {
             lock {
@@ -71,7 +73,9 @@ isolated function testQueueService() returns error? {
 isolated function testTopicService() returns error? {
     Service consumerSvc = @ServiceConfig {
         topicName: "DEV.TOPIC.1",
-        subscriberName: "DEV.SUB.1"
+        subscriberName: "DEV.SUB.1",
+        pollingInterval: 1,
+        receiveTimeout: 1
     } service object {
         remote function onMessage(Message message) returns error? {
             lock {
@@ -98,7 +102,9 @@ isolated function testServiceWithCaller() returns error? {
     Service consumerSvc = @ServiceConfig {
         sessionAckMode: CLIENT_ACKNOWLEDGE,
         topicName: "DEV.TOPIC.1",
-        subscriberName: "test.subscription"
+        subscriberName: "test.subscription",
+        pollingInterval: 1,
+        receiveTimeout: 1
     } service object {
         remote function onMessage(Message message, Caller caller) returns error? {
             lock {
