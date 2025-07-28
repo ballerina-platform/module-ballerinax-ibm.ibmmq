@@ -60,12 +60,4 @@
         <Class name="io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header"/>
         <Bug pattern="IL_INFINITE_RECURSIVE_LOOP"/>
     </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ServiceContext"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ServiceContext"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
-    </Match>
 </FindBugsFilter>
