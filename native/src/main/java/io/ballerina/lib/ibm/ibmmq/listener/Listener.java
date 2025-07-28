@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -47,10 +49,12 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
  */
 public final class Listener {
     static final String NATIVE_CONNECTION = "native.connection";
+    static final String NATIVE_SERVICE_LIST = "native.service.list";
     static final String NATIVE_SERVICE = "native.service";
     static final String NATIVE_SESSION = "native.session";
-    static final String NATIVE_CONSUMER = "native.consumer";
+    static final String NATIVE_RECEIVER = "native.receiver";
     static final String NATIVE_MESSAGE = "native.message";
+    static final String LISTENER_STARTED = "listener.started";
 
     private Listener() {
     }
@@ -64,6 +68,7 @@ public final class Listener {
             }
             jmsConnection.setExceptionListener(new LoggingExceptionListener());
             bListener.addNativeData(NATIVE_CONNECTION, jmsConnection);
+            bListener.addNativeData(NATIVE_SERVICE_LIST, new ArrayList<BObject>());
         } catch (Exception e) {
             return createError(IBMMQ_ERROR, "Failed to initialize listener", e);
         }
@@ -72,6 +77,7 @@ public final class Listener {
 
     public static Object attach(Environment env, BObject bListener, BObject bService, Object name) {
         Connection connection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        Object started = bListener.getNativeData(LISTENER_STARTED);
         try {
             Service.validateService(bService);
             Service nativeService = new Service(bService);
@@ -81,10 +87,16 @@ public final class Listener {
             Session session = connection.createSession(transacted, sessionAckMode);
             MessageConsumer consumer = getConsumer(session, svcConfig);
             MessageDispatcher messageDispatcher = new MessageDispatcher(env.getRuntime(), nativeService, session);
-            consumer.setMessageListener(messageDispatcher);
+            MessageReceiver receiver = new MessageReceiver(
+                    session, consumer, messageDispatcher, 1000, 1000);
             bService.addNativeData(NATIVE_SERVICE, nativeService);
             bService.addNativeData(NATIVE_SESSION, session);
-            bService.addNativeData(NATIVE_CONSUMER, consumer);
+            bService.addNativeData(NATIVE_RECEIVER, receiver);
+            List<BObject> serviceList = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
+            serviceList.add(bService);
+            if (Objects.nonNull(started) && ((Boolean) started)) {
+                receiver.consume();
+            }
         } catch (BError | JMSException e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR, String.format("Failed to attach service to listener: %s", errorMsg), e);
@@ -129,16 +141,16 @@ public final class Listener {
 
     public static Object detach(BObject bService) {
         Session session = (Session) bService.getNativeData(NATIVE_SESSION);
-        MessageConsumer consumer = (MessageConsumer) bService.getNativeData(NATIVE_CONSUMER);
+        MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
         try {
             if (Objects.isNull(session)) {
-                return createError(IBMMQ_ERROR, "Could not find the native JMS session");
+                return createError(IBMMQ_ERROR, "Could not find the native IBM MQ JMS session");
             }
-            if (Objects.isNull(consumer)) {
-                return createError(IBMMQ_ERROR, "Could not find the native JMS consumer");
+            if (Objects.isNull(receiver)) {
+                return createError(IBMMQ_ERROR, "Could not find the native IBM MQ message receiver");
             }
 
-            consumer.close();
+            receiver.stop();
             session.close();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
@@ -150,8 +162,14 @@ public final class Listener {
 
     public static Object start(BObject bListener) {
         Connection connection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
             connection.start();
+            for (BObject bService: bServices) {
+                MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
+                receiver.consume();
+            }
+            bListener.addNativeData(LISTENER_STARTED, Boolean.valueOf(true));
         } catch (JMSException e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
@@ -162,10 +180,17 @@ public final class Listener {
 
     public static Object gracefulStop(BObject bListener) {
         Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
             nativeConnection.stop();
             nativeConnection.close();
-        } catch (JMSException e) {
+            for (BObject bService: bServices) {
+                Session session = (Session) bService.getNativeData(NATIVE_SESSION);
+                MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
+                receiver.stop();
+                session.close();
+            }
+        } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
                     String.format(
@@ -176,10 +201,17 @@ public final class Listener {
 
     public static Object immediateStop(BObject bListener) {
         Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
             nativeConnection.stop();
             nativeConnection.close();
-        } catch (JMSException e) {
+            for (BObject bService: bServices) {
+                Session session = (Session) bService.getNativeData(NATIVE_SESSION);
+                MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
+                receiver.stop();
+                session.close();
+            }
+        } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
                     String.format("Error occurred while gracefully stopping the Ballerina IBM MQ listener: %s",

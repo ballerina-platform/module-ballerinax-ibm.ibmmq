@@ -34,7 +34,6 @@ import java.util.Optional;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
@@ -44,11 +43,11 @@ import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_SESSION;
 
 /**
- * A {@link javax.jms.MessageListener} implementation used to dispatch messages to a Ballerina IBM MQ service.
+ * A {MessageDispatcher} dispatches JMS messages into the IBM MQ service.
  *
  * @since 1.3.0.
  */
-public class MessageDispatcher implements MessageListener {
+public class MessageDispatcher {
     private static final PrintStream ERR_OUT = System.err;
     private static final String ON_ERROR_METHOD = "onError";
     private static final String ON_MESSAGE_METHOD = "onMessage";
@@ -56,6 +55,7 @@ public class MessageDispatcher implements MessageListener {
     private final Runtime ballerinaRuntime;
     private final Service nativeService;
     private final Session session;
+    private final OnErrorCallback onErrorCallback = new OnErrorCallback();
 
     MessageDispatcher(Runtime ballerinaRuntime, Service nativeService, Session session) {
         this.ballerinaRuntime = ballerinaRuntime;
@@ -63,27 +63,20 @@ public class MessageDispatcher implements MessageListener {
         this.session = session;
     }
 
-    @Override
-    public void onMessage(Message message) {
+    public void onMessage(Message message, OnMsgCallback onMsgCallback) {
         Thread.startVirtualThread(() -> {
-            Service nativeJmsSvc = this.nativeService;
             try {
-                boolean isConcurrentSafe = nativeJmsSvc.isOnMessageMethodIsolated();
+                boolean isConcurrentSafe = nativeService.isOnMessageMethodIsolated();
                 StrandMetadata metadata = new StrandMetadata(isConcurrentSafe, null);
                 Object[] params = getOnMessageParams(message);
                 Object result = ballerinaRuntime.callMethod(
-                        nativeJmsSvc.getConsumerService(), ON_MESSAGE_METHOD, metadata, params);
-                notifySuccess(result);
-            } catch (Throwable e) {
-                ERR_OUT.println("Unexpected error occurred while async message processing: " + e.getMessage());
-                BError error = createError(IBMMQ_ERROR, "Failed to fetch the message", e);
-                Optional<RemoteMethodType> onError = nativeJmsSvc.getOnError();
-                if (onError.isEmpty()) {
-                    throw error;
-                }
-                boolean isConcurrentSafe = nativeJmsSvc.isOnErrorMethodIsolated();
-                StrandMetadata metadata = new StrandMetadata(isConcurrentSafe, null);
-                ballerinaRuntime.callMethod(nativeJmsSvc.getConsumerService(), ON_ERROR_METHOD, metadata, error);
+                        nativeService.getConsumerService(), ON_MESSAGE_METHOD, metadata, params);
+                onMsgCallback.notifySuccess(result);
+            } catch (BError e) {
+                onMsgCallback.notifyFailure(e);
+                onError(e);
+            } catch (JMSException e) {
+                onError(e);
             }
         });
     }
@@ -112,9 +105,23 @@ public class MessageDispatcher implements MessageListener {
         return caller;
     }
 
-    private void notifySuccess(Object o) {
-        if (o instanceof BError) {
-            ((BError) o).printStackTrace();
-        }
+    public void onError(Throwable t) {
+        Thread.startVirtualThread(() -> {
+            try {
+                ERR_OUT.println("Unexpected error occurred while message processing: " + t.getMessage());
+                BError error = createError(IBMMQ_ERROR, "Failed to fetch the message", t);
+                Optional<RemoteMethodType> onError = nativeService.getOnError();
+                if (onError.isEmpty()) {
+                    throw error;
+                }
+                boolean isConcurrentSafe = nativeService.isOnErrorMethodIsolated();
+                StrandMetadata metadata = new StrandMetadata(isConcurrentSafe, null);
+                Object result = ballerinaRuntime.callMethod(
+                        nativeService.getConsumerService(), ON_ERROR_METHOD, metadata, error);
+                onErrorCallback.notifySuccess(result);
+            } catch (BError err) {
+                onErrorCallback.notifyFailure(err);
+            }
+        });
     }
 }
