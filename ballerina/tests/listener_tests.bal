@@ -106,7 +106,7 @@ isolated function testServiceWithCaller() returns error? {
     };
     check ibmmqListener.attach(consumerSvc, "test-caller-svc");
     Queue producer = check queueManager.accessQueue("test-caller", MQOO_OUTPUT);
-    check producer->send({
+    check producer->put({
         payload: "Hello World from queue".toBytes()
     });
     runtime:sleep(2);
