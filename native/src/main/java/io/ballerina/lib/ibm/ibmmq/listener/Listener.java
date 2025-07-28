@@ -140,8 +140,8 @@ public final class Listener {
     }
 
     public static Object detach(BObject bService) {
-        Session session = (Session) bService.getNativeData(NATIVE_SESSION);
-        MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
+        Object session = bService.getNativeData(NATIVE_SESSION);
+        Object receiver = bService.getNativeData(NATIVE_RECEIVER);
         try {
             if (Objects.isNull(session)) {
                 return createError(IBMMQ_ERROR, "Could not find the native IBM MQ JMS session");
@@ -150,8 +150,8 @@ public final class Listener {
                 return createError(IBMMQ_ERROR, "Could not find the native IBM MQ message receiver");
             }
 
-            receiver.stop();
-            session.close();
+            ((MessageReceiver) receiver).stop();
+            ((Session) session).close();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
