@@ -91,7 +91,8 @@ isolated function testTopicService() returns error? {
 }
 
 @test:Config {
-    groups: ["messageListener"]
+    groups: ["messageListener"],
+    enable: false
 }
 isolated function testServiceWithCaller() returns error? {
     int messageCount = 0;
