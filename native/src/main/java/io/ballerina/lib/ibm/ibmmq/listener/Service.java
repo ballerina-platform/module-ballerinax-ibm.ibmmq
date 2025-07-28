@@ -108,7 +108,7 @@ public class Service {
                 validateOnErrorMethod(remoteMethod);
             } else {
                 throw CommonUtils.createError(
-                        IBMMQ_ERROR, String.format("Invalid remote method queueManagerName: %s.", remoteMethodName));
+                        IBMMQ_ERROR, String.format("Invalid remote method name: %s.", remoteMethodName));
             }
         }
     }
