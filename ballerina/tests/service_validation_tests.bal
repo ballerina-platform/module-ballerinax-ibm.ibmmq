@@ -233,3 +233,24 @@ isolated function testSvcOnErrorWithAdditionalParameters() returns error? {
                 "Invalid error message received");
     }    
 }
+
+@test:Config {
+    groups: ["service", "validations"]
+}
+isolated function testDetachFailure() returns error? {
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: CLIENT_ACKNOWLEDGE,
+        queueName: "test-svc-attach"
+    } service object {
+        remote function onMessage(Message message, Caller caller) returns error? {
+        }
+    };
+    Error? result = ibmmqListener.detach(consumerSvc);
+    test:assertTrue(result is Error);
+    if result is Error {
+        test:assertEquals(
+                result.message(),
+                "Failed to detach a service from the listener: Could not find the native JMS session",
+                "Invalid error message");
+    }
+}

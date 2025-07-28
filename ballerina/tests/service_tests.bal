@@ -122,3 +122,146 @@ isolated function testServiceWithCaller() returns error? {
         test:assertEquals(serviceWithCallerReceivedMsgCount, 1, "'DEV.TOPIC.1' did not received the expected number of messages");
     }
 }
+
+isolated int ServiceWithTransactionsMsgCount = 0;
+
+@test:Config {
+    groups: ["service", "topic", "transactions"]
+}
+isolated function testServiceWithTransactions() returns error? {
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: SESSION_TRANSACTED,
+        topicName: "DEV.TOPIC.1",
+        subscriberName: "test.transated.sub",
+        pollingInterval: 1,
+        receiveTimeout: 1
+    } service object {
+        isolated remote function onMessage(Message message, Caller caller) returns error? {
+            lock {
+                ServiceWithTransactionsMsgCount += 1;
+            }
+            string content = check string:fromBytes(message.payload);
+            if content == "End of messages" {
+                check caller->'commit();
+            }
+        }
+    };
+    check ibmmqListener.attach(consumerSvc, "test-transacted-service");
+
+    check topicProducer->send({
+        payload: "This is the first message".toBytes()
+    });
+    check topicProducer->send({
+        payload: "This is the second message".toBytes()
+    });
+    check topicProducer->send({
+        payload: "This is the third message".toBytes()
+    });
+    check topicProducer->send({
+        payload: "End of messages".toBytes()
+    });
+    runtime:sleep(5);
+    lock {
+        test:assertEquals(ServiceWithTransactionsMsgCount, 4, "Invalid number of received messages");
+    }
+}
+
+@test:Config {
+    groups: ["service", "queue"]
+}
+isolated function testServiceWithOnError() returns error? {
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: CLIENT_ACKNOWLEDGE,
+        topicName: "DEV.TOPIC.1"
+    } service object {
+        remote function onMessage(Message message) returns error? {
+        }
+
+        remote function onError(Error err) returns error? {
+        }
+    };
+    check ibmmqListener.attach(consumerSvc, "test-onerror-service");
+}
+
+@test:Config {
+    groups: ["service", "topic"]
+}
+isolated function testServiceReturningError() returns error? {
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: CLIENT_ACKNOWLEDGE,
+        topicName: "DEV.TOPIC.1"
+    } service object {
+        remote function onMessage(Message message) returns error? {
+            return error("Error occurred while processing the message");
+        }
+    };
+    check ibmmqListener.attach(consumerSvc, "test-onMessage-error-service");
+
+    check topicProducer->send({
+        payload: "This is a sample message".toBytes()
+    });
+    runtime:sleep(2);
+}
+
+@test:Config {
+    groups: ["service", "err"]
+}
+isolated function testListenerImmediateStop() returns error? {
+    Listener msgListener = check new Listener({
+        channel: "DEV.APP.SVRCONN",
+        host: "localhost",
+        name: "QM1",
+        userID: "app",
+        password: "password"
+    });
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: CLIENT_ACKNOWLEDGE,
+        topicName: "DEV.TOPIC.1"
+    } service object {
+        remote function onMessage(Message message, Caller caller) returns error? {
+        }
+    };
+    check msgListener.attach(consumerSvc, "test-caller-service");
+    check msgListener.'start();
+    runtime:sleep(2);
+    check msgListener.immediateStop();
+}
+
+@test:Config {
+    groups: ["service", "queue"]
+}
+isolated function testServiceAttachWithoutSvcPath() returns error? {
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: CLIENT_ACKNOWLEDGE,
+        topicName: "DEV.TOPIC.1"
+    } service object {
+        remote function onMessage(Message message, Caller caller) returns error? {
+        }
+    };
+    check ibmmqListener.attach(consumerSvc);
+}
+
+@test:Config {
+    groups: ["service", "queue"]
+}
+isolated function testServiceDetach() returns error? {
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: CLIENT_ACKNOWLEDGE,
+        topicName: "DEV.TOPIC.1"
+    } service object {
+        remote function onMessage(Message message, Caller caller) returns error? {
+        }
+    };
+    check ibmmqListener.attach(consumerSvc, "consumer-svc");
+    check ibmmqListener.detach(consumerSvc);
+}
+
+@test:AfterGroups {
+    value: ["service", "validations"]
+}
+isolated function afterMessageListenerTests() returns error? {
+    check queueProducer->close();
+    check topicProducer->close();
+    check ibmmqListener.gracefulStop();
+}
+
