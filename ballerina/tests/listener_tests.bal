@@ -32,15 +32,15 @@ final QueueManager queueManager = check new (
     name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
     userID = "app", password = "password"
 );
-final Queue queueProducer = check queueManager.accessQueue("test-queue", MQOO_OUTPUT);
-final Topic topicProducer = check queueManager.accessTopic("test-topic", "test-topic", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
+final Queue queueProducer = check queueManager.accessQueue("DEV.QUEUE.3", MQOO_OUTPUT);
+final Topic topicProducer = check queueManager.accessTopic("DEV.TOPIC.1", "DEV.TOPIC.1", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
 
 @test:BeforeGroups {
     value: ["messageListener", "listenerValidations"]
 }
 isolated function beforeMessageListenerTests() returns error? {
     Service queue3Service = @ServiceConfig {
-        queueName: "test-queue"
+        queueName: "DEV.QUEUE.3"
     } service object {
         remote function onMessage(Message message) returns error? {
             lock {
@@ -50,7 +50,8 @@ isolated function beforeMessageListenerTests() returns error? {
     };
 
     Service topic3Service = @ServiceConfig {
-        topicName: "test-topic"
+        topicName: "DEV.TOPIC.1",
+        subscriberName: "DEV.SUB.1"
     } service object {
         remote function onMessage(Message message) returns error? {
             lock {
@@ -58,8 +59,8 @@ isolated function beforeMessageListenerTests() returns error? {
             }
         }
     };
-    check ibmmqListener.attach(queue3Service, "test-queue-service");
-    check ibmmqListener.attach(topic3Service, "test-topic-service");
+    check ibmmqListener.attach(queue3Service, "dev-queue-3-service");
+    check ibmmqListener.attach(topic3Service, "dev-topic-1-service");
     check ibmmqListener.'start();
 }
 
@@ -72,7 +73,7 @@ isolated function testQueueService() returns error? {
     });
     runtime:sleep(2);
     lock {
-        test:assertEquals(queueServiceReceivedMessageCount, 1, "'test-queue' did not received the expected number of messages");
+        test:assertEquals(queueServiceReceivedMessageCount, 1, "'DEV.QUEUE.3' did not received the expected number of messages");
     }
 }
 
@@ -85,6 +86,6 @@ isolated function testTopicService() returns error? {
     });
     runtime:sleep(2);
     lock {
-        test:assertEquals(topicServiceReceivedMessageCount, 1, "'test-queue' did not received the expected number of messages");
+        test:assertEquals(topicServiceReceivedMessageCount, 1, "'DEV.TOPIC.1' did not received the expected number of messages");
     }
 }
