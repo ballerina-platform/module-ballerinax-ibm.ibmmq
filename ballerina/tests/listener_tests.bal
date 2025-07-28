@@ -89,3 +89,28 @@ isolated function testTopicService() returns error? {
         test:assertEquals(topicServiceReceivedMessageCount, 1, "'DEV.TOPIC.1' did not received the expected number of messages");
     }
 }
+
+@test:Config {
+    groups: ["messageListener"]
+}
+isolated function testServiceWithCaller() returns error? {
+    int messageCount = 0;
+    Service consumerSvc = @ServiceConfig {
+        sessionAckMode: CLIENT_ACKNOWLEDGE,
+        queueName: "test-caller"
+    } service object {
+        remote function onMessage(Message message, Caller caller) returns error? {
+            messageCount += 1;
+            check caller->acknowledge(message);
+        }
+    };
+    check ibmmqListener.attach(consumerSvc, "test-caller-svc");
+    Queue producer = check queueManager.accessQueue("test-caller", MQOO_OUTPUT);
+    check producer->send({
+        payload: "Hello World from queue".toBytes()
+    });
+    runtime:sleep(2);
+    lock {
+        test:assertEquals(messageCount, 1, "'test-caller' did not received the expected number of messages");
+    }
+}
