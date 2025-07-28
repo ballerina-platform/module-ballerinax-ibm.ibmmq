@@ -16,14 +16,6 @@
 
 import ballerina/test;
 
-listener Listener ibmmqListener = new Listener({
-    channel: "DEV.APP.SVRCONN",
-    host: "localhost",
-    name: "QM1",
-    userID: "app",
-    password: "password"
-});
-
 @test:Config {
     groups: ["listenerValidations"]
 }
