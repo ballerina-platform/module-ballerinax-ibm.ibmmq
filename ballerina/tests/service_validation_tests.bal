@@ -17,7 +17,7 @@
 import ballerina/test;
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testAnnotationNotFound() returns error? {
     Service svc = service object {
@@ -35,7 +35,7 @@ isolated function testAnnotationNotFound() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcWithResourceMethods() returns error? {
     Service svc = @ServiceConfig {
@@ -60,7 +60,7 @@ isolated function testSvcWithResourceMethods() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcWithNoRemoteMethods() returns error? {
     Service svc = @ServiceConfig {
@@ -78,7 +78,7 @@ isolated function testSvcWithNoRemoteMethods() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcWithInvalidRemoteMethod() returns error? {
     Service svc = @ServiceConfig {
@@ -100,7 +100,7 @@ isolated function testSvcWithInvalidRemoteMethod() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcMethodWithAdditionalParameters() returns error? {
     Service svc = @ServiceConfig {
@@ -122,7 +122,7 @@ isolated function testSvcMethodWithAdditionalParameters() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcMethodWithInvalidParams() returns error? {
     Service svc = @ServiceConfig {
@@ -144,7 +144,7 @@ isolated function testSvcMethodWithInvalidParams() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcMethodMandatoryParamMissing() returns error? {
     Service svc = @ServiceConfig {
@@ -166,7 +166,7 @@ isolated function testSvcMethodMandatoryParamMissing() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcOnErrorWithoutParameters() returns error? {
     Service svc = @ServiceConfig {
@@ -189,7 +189,7 @@ isolated function testSvcOnErrorWithoutParameters() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcOnErrorWithInvalidParameter() returns error? {
     Service svc = @ServiceConfig {
@@ -212,7 +212,7 @@ isolated function testSvcOnErrorWithInvalidParameter() returns error? {
 }
 
 @test:Config {
-    groups: ["listenerValidations"]
+    groups: ["service", "validations"]
 }
 isolated function testSvcOnErrorWithAdditionalParameters() returns error? {
     Service svc = @ServiceConfig {

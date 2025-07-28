@@ -36,10 +36,17 @@ final Queue queueProducer = check queueManager.accessQueue("DEV.QUEUE.3", MQOO_O
 final Topic topicProducer = check queueManager.accessTopic("DEV.TOPIC.1", "DEV.TOPIC.1", OPEN_AS_PUBLICATION, MQOO_OUTPUT);
 
 @test:BeforeGroups {
-    value: ["messageListener", "listenerValidations"]
+    value: ["service", "validations"]
 }
 isolated function beforeMessageListenerTests() returns error? {
-    Service queue3Service = @ServiceConfig {
+    check ibmmqListener.'start();
+}
+
+@test:Config {
+    groups: ["service", "queue"]
+}
+isolated function testQueueService() returns error? {
+    Service consumerSvc = @ServiceConfig {
         queueName: "DEV.QUEUE.3"
     } service object {
         remote function onMessage(Message message) returns error? {
@@ -48,26 +55,7 @@ isolated function beforeMessageListenerTests() returns error? {
             }
         }
     };
-
-    Service topic3Service = @ServiceConfig {
-        topicName: "DEV.TOPIC.1",
-        subscriberName: "DEV.SUB.1"
-    } service object {
-        remote function onMessage(Message message) returns error? {
-            lock {
-                topicServiceReceivedMessageCount += 1;
-            }
-        }
-    };
-    check ibmmqListener.attach(queue3Service, "dev-queue-3-service");
-    check ibmmqListener.attach(topic3Service, "dev-topic-1-service");
-    check ibmmqListener.'start();
-}
-
-@test:Config {
-    groups: ["messageListener"]
-}
-isolated function testQueueService() returns error? {
+    check ibmmqListener.attach(consumerSvc, "dev-queue-3-service");
     check queueProducer->put({
         payload: "Hello World from queue".toBytes()
     });
@@ -78,9 +66,20 @@ isolated function testQueueService() returns error? {
 }
 
 @test:Config {
-    groups: ["messageListener"]
+    groups: ["service", "topic"]
 }
 isolated function testTopicService() returns error? {
+    Service consumerSvc = @ServiceConfig {
+        topicName: "DEV.TOPIC.1",
+        subscriberName: "DEV.SUB.1"
+    } service object {
+        remote function onMessage(Message message) returns error? {
+            lock {
+                topicServiceReceivedMessageCount += 1;
+            }
+        }
+    };
+    check ibmmqListener.attach(consumerSvc, "dev-topic-1-service");
     check topicProducer->send({
         payload: "Hello World from queue".toBytes()
     });
@@ -93,12 +92,13 @@ isolated function testTopicService() returns error? {
 isolated int serviceWithCallerReceivedMsgCount = 0;
 
 @test:Config {
-    groups: ["messageListener", "dynamicJmsQueue"]
+    groups: ["service", "topic"]
 }
 isolated function testServiceWithCaller() returns error? {
     Service consumerSvc = @ServiceConfig {
         sessionAckMode: CLIENT_ACKNOWLEDGE,
-        topicName: "DEV.TOPIC.1"
+        topicName: "DEV.TOPIC.1",
+        subscriberName: "test.subscription"
     } service object {
         remote function onMessage(Message message, Caller caller) returns error? {
             lock {
