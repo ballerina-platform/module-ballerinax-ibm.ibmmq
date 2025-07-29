@@ -16,13 +16,13 @@
 
 import ballerina/jballerina.java;
 
-# Represents a JMS caller, which can be used to mark JMS message as received.
+# Represents a IBM MQ caller, which can be used to mark IBM MQ message as received.
 public isolated client class Caller {
 
-    # Mark a JMS message as received.
+    # Mark an IBM MQ message as received.
     #
-    # + message - JMS message record
-    # + return - `jms:Error` if there is an error in the execution or else nil
+    # + message - IBM MQ message record
+    # + return - `ibmmq:Error` if there is an error in the execution or else nil
     isolated remote function acknowledge(Message message) returns Error? = @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.listener.Caller"
     } external;
@@ -32,7 +32,7 @@ public isolated client class Caller {
     # check session->'commit();
     # ```
     # 
-    # + return - A `jms:Error` if there is an error or else `()`
+    # + return - A `ibmmq:Error` if there is an error or else `()`
     isolated remote function 'commit() returns Error? = @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.listener.Caller"
     } external;
@@ -42,7 +42,7 @@ public isolated client class Caller {
     # check session->'rollback();
     # ```
     # 
-    # + return - A `jms:Error` if there is an error or else `()`
+    # + return - A `ibmmq:Error` if there is an error or else `()`
     isolated remote function 'rollback() returns Error? = @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.listener.Caller"
     } external;

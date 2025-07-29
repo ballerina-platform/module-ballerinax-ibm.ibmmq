@@ -97,7 +97,7 @@ public type TopicConfig record {|
 # The service configuration type for the `ibmmq:Service`.
 public type ServiceConfiguration QueueConfig|TopicConfig;
 
-# Annotation to configure the `jms:Service`.
+# Annotation to configure the `ibmmq:Service`.
 public annotation ServiceConfiguration ServiceConfig on service;
 
 # Options which can be provided when opening an IBM MQ topic.
