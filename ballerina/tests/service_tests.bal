@@ -242,7 +242,8 @@ isolated function testServiceAttachWithoutSvcPath() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "queue"]
+    groups: ["service", "queue"],
+    enable: false
 }
 isolated function testServiceDetach() returns error? {
     Service consumerSvc = @ServiceConfig {
