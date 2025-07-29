@@ -240,7 +240,7 @@ isolated function testSvcOnErrorWithAdditionalParameters() returns error? {
 isolated function testDetachFailure() returns error? {
     Service consumerSvc = @ServiceConfig {
         sessionAckMode: CLIENT_ACKNOWLEDGE,
-        queueName: "test-svc-attach"
+        queueName: "test.svc.attach"
     } service object {
         remote function onMessage(Message message, Caller caller) returns error? {
         }

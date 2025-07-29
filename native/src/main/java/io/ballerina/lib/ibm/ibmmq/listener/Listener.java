@@ -51,9 +51,7 @@ public final class Listener {
     static final String NATIVE_CONNECTION = "native.connection";
     static final String NATIVE_SERVICE_LIST = "native.service.list";
     static final String NATIVE_SERVICE = "native.service";
-    static final String NATIVE_SESSION = "native.session";
     static final String NATIVE_RECEIVER = "native.receiver";
-    static final String NATIVE_MESSAGE = "native.message";
     static final String LISTENER_STARTED = "listener.started";
 
     private Listener() {
@@ -90,7 +88,6 @@ public final class Listener {
             MessageReceiver receiver = new MessageReceiver(
                     session, consumer, messageDispatcher, svcConfig.pollingInterval(), svcConfig.receiveTimeout());
             bService.addNativeData(NATIVE_SERVICE, nativeService);
-            bService.addNativeData(NATIVE_SESSION, session);
             bService.addNativeData(NATIVE_RECEIVER, receiver);
             List<BObject> serviceList = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
             serviceList.add(bService);
@@ -140,18 +137,13 @@ public final class Listener {
     }
 
     public static Object detach(BObject bService) {
-        Object session = bService.getNativeData(NATIVE_SESSION);
         Object receiver = bService.getNativeData(NATIVE_RECEIVER);
         try {
-            if (Objects.isNull(session)) {
-                return createError(IBMMQ_ERROR, "Could not find the native IBM MQ JMS session");
-            }
             if (Objects.isNull(receiver)) {
                 return createError(IBMMQ_ERROR, "Could not find the native IBM MQ message receiver");
             }
 
             ((MessageReceiver) receiver).stop();
-            ((Session) session).close();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
@@ -185,10 +177,8 @@ public final class Listener {
             nativeConnection.stop();
             nativeConnection.close();
             for (BObject bService: bServices) {
-                Session session = (Session) bService.getNativeData(NATIVE_SESSION);
                 MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
                 receiver.stop();
-                session.close();
             }
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
@@ -206,10 +196,8 @@ public final class Listener {
             nativeConnection.stop();
             nativeConnection.close();
             for (BObject bService: bServices) {
-                Session session = (Session) bService.getNativeData(NATIVE_SESSION);
                 MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
                 receiver.stop();
-                session.close();
             }
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();

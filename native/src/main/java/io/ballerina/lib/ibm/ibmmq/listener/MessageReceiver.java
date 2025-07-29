@@ -99,8 +99,6 @@ public class MessageReceiver {
 
     public void stop() throws Exception {
         closed.set(true);
-        this.consumer.close();
-        this.session.close();
         this.pollingTaskFuture.cancel(true);
         try {
             this.executorService.awaitTermination(stopTimeout, TimeUnit.MILLISECONDS);
@@ -110,5 +108,7 @@ public class MessageReceiver {
             // Preserve interrupt status
             Thread.currentThread().interrupt();
         }
+        this.consumer.close();
+        this.session.close();
     }
 }

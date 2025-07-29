@@ -40,7 +40,7 @@ import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.BCALLER_NAME;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
-import static io.ballerina.lib.ibm.ibmmq.listener.Listener.NATIVE_SESSION;
+import static io.ballerina.lib.ibm.ibmmq.listener.Caller.NATIVE_SESSION;
 
 /**
  * A {MessageDispatcher} dispatches JMS messages into the IBM MQ service.
