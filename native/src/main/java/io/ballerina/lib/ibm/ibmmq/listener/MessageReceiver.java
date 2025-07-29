@@ -18,8 +18,6 @@
 
 package io.ballerina.lib.ibm.ibmmq.listener;
 
-import io.ballerina.runtime.api.values.BError;
-
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,6 +26,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
@@ -82,12 +81,11 @@ public class MessageReceiver {
                 this.messageDispatcher.onError(e);
                 this.pollingTaskFuture.cancel(false);
             }
-        } catch (BError bError) {
-            this.messageDispatcher.onError(bError);
-        } catch (Exception e) {
-            this.messageDispatcher.onError(e);
-            // When un-recoverable exception is thrown we stop scheduling task to the executor.
-            this.pollingTaskFuture.cancel(false);
+        } catch (JMSException e) {
+            if (!closed.get()) {
+                this.messageDispatcher.onError(e);
+                this.pollingTaskFuture.cancel(false);
+            }
         }
     }
 
