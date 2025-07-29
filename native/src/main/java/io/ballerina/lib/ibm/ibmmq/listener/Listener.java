@@ -142,7 +142,6 @@ public final class Listener {
             if (Objects.isNull(receiver)) {
                 return createError(IBMMQ_ERROR, "Could not find the native IBM MQ message receiver");
             }
-
             ((MessageReceiver) receiver).stop();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
@@ -174,12 +173,12 @@ public final class Listener {
         Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
         List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
-            nativeConnection.stop();
-            nativeConnection.close();
             for (BObject bService: bServices) {
                 MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
                 receiver.stop();
             }
+            nativeConnection.stop();
+            nativeConnection.close();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
@@ -193,12 +192,12 @@ public final class Listener {
         Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
         List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
-            nativeConnection.stop();
-            nativeConnection.close();
             for (BObject bService: bServices) {
                 MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
                 receiver.stop();
             }
+            nativeConnection.stop();
+            nativeConnection.close();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,

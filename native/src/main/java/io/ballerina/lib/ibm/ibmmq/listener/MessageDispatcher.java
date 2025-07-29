@@ -109,11 +109,12 @@ public class MessageDispatcher {
         Thread.startVirtualThread(() -> {
             try {
                 ERR_OUT.println("Unexpected error occurred while message processing: " + t.getMessage());
-                BError error = createError(IBMMQ_ERROR, "Failed to fetch the message", t);
                 Optional<RemoteMethodType> onError = nativeService.getOnError();
                 if (onError.isEmpty()) {
-                    throw error;
+                    t.printStackTrace();
+                    return;
                 }
+                BError error = createError(IBMMQ_ERROR, "Failed to fetch the message", t);
                 boolean isConcurrentSafe = nativeService.isOnErrorMethodIsolated();
                 StrandMetadata metadata = new StrandMetadata(isConcurrentSafe, null);
                 Object result = ballerinaRuntime.callMethod(

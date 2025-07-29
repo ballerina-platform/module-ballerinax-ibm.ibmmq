@@ -39,6 +39,7 @@ import javax.jms.Session;
  * @since 1.3.0.
  */
 public class MessageReceiver {
+    private static final long stopTimeout = 30000;
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -48,7 +49,6 @@ public class MessageReceiver {
     private final MessageDispatcher messageDispatcher;
     private final long receiveInterval;
     private final long receiveTimeout;
-    private long stopTimeout = 30000;
 
     private ScheduledFuture<?> pollingTaskFuture;
 
@@ -74,7 +74,7 @@ public class MessageReceiver {
             OnMsgCallback callback = new OnMsgCallback(semaphore);
             this.messageDispatcher.onMessage(message, callback);
             // We suspend execution of poll cycle here before moving to the next cycle.
-            // Once we receive signal from BVM via KafkaPollCycleFutureListener this suspension is removed
+            // Once we receive signal from BVM via OnMsgCallback this suspension is removed
             // We will move to the next polling cycle.
             try {
                 semaphore.acquire();
@@ -87,7 +87,6 @@ public class MessageReceiver {
         } catch (Exception e) {
             this.messageDispatcher.onError(e);
             // When un-recoverable exception is thrown we stop scheduling task to the executor.
-            // Later at stopConsume() on KafkaRecordConsumer we close the consumer.
             this.pollingTaskFuture.cancel(false);
         }
     }
@@ -99,9 +98,15 @@ public class MessageReceiver {
 
     public void stop() throws Exception {
         closed.set(true);
-        this.pollingTaskFuture.cancel(true);
+        if (Objects.nonNull(this.pollingTaskFuture) && !this.pollingTaskFuture.isCancelled()) {
+            this.pollingTaskFuture.cancel(true);
+        }
+        this.executorService.shutdown();
         try {
-            this.executorService.awaitTermination(stopTimeout, TimeUnit.MILLISECONDS);
+            boolean terminated = this.executorService.awaitTermination(stopTimeout, TimeUnit.MILLISECONDS);
+            if (!terminated) {
+                this.executorService.shutdownNow();
+            }
         } catch (InterruptedException e) {
             // (Re-)Cancel if current thread also interrupted
             this.executorService.shutdownNow();
