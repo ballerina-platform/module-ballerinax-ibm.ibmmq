@@ -43,12 +43,12 @@ isolated function beforeMessageListenerTests() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "queue"]
+    groups: ["service"]
 }
 isolated function testQueueService() returns error? {
     Service consumerSvc = @ServiceConfig {
         queueName: "DEV.QUEUE.3",
-        pollingInterval: 1,
+        pollingInterval: 2,
         receiveTimeout: 1
     } service object {
         remote function onMessage(Message message) returns error? {
@@ -68,7 +68,7 @@ isolated function testQueueService() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "topic"]
+    groups: ["service"]
 }
 isolated function testTopicService() returns error? {
     Service consumerSvc = @ServiceConfig {
@@ -96,7 +96,7 @@ isolated function testTopicService() returns error? {
 isolated int serviceWithCallerReceivedMsgCount = 0;
 
 @test:Config {
-    groups: ["service", "topic"]
+    groups: ["service"]
 }
 isolated function testServiceWithCaller() returns error? {
     Service consumerSvc = @ServiceConfig {
@@ -126,7 +126,7 @@ isolated function testServiceWithCaller() returns error? {
 isolated int ServiceWithTransactionsMsgCount = 0;
 
 @test:Config {
-    groups: ["service", "topic", "transactions"]
+    groups: ["service", "transactions"]
 }
 isolated function testServiceWithTransactions() returns error? {
     Service consumerSvc = @ServiceConfig {
@@ -167,7 +167,7 @@ isolated function testServiceWithTransactions() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "queue"]
+    groups: ["service"]
 }
 isolated function testServiceWithOnError() returns error? {
     Service consumerSvc = @ServiceConfig {
@@ -184,7 +184,7 @@ isolated function testServiceWithOnError() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "topic"]
+    groups: ["service"]
 }
 isolated function testServiceReturningError() returns error? {
     Service consumerSvc = @ServiceConfig {
@@ -204,7 +204,7 @@ isolated function testServiceReturningError() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "err"]
+    groups: ["service"]
 }
 isolated function testListenerImmediateStop() returns error? {
     Listener msgListener = check new Listener({
@@ -221,14 +221,14 @@ isolated function testListenerImmediateStop() returns error? {
         remote function onMessage(Message message, Caller caller) returns error? {
         }
     };
-    check msgListener.attach(consumerSvc, "test-caller-service");
+    check msgListener.attach(consumerSvc, "consumer-svc");
     check msgListener.'start();
     runtime:sleep(2);
     check msgListener.immediateStop();
 }
 
 @test:Config {
-    groups: ["service", "queue"]
+    groups: ["service"]
 }
 isolated function testServiceAttachWithoutSvcPath() returns error? {
     Service consumerSvc = @ServiceConfig {
@@ -242,8 +242,7 @@ isolated function testServiceAttachWithoutSvcPath() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "queue"],
-    enable: false
+    groups: ["service"]
 }
 isolated function testServiceDetach() returns error? {
     Service consumerSvc = @ServiceConfig {
@@ -254,6 +253,7 @@ isolated function testServiceDetach() returns error? {
         }
     };
     check ibmmqListener.attach(consumerSvc, "consumer-svc");
+    runtime:sleep(2);
     check ibmmqListener.detach(consumerSvc);
 }
 
