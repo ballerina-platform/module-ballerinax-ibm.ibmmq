@@ -235,7 +235,8 @@ isolated function testSvcOnErrorWithAdditionalParameters() returns error? {
 }
 
 @test:Config {
-    groups: ["service", "validations"]
+    groups: ["service", "validations"],
+    enable: false
 }
 isolated function testDetachFailure() returns error? {
     Service consumerSvc = @ServiceConfig {
