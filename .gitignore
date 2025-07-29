@@ -45,3 +45,5 @@ test-utils/.project
 test-utils/.settings/
 
 mqjms.log*
+ballerina/FFDC/*
+
