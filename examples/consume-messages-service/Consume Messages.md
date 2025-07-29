@@ -8,7 +8,18 @@ This example demonstrates how to consume messages from an IBM MQ queue using a B
 
 Refer to the [Setup Guide](https://dev-central.ballerina.io/ballerinax/ibm.ibmmq/latest#setup-guide) to set up the IBM MQ server locally.
 
-### 2. Configuration
+### 2. IBM MQ dependencies
+
+Add the following dependency to your `Ballerina.toml` to include the IBM MQ driver to the package.
+
+```toml
+[[platform.java21.dependency]]
+groupId = "com.ibm.mq"
+artifactId = "com.ibm.mq.allclient"
+version = "9.4.1.0"
+```
+
+### 3. Configuration
 
 Update IBM MQ related configurations in `Config.toml` in the example directory:
 
