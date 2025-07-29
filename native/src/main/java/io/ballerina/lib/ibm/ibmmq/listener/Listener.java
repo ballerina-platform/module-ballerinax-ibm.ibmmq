@@ -68,7 +68,10 @@ public final class Listener {
             bListener.addNativeData(NATIVE_CONNECTION, jmsConnection);
             bListener.addNativeData(NATIVE_SERVICE_LIST, new ArrayList<BObject>());
         } catch (Exception e) {
-            return createError(IBMMQ_ERROR, "Failed to initialize listener", e);
+            String errorMsg = Objects.nonNull(e.getMessage()) ?
+                    String.format("Failed to initialize listener: %s", e.getMessage()) :
+                    "Failed to initialize listener due to unexpected error";
+            return createError(IBMMQ_ERROR, errorMsg, e);
         }
         return null;
     }
@@ -157,7 +160,7 @@ public final class Listener {
         List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
             connection.start();
-            for (BObject bService: bServices) {
+            for (BObject bService : bServices) {
                 MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
                 receiver.consume();
             }
@@ -174,12 +177,12 @@ public final class Listener {
         Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
         List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
-            nativeConnection.stop();
-            nativeConnection.close();
-            for (BObject bService: bServices) {
+            for (BObject bService : bServices) {
                 MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
                 receiver.stop();
             }
+            nativeConnection.stop();
+            nativeConnection.close();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
@@ -193,12 +196,12 @@ public final class Listener {
         Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
         List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
         try {
-            nativeConnection.stop();
-            nativeConnection.close();
-            for (BObject bService: bServices) {
+            for (BObject bService : bServices) {
                 MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
                 receiver.stop();
             }
+            nativeConnection.stop();
+            nativeConnection.close();
         } catch (Exception e) {
             String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
             return createError(IBMMQ_ERROR,
