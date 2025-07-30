@@ -632,33 +632,33 @@ To subscribe a service to a IBM MQ queue or a topic, the subscription configurat
 # Defines the supported JMS message consumer types for IBM MQ.
 public enum ConsumerType {
     # Represents JMS durable subscriber
-    DURABLE = "DURABLE", 
+    DURABLE,
     # Represents JMS shared consumer
-    SHARED = "SHARED", 
+    SHARED,
     # Represents JMS shared durable subscriber
-    SHARED_DURABLE = "SHARED_DURABLE", 
+    SHARED_DURABLE,
     # Represents JMS default consumer
-    DEFAULT = "DEFAULT"
+    DEFAULT
 }
 
 # Defines the JMS session acknowledgement modes for IBM MQ.
 public enum AcknowledgementMode {
     # Indicates that the session will use a local transaction which may subsequently 
     # be committed or rolled back by calling the session's `commit` or `rollback` methods. 
-    SESSION_TRANSACTED = "SESSION_TRANSACTED",
+    SESSION_TRANSACTED,
     # Indicates that the session automatically acknowledges a client's receipt of a message 
     # either when the session has successfully returned from a call to `receive` or when 
     # the message listener the session has called to process the message successfully returns.
-    AUTO_ACKNOWLEDGE = "AUTO_ACKNOWLEDGE",
+    AUTO_ACKNOWLEDGE,
     # Indicates that the client acknowledges a consumed message by calling the 
     # MessageConsumer's or Caller's `acknowledge` method. Acknowledging a consumed message 
     # acknowledges all messages that the session has consumed.
-    CLIENT_ACKNOWLEDGE = "CLIENT_ACKNOWLEDGE",
+    CLIENT_ACKNOWLEDGE,
     # Indicates that the session to lazily acknowledge the delivery of messages. 
     # This is likely to result in the delivery of some duplicate messages if the JMS provider fails, 
     # so it should only be used by consumers that can tolerate duplicate messages. 
     # Use of this mode can reduce session overhead by minimizing the work the session does to prevent duplicates.
-    DUPS_OK_ACKNOWLEDGE = "DUPS_OK_ACKNOWLEDGE"
+    DUPS_OK_ACKNOWLEDGE
 }
 
 # Configuration for an IBM MQ queue.
