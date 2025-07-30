@@ -60,6 +60,7 @@ public isolated class Listener {
     } external;
 
     isolated function initListener(QueueManagerConfiguration configurations) returns Error? = @java:Method {
+        name: "init",
         'class: "io.ballerina.lib.ibm.ibmmq.listener.Listener"
     } external;
 }

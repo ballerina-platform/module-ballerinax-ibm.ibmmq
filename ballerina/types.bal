@@ -19,40 +19,82 @@ import ballerina/crypto;
 # Represents an IBMMQ service object that can be attached to an `ibmmq:Listener`.
 public type Service distinct service object {};
 
+# Defines the supported JMS message consumer types for IBM MQ.
+public enum ConsumerType {
+    # Represents JMS durable subscriber
+    DURABLE,
+    # Represents JMS shared consumer
+    SHARED,
+    # Represents JMS shared durable subscriber
+    SHARED_DURABLE,
+    # Represents JMS default consumer
+    DEFAULT
+}
+
+# Defines the JMS session acknowledgement modes for IBM MQ.
+public enum AcknowledgementMode {
+    # Indicates that the session will use a local transaction which may subsequently 
+    # be committed or rolled back by calling the session's `commit` or `rollback` methods. 
+    SESSION_TRANSACTED,
+    # Indicates that the session automatically acknowledges a client's receipt of a message 
+    # either when the session has successfully returned from a call to `receive` or when 
+    # the message listener the session has called to process the message successfully returns.
+    AUTO_ACKNOWLEDGE,
+    # Indicates that the client acknowledges a consumed message by calling the 
+    # MessageConsumer's or Caller's `acknowledge` method. Acknowledging a consumed message 
+    # acknowledges all messages that the session has consumed.
+    CLIENT_ACKNOWLEDGE,
+    # Indicates that the session to lazily acknowledge the delivery of messages. 
+    # This is likely to result in the delivery of some duplicate messages if the JMS provider fails, 
+    # so it should only be used by consumers that can tolerate duplicate messages. 
+    # Use of this mode can reduce session overhead by minimizing the work the session does to prevent duplicates.
+    DUPS_OK_ACKNOWLEDGE
+}
+
+# Common configurations related to the IBM MQ queue or topic subscription.
+#
+# + sessionAckMode - Configuration indicating how messages received by the session will be acknowledged
+# + messageSelector - Only messages with properties matching the message selector expression are delivered. 
+# If this value is not set that indicates that there is no message selector for the message consumer
+# For example, to only receive messages with a property `priority` set to `'high'`, use:
+# `"priority = 'high'"`. If this value is not set, all messages in the queue will be delivered.
+# + pollingInterval - The polling interval in seconds
+# + receiveTimeout - The timeout to wait till a `receive` action finishes when there are no messages
+type CommonSubscriptionConfig record {|
+    AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
+    string messageSelector?;
+    decimal pollingInterval = 10;
+    decimal receiveTimeout = 5;
+|};
+
 # Configuration for an IBM MQ queue.
 #
-# + queueName - The name of the queue to consume messages from.
+# + queueName - The name of the queue to consume messages from
 public type QueueConfig record {|
+    *CommonSubscriptionConfig;
     string queueName;
 |};
 
 # Configuration for an IBM MQ topic subscription.
 #
-# + topicName - The name of the topic to subscribe to.
-# + subscriptionName - The name of the subscription. This is required only if the durable flag is set to `true`.
-# + durable - Indicates whether the subscription is durable. Set this to `false` to stop receiving messages sent to the
-# topic/queue while the listener is offline.
-# + options - Options to control message retrieval.
-# + matchOptions - Message selection criteria
+# + topicName - The name of the topic to subscribe to
+# + noLocal - If true then any messages published to the topic using this session's connection, or any other connection 
+# with the same client identifier, will not be added to the durable subscription.
+# + consumerType - The message consumer type
+# + subscriberName - the name used to identify the subscription
 public type TopicConfig record {|
+    *CommonSubscriptionConfig;
     string topicName;
-    string subscriptionName?;
-    boolean durable = false;
-    int options = OPEN_AS_SUBSCRIPTION;
-    MatchOptions matchOptions?;
+    boolean noLocal = false;
+    ConsumerType consumerType = DEFAULT;
+    string subscriberName?;
 |};
 
 # The service configuration type for the `ibmmq:Service`.
-#
-# + config - The topic or queue configuration to subscribe to.
-# + pollingInterval - The polling interval in seconds.
-public type ServiceConfigType record {|
-    QueueConfig|TopicConfig config;
-    decimal pollingInterval = 1;
-|};
+public type ServiceConfiguration QueueConfig|TopicConfig;
 
 # Annotation to configure the `ibmmq:Service`.
-public annotation ServiceConfigType ServiceConfig on service;
+public annotation ServiceConfiguration ServiceConfig on service;
 
 # Options which can be provided when opening an IBM MQ topic.
 public type OPEN_TOPIC_OPTION OPEN_AS_SUBSCRIPTION|OPEN_AS_PUBLICATION;
@@ -85,7 +127,7 @@ public type SslCipherSuite SSL_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA|SSL_ECDHE_ECDSA
 # + password - IBM MQ user password
 # + secureSocket - Configurations related to SSL/TLS encryption
 # + sslCipherSuite - Defines the combination of key exchange, encryption,
-#   and integrity algorithms used for establishing a secure SSL/TLS connection
+# and integrity algorithms used for establishing a secure SSL/TLS connection
 public type QueueManagerConfiguration record {|
     string name;
     string host;
@@ -124,7 +166,7 @@ public type CertKey record {|
 #
 # + options - Get message option
 # + waitInterval - The maximum time (in seconds) that a `get` call waits for a suitable message to
-#                  arrive. It is used in conjunction with `ibmmq:MQGMO_WAIT`.
+# arrive. It is used in conjunction with `ibmmq:MQGMO_WAIT`.
 # + matchOptions - Message selection criteria
 public type GetMessageOptions record {|
     int options = MQGMO_NO_WAIT;
@@ -164,7 +206,7 @@ public type Property record {|
 # + replyToQueueName - Name of reply queue
 # + replyToQueueManagerName - Name of reply queue manager
 # + encoding - Specifies the representation used for numeric values in the application message data.
-#              This can be represented using as a combination of `ibmmq:MQENC_*` options
+# This can be represented using as a combination of `ibmmq:MQENC_*` options
 # + characterSet - The coded character set identifier of character data in the application message data
 # + accountingToken - The accounting token, which is part of the message's identity and allows the work performed as a result of the message to be properly charged
 # + userId - Id of the user who originated the message
@@ -182,7 +224,7 @@ public type Message record {|
     int putApplicationType?;
     string replyToQueueName?;
     string replyToQueueManagerName?;
-    int encoding = MQENC_INTEGER_NORMAL|MQENC_DECIMAL_NORMAL|MQENC_FLOAT_IEEE_NORMAL;
+    int encoding = MQENC_INTEGER_NORMAL | MQENC_DECIMAL_NORMAL | MQENC_FLOAT_IEEE_NORMAL;
     MessageCharset characterSet = MQCCSI_Q_MGR;
     byte[] accountingToken?;
     string userId?;
@@ -332,7 +374,7 @@ public type MQCIH record {|
 # + lTermOverride - The logical terminal override, placed in the IO PCB field
 # + mfsMapName - The message format services map name, placed in the IO PCB field
 # + replyToFormat - This is the MQ format name of the reply message that is sent
-#                   in response to the current message
+# in response to the current message
 # + authenticator - RACF password or passticket
 # + tranInstanceId - This is the transaction instance identifier
 # + tranState - This indicates the IMS conversation state

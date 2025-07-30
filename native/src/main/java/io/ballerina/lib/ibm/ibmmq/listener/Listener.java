@@ -18,24 +18,29 @@
 
 package io.ballerina.lib.ibm.ibmmq.listener;
 
-import com.ibm.mq.jms.MQConnection;
-import com.ibm.mq.jms.MQSession;
+import io.ballerina.lib.ibm.ibmmq.CommonUtils;
+import io.ballerina.lib.ibm.ibmmq.Constants;
+import io.ballerina.lib.ibm.ibmmq.config.QueueManagerConfiguration;
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
+import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
+import javax.jms.Session;
 import javax.jms.Topic;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
 import static io.ballerina.lib.ibm.ibmmq.Constants.IBMMQ_ERROR;
-import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
 /**
  * Native class for the Ballerina IBM MQ Listener.
@@ -43,100 +48,165 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
  * @since 1.3.0
  */
 public final class Listener {
-    public static final String NATIVE_CONNECTION_MAP = "native.connection.map";
+    static final String NATIVE_CONNECTION = "native.connection";
     static final String NATIVE_SERVICE_LIST = "native.service.list";
     static final String NATIVE_SERVICE = "native.service";
+    static final String NATIVE_RECEIVER = "native.receiver";
+    static final String LISTENER_STARTED = "listener.started";
+    static final String DURABLE = "DURABLE";
+    static final String SHARED = "SHARED";
+    static final String SHARED_DURABLE = "SHARED_DURABLE";
 
     private Listener() {
     }
 
-    public static Object initListener(BObject listener, BMap<BString, Object> configs) {
+    public static Object init(BObject bListener, BMap<BString, Object> configurations) {
         try {
-            ConnectionMap connectionMap = new ConnectionMap(configs);
-            connectionMap.setupConnectionFactory();
-            listener.addNativeData(NATIVE_CONNECTION_MAP, connectionMap);
-            listener.addNativeData(NATIVE_SERVICE_LIST, new ArrayList<BObject>());
+            QueueManagerConfiguration config = new QueueManagerConfiguration(configurations);
+            Connection jmsConnection = CommonUtils.getJmsConnection(config);
+            if (Objects.isNull(jmsConnection.getClientID())) {
+                jmsConnection.setClientID(UUID.randomUUID().toString());
+            }
+            jmsConnection.setExceptionListener(new LoggingExceptionListener());
+            bListener.addNativeData(NATIVE_CONNECTION, jmsConnection);
+            bListener.addNativeData(NATIVE_SERVICE_LIST, new ArrayList<BObject>());
         } catch (Exception e) {
             return createError(IBMMQ_ERROR, "Failed to initialize listener", e);
         }
         return null;
     }
 
-    public static Object attach(Environment environment, BObject listener, BObject service, Object name) {
+    public static Object attach(Environment env, BObject bListener, BObject bService, Object name) {
+        Connection connection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        Object started = bListener.getNativeData(LISTENER_STARTED);
         try {
-            IbmmqService nativeService = new IbmmqService(service);
-            nativeService.initialize();
-            ConnectionMap connectionMap = (ConnectionMap) listener.getNativeData(NATIVE_CONNECTION_MAP);
-            MessageConsumer consumer = getConsumer(connectionMap, nativeService);
-            consumer.setMessageListener(new BallerinaIbmmqListener(environment.getRuntime(), service, nativeService));
-            service.addNativeData(NATIVE_SERVICE, nativeService);
-            List<BObject> serviceList = (List<BObject>) listener.getNativeData(NATIVE_SERVICE_LIST);
-            serviceList.add(service);
-        } catch (Exception e) {
-            return createError(IBMMQ_ERROR, "Failed to attach service to listener", e);
+            Service.validateService(bService);
+            Service nativeService = new Service(bService);
+            ServiceConfig svcConfig = nativeService.getServiceConfig();
+            int sessionAckMode = getSessionAckMode(svcConfig.ackMode());
+            boolean transacted = Session.SESSION_TRANSACTED == sessionAckMode;
+            Session session = connection.createSession(transacted, sessionAckMode);
+            MessageConsumer consumer = getConsumer(session, svcConfig);
+            MessageDispatcher messageDispatcher = new MessageDispatcher(env.getRuntime(), nativeService, session);
+            MessageReceiver receiver = new MessageReceiver(
+                    session, consumer, messageDispatcher, svcConfig.pollingInterval(), svcConfig.receiveTimeout());
+            bService.addNativeData(NATIVE_SERVICE, nativeService);
+            bService.addNativeData(NATIVE_RECEIVER, receiver);
+            List<BObject> serviceList = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
+            serviceList.add(bService);
+            if (Objects.nonNull(started) && ((Boolean) started)) {
+                receiver.consume();
+            }
+        } catch (BError | JMSException e) {
+            String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
+            return createError(IBMMQ_ERROR, String.format("Failed to attach service to listener: %s", errorMsg), e);
         }
         return null;
     }
 
-    public static void start(BObject listener) {
-        ConnectionMap connectionMap = (ConnectionMap) listener.getNativeData(NATIVE_CONNECTION_MAP);
-        connectionMap.startAll();
+    private static int getSessionAckMode(String ackMode) {
+        return switch (ackMode) {
+            case Constants.SESSION_TRANSACTED_MODE -> Session.SESSION_TRANSACTED;
+            case Constants.AUTO_ACKNOWLEDGE_MODE -> Session.AUTO_ACKNOWLEDGE;
+            case Constants.CLIENT_ACKNOWLEDGE_MODE -> Session.CLIENT_ACKNOWLEDGE;
+            case null, default -> Session.DUPS_OK_ACKNOWLEDGE;
+        };
     }
 
-    public static void detach(BObject service) {
-        IbmmqService nativeService = (IbmmqService) service.getNativeData(NATIVE_SERVICE);
-        nativeService.close();
-    }
-
-    public static void gracefulStop(BObject listener) {
-        ConnectionMap connectionMap = (ConnectionMap) listener.getNativeData(NATIVE_CONNECTION_MAP);
-        connectionMap.close();
-    }
-
-    public static void immediateStop(BObject listener) {
-        ConnectionMap connectionMap = (ConnectionMap) listener.getNativeData(NATIVE_CONNECTION_MAP);
-        connectionMap.close();
-    }
-
-    private static MessageConsumer getQueueConsumer(MQSession session, String queueName)
+    private static MessageConsumer getConsumer(Session session, ServiceConfig svcConfig)
             throws JMSException {
-        Queue queue = session.createQueue(queueName);
-        return session.createConsumer(queue);
-    }
-
-    private static MessageConsumer getTopicConsumer(MQSession session, String topicName, boolean durable,
-                                                    String subscriptionName) {
-        try {
-            Topic topic = session.createTopic(topicName);
-            MessageConsumer consumer;
-            if (durable) {
-                consumer = session.createDurableConsumer(topic, subscriptionName, null, false);
-            } else {
-                consumer = session.createConsumer(topic, null, false);
+        if (svcConfig instanceof QueueConfig queueConfig) {
+            Queue queue = session.createQueue(queueConfig.queueName());
+            return session.createConsumer(queue, queueConfig.messageSelector());
+        }
+        TopicConfig topicConfig = (TopicConfig) svcConfig;
+        Topic topic = session.createTopic(topicConfig.topicName());
+        switch (topicConfig.consumerType()) {
+            case DURABLE -> {
+                return session.createDurableConsumer(
+                        topic, topicConfig.subscriberName(), topicConfig.messageSelector(), topicConfig.noLocal());
             }
-            return consumer;
-        } catch (JMSException e) {
-            throw createError(IBMMQ_ERROR, "Failed to create topic consumer", e);
+            case SHARED -> {
+                return session.createSharedConsumer(topic, topicConfig.subscriberName(), topicConfig.messageSelector());
+            }
+            case SHARED_DURABLE -> {
+                return session.createSharedDurableConsumer(
+                        topic, topicConfig.subscriberName(), topicConfig.messageSelector());
+            }
+            default -> {
+                return session.createConsumer(topic, topicConfig.messageSelector(), topicConfig.noLocal());
+            }
         }
     }
 
-    private static MessageConsumer getConsumer(ConnectionMap connectionMap, IbmmqService nativeService) {
+    public static Object detach(BObject bService) {
+        Object receiver = bService.getNativeData(NATIVE_RECEIVER);
         try {
-            boolean isDurable = nativeService.isDurableConsumer();
-            String subscriptionName = nativeService.getSubscriptionName();
-            MQConnection connection = connectionMap.getConnection(isDurable, subscriptionName);
-            MQSession session = (MQSession) connection.createSession(false, AUTO_ACKNOWLEDGE);
-            MessageConsumer consumer;
-            if (nativeService.isTopicConsumer()) {
-                consumer = getTopicConsumer(session, nativeService.getTopicName(), isDurable, subscriptionName);
-            } else {
-                consumer = getQueueConsumer(session, nativeService.getQueueName());
+            if (Objects.isNull(receiver)) {
+                return createError(IBMMQ_ERROR, "Could not find the native IBM MQ message receiver");
             }
-            ServiceContext context = new ServiceContext(connection, session, consumer, isDurable);
-            nativeService.setContext(context);
-            return consumer;
+            ((MessageReceiver) receiver).stop();
         } catch (Exception e) {
-            throw createError(IBMMQ_ERROR, "Failed to create consumer", e);
+            String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
+            return createError(IBMMQ_ERROR,
+                    String.format("Failed to detach a service from the listener: %s", errorMsg), e);
         }
+        return null;
+    }
+
+    public static Object start(BObject bListener) {
+        Connection connection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
+        try {
+            connection.start();
+            for (BObject bService: bServices) {
+                MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
+                receiver.consume();
+            }
+            bListener.addNativeData(LISTENER_STARTED, Boolean.valueOf(true));
+        } catch (JMSException e) {
+            String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while starting the Ballerina IBM MQ listener: %s", errorMsg), e);
+        }
+        return null;
+    }
+
+    public static Object gracefulStop(BObject bListener) {
+        Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
+        try {
+            for (BObject bService: bServices) {
+                MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
+                receiver.stop();
+            }
+            nativeConnection.stop();
+            nativeConnection.close();
+        } catch (Exception e) {
+            String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
+            return createError(IBMMQ_ERROR,
+                    String.format(
+                            "Error occurred while gracefully stopping the Ballerina IBM MQ listener: %s", errorMsg), e);
+        }
+        return null;
+    }
+
+    public static Object immediateStop(BObject bListener) {
+        Connection nativeConnection = (Connection) bListener.getNativeData(NATIVE_CONNECTION);
+        List<BObject> bServices = (List<BObject>) bListener.getNativeData(NATIVE_SERVICE_LIST);
+        try {
+            for (BObject bService: bServices) {
+                MessageReceiver receiver = (MessageReceiver) bService.getNativeData(NATIVE_RECEIVER);
+                receiver.stop();
+            }
+            nativeConnection.stop();
+            nativeConnection.close();
+        } catch (Exception e) {
+            String errorMsg = Objects.isNull(e.getMessage()) ? "Unknown error" : e.getMessage();
+            return createError(IBMMQ_ERROR,
+                    String.format("Error occurred while gracefully stopping the Ballerina IBM MQ listener: %s",
+                            errorMsg), e);
+        }
+        return null;
     }
 }

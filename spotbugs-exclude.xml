@@ -25,10 +25,6 @@
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.config.MatchOptions"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
-    </Match>
-    <Match>
         <Class name="io.ballerina.lib.ibm.ibmmq.HeaderFieldValuesCallback"/>
         <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
@@ -38,30 +34,38 @@
     </Match>
     <Match>
         <Class name="io.ballerina.lib.ibm.ibmmq.config.MatchOptions"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.listener.MessageDispatcher"/>
+        <Bug pattern="SF_SWITCH_NO_DEFAULT"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.listener.MessageReceiver"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.listener.OnErrorCallback"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.config.QueueManagerConfiguration"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.config.QueueManagerConfiguration"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.listener.Service"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.config.MatchOptions"/>
         <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
     </Match>
     <Match>
         <Class name="io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header"/>
         <Bug pattern="IL_INFINITE_RECURSIVE_LOOP"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.IbmmqService"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ServiceContext"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ServiceContext"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.lib.ibm.ibmmq.listener.ConnectionMap"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
 </FindBugsFilter>

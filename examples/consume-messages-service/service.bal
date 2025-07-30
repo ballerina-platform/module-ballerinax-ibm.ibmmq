@@ -26,7 +26,7 @@ configurable string password = ?;
 configurable string queueName = ?;
 configurable decimal pollingInterval = ?;
 
-listener ibmmq:Listener consumer = new({
+listener ibmmq:Listener ibmmqListener = new({
     name,
     host,
     port,
@@ -36,13 +36,11 @@ listener ibmmq:Listener consumer = new({
 });
 
 @ibmmq:ServiceConfig {
-    config: {
-        queueName
-    },
+    queueName,
     pollingInterval
 }
-service ibmmq:Service on consumer {
+service on ibmmqListener {
     remote function onMessage(ibmmq:Message message) returns error? {
-        log:printInfo(string:fromBytes(message.payload));
+        log:printInfo("message received", message = check string:fromBytes(message.payload));
     }
 }
