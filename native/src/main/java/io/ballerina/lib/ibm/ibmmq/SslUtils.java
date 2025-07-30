@@ -64,23 +64,17 @@ public final class SslUtils {
     private SslUtils() {
     }
 
-    public static String getSslProtocol(BMap<BString, Object> configurations) {
-        Optional<String> cipherSuiteOpt = getOptionalStringProperty(configurations, SSL_CIPHER_SUITE);
-        if (cipherSuiteOpt.isEmpty()) {
-            return TLS_V_1_2;
-        }
-        String cipherSuite = cipherSuiteOpt.get();
-        return TLS_V_1_0_CIPHER_SPEC.contains(cipherSuite)
-                ? TLS_V_1_0 : TLS_V_1_3_CIPHER_SPEC.contains(cipherSuite) ? TLS_V_1_3 : TLS_V_1_2;
-
-    }
-
     public static String getSslProtocol(String cipherSuite) {
         if (Objects.isNull(cipherSuite) || cipherSuite.isBlank()) {
             return TLS_V_1_2;
         }
-        return TLS_V_1_0_CIPHER_SPEC.contains(cipherSuite)
-                ? TLS_V_1_0 : TLS_V_1_3_CIPHER_SPEC.contains(cipherSuite) ? TLS_V_1_3 : TLS_V_1_2;
+        if (TLS_V_1_0_CIPHER_SPEC.contains(cipherSuite)) {
+            return TLS_V_1_0;
+        }
+        if (TLS_V_1_3_CIPHER_SPEC.contains(cipherSuite)) {
+            return TLS_V_1_3;
+        }
+        return TLS_V_1_2;
     }
 
     @SuppressWarnings("unchecked")
