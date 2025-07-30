@@ -28,7 +28,6 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -36,7 +35,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import static io.ballerina.lib.ibm.ibmmq.CommonUtils.getOptionalStringProperty;
 import static io.ballerina.lib.ibm.ibmmq.Constants.CERT;
 import static io.ballerina.lib.ibm.ibmmq.Constants.CERT_FILE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.CRYPTO_TRUSTSTORE_PASSWORD;
@@ -48,7 +46,6 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.KEY_STORE_PASSWORD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.KEY_STORE_PATH;
 import static io.ballerina.lib.ibm.ibmmq.Constants.NATIVE_DATA_PRIVATE_KEY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE;
-import static io.ballerina.lib.ibm.ibmmq.Constants.SSL_CIPHER_SUITE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_0_CIPHER_SPEC;
 import static io.ballerina.lib.ibm.ibmmq.Constants.TLS_V_1_2;
