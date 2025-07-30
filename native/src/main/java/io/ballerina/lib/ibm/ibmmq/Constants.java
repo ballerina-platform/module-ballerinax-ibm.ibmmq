@@ -133,5 +133,5 @@ public interface Constants {
     static final String CLIENT_ACKNOWLEDGE_MODE = "CLIENT_ACKNOWLEDGE";
     static final String SESSION_TRANSACTED_MODE = "SESSION_TRANSACTED";
 
-    BigDecimal MILLISECOND_MULTIPLIER = new BigDecimal(1000);
+    final BigDecimal MILLISECOND_MULTIPLIER = new BigDecimal(1000);
 }

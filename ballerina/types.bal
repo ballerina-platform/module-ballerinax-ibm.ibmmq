@@ -22,13 +22,13 @@ public type Service distinct service object {};
 # Defines the supported JMS message consumer types for IBM MQ.
 public enum ConsumerType {
     # Represents JMS durable subscriber
-    DURABLE = "DURABLE", 
+    DURABLE,
     # Represents JMS shared consumer
-    SHARED = "SHARED", 
+    SHARED,
     # Represents JMS shared durable subscriber
-    SHARED_DURABLE = "SHARED_DURABLE", 
+    SHARED_DURABLE,
     # Represents JMS default consumer
-    DEFAULT = "DEFAULT"
+    DEFAULT
 }
 
 # Defines the JMS session acknowledgement modes for IBM MQ.
@@ -62,9 +62,9 @@ public enum AcknowledgementMode {
 # + pollingInterval - The polling interval in seconds
 # + receiveTimeout - The timeout to wait till a `receive` action finishes when there are no messages
 public type QueueConfig record {|
-  AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
-  string queueName;
-  string messageSelector?;
+    AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
+    string queueName;
+    string messageSelector?;
   decimal pollingInterval = 10;
   decimal receiveTimeout = 5;
 |};

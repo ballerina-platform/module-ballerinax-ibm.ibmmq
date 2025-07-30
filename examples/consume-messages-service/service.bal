@@ -39,8 +39,8 @@ listener ibmmq:Listener ibmmqListener = new({
     queueName,
     pollingInterval
 }
-service ibmmq:Service on ibmmqListener {
+service on ibmmqListener {
     remote function onMessage(ibmmq:Message message) returns error? {
-        log:printInfo(check string:fromBytes(message.payload));
+        log:printInfo("message received", message = check string:fromBytes(message.payload));
     }
 }

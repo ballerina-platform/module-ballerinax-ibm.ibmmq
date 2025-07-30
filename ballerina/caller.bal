@@ -22,7 +22,7 @@ public isolated client class Caller {
     # Mark an IBM MQ message as received.
     #
     # + message - IBM MQ message record
-    # + return - `ibmmq:Error` if there is an error in the execution or else nil
+    # + return - `ibmmq:Error` if there is an error in the execution or else '()'
     isolated remote function acknowledge(Message message) returns Error? = @java:Method {
         'class: "io.ballerina.lib.ibm.ibmmq.listener.Caller"
     } external;
