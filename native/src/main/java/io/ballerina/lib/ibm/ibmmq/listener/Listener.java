@@ -67,7 +67,6 @@ public final class Listener {
             if (Objects.isNull(jmsConnection.getClientID())) {
                 jmsConnection.setClientID(UUID.randomUUID().toString());
             }
-            jmsConnection.setExceptionListener(new LoggingExceptionListener());
             bListener.addNativeData(NATIVE_CONNECTION, jmsConnection);
             bListener.addNativeData(NATIVE_SERVICE_LIST, new ArrayList<BObject>());
         } catch (Exception e) {
