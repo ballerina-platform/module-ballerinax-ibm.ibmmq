@@ -51,47 +51,43 @@ public enum AcknowledgementMode {
     DUPS_OK_ACKNOWLEDGE
 }
 
-# Configuration for an IBM MQ queue.
+# Common configurations related to the IBM MQ queue or topic subscription.
 #
 # + sessionAckMode - Configuration indicating how messages received by the session will be acknowledged
-# + queueName - The name of the queue to consume messages from
 # + messageSelector - Only messages with properties matching the message selector expression are delivered. 
 # If this value is not set that indicates that there is no message selector for the message consumer
 # For example, to only receive messages with a property `priority` set to `'high'`, use:
 # `"priority = 'high'"`. If this value is not set, all messages in the queue will be delivered.
 # + pollingInterval - The polling interval in seconds
 # + receiveTimeout - The timeout to wait till a `receive` action finishes when there are no messages
-public type QueueConfig record {|
+type CommonSubscriptionConfig record {|
     AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
-    string queueName;
     string messageSelector?;
     decimal pollingInterval = 10;
     decimal receiveTimeout = 5;
 |};
 
+# Configuration for an IBM MQ queue.
+#
+# + queueName - The name of the queue to consume messages from
+public type QueueConfig record {|
+    *CommonSubscriptionConfig;
+    string queueName;
+|};
+
 # Configuration for an IBM MQ topic subscription.
 #
-# + sessionAckMode - Configuration indicating how messages received by the session will be acknowledged
 # + topicName - The name of the topic to subscribe to
-# + messageSelector - Only messages with properties matching the message selector expression are delivered. 
-# If this value is not set that indicates that there is no message selector for the message consumer
-# For example, to only receive messages with a property `priority` set to `'high'`, use:
-# `"priority = 'high'"`. If this value is not set, all messages in the queue will be delivered.
 # + noLocal - If true then any messages published to the topic using this session's connection, or any other connection 
 # with the same client identifier, will not be added to the durable subscription.
 # + consumerType - The message consumer type
 # + subscriberName - the name used to identify the subscription
-# + pollingInterval - The polling interval in seconds
-# + receiveTimeout - The timeout to wait till a `receive` action finishes when there are no messages
 public type TopicConfig record {|
-    AcknowledgementMode sessionAckMode = AUTO_ACKNOWLEDGE;
+    *CommonSubscriptionConfig;
     string topicName;
-    string messageSelector?;
     boolean noLocal = false;
     ConsumerType consumerType = DEFAULT;
     string subscriberName?;
-    decimal pollingInterval = 10;
-    decimal receiveTimeout = 5;
 |};
 
 # The service configuration type for the `ibmmq:Service`.
