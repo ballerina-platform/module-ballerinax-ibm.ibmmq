@@ -53,6 +53,9 @@ public final class Listener {
     static final String NATIVE_SERVICE = "native.service";
     static final String NATIVE_RECEIVER = "native.receiver";
     static final String LISTENER_STARTED = "listener.started";
+    static final String DURABLE = "DURABLE";
+    static final String SHARED = "SHARED";
+    static final String SHARED_DURABLE = "SHARED_DURABLE";
 
     private Listener() {
     }
@@ -119,14 +122,14 @@ public final class Listener {
         TopicConfig topicConfig = (TopicConfig) svcConfig;
         Topic topic = session.createTopic(topicConfig.topicName());
         switch (topicConfig.consumerType()) {
-            case "DURABLE" -> {
+            case DURABLE -> {
                 return session.createDurableConsumer(
                         topic, topicConfig.subscriberName(), topicConfig.messageSelector(), topicConfig.noLocal());
             }
-            case "SHARED" -> {
+            case SHARED -> {
                 return session.createSharedConsumer(topic, topicConfig.subscriberName(), topicConfig.messageSelector());
             }
-            case "SHARED_DURABLE" -> {
+            case SHARED_DURABLE -> {
                 return session.createSharedDurableConsumer(
                         topic, topicConfig.subscriberName(), topicConfig.messageSelector());
             }
