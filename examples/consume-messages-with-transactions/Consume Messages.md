@@ -1,6 +1,6 @@
 # Consume messages
 
-This example demonstrates how to consume messages from an IBM MQ queue using a Ballerina service.
+This example illustrates how to consume messages from an IBM MQ queue using a Ballerina service, while handling message acknowledgement through JMS transactions.
 
 ## Prerequisites
 
