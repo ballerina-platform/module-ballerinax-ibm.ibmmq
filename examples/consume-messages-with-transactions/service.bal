@@ -54,7 +54,7 @@ service on ibmmqListener {
         log:printInfo("Message received", message = stringPayload);
 
         MessagePayload payload = check stringPayload.fromJsonStringWithType();
-        error? result = handleMessage(payload);
+        error? result = processMessage(payload);
         if result is error {
             log:printError("Message processing failed, rolling back", 'error = result);
             check caller->'rollback();
@@ -64,7 +64,7 @@ service on ibmmqListener {
     }
 }
 
-isolated function handleMessage(MessagePayload payload) returns error? {
+isolated function processMessage(MessagePayload payload) returns error? {
     lock {
         if processedMessages.hasKey(payload.messageId) {
             return error("Duplicate message ID received: " + payload.messageId);
