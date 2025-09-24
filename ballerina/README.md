@@ -56,7 +56,7 @@ import ballerinax/ibm.ibmmq;
 Add `com.ibm.mq.allclient` as a platform dependency to the `Ballerina.toml`.
 
 ```toml
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 groupId = "com.ibm.mq"
 artifactId = "com.ibm.mq.allclient"
 version = "9.3.4.0"
