@@ -4,5 +4,10 @@ IBM MQ is a robust, reliable, and secure messaging middleware that enables appli
 
 ### Key Features
 
-- Reliable and secure message delivery across diverse platforms\n- Comprehensive support for IBM MQ features and configurations\n- Manage queues and perform message operations programmatically\n- Support for various messaging patterns and message properties\n- Secure communication with SSL/TLS and authentication\n- GraalVM compatible for native image builds
+- Reliable and secure message delivery across diverse platforms
+- Comprehensive support for IBM MQ features and configurations
+- Manage queues and perform message operations programmatically
+- Support for various messaging patterns and message properties
+- Secure communication with SSL/TLS and authentication
+- GraalVM compatible for native image builds
 
