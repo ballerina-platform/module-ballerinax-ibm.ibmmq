@@ -1,11 +1,15 @@
-## Package overview
+## Overview
 
-[IBM MQ](https://www.ibm.com/products/mq) is a powerful messaging middleware platform designed for facilitating reliable
-communication between disparate systems and applications. IBM MQ ensures the secure and orderly exchange of messages
-asynchronously, decoupling senders and receivers for efficient and scalable communication. It supports both
-point-to-point and publish/subscribe messaging models via queues and topics.
+IBM MQ is a robust, reliable, and secure messaging middleware that enables applications to communicate across different platforms. It provides a proven infrastructure for distributed messaging in enterprise environments. The IBM MQ connector provides a comprehensive API to interact with IBM MQ queue managers, allowing you to manage queues and exchange messages efficiently.
 
-The `ballerinax/ibm.ibmmq` package provides an API to connect to an IBM MQ server using Ballerina. The current connector is compatible with IBM MQ server versions up to 9.3.
+### Key Features
+
+- Reliable and secure message delivery across diverse platforms
+- Comprehensive support for IBM MQ features and configurations
+- Manage queues and perform message operations programmatically
+- Support for various messaging patterns and message properties
+- Secure communication with SSL/TLS and authentication
+- GraalVM compatible for native image builds
 
 ## Setup guide
 
