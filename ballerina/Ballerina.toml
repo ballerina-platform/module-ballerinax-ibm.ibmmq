@@ -1,19 +1,20 @@
 [package]
 org = "ballerinax"
 name = "ibm.ibmmq"
-version = "1.4.4"
+version = "1.4.5"
 authors = ["Ballerina"]
 keywords = ["ibm.ibmmq", "client", "messaging", "network", "pubsub", "Vendor/IBM", "Area/Messaging", "Type/Connector", "Type/Trigger", "Name/IBM MQ"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq"
 icon = "icon.png"
 license = ["Apache-2.0"]
 distribution = "2201.12.0"
+include = ["metadata/**"]
 
 [[platform.java21.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "ibm.ibmmq-native"
-version = "1.4.4"
-path = "../native/build/libs/ibm.ibmmq-native-1.4.4.jar"
+version = "1.4.5"
+path = "../native/build/libs/ibm.ibmmq-native-1.4.5-SNAPSHOT.jar"
 
 [[platform.java21.dependency]]
 groupId = "org.json"
