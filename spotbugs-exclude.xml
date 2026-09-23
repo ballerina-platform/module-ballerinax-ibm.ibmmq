@@ -68,4 +68,7 @@
         <Class name="io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header"/>
         <Bug pattern="IL_INFINITE_RECURSIVE_LOOP"/>
     </Match>
+    <Match>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
 </FindBugsFilter>

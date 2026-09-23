@@ -16,10 +16,14 @@
 
 plugins {
     id "com.github.spotbugs"
-    id "com.github.johnrengelman.shadow"
+    id "com.gradleup.shadow"
     id "de.undercouch.download"
     id "net.researchgate.release"
     id 'jacoco'
+}
+
+jacoco {
+    toolVersion = jacocoVersion
 }
 
 allprojects {
@@ -97,7 +101,14 @@ release {
     }
 }
 
-task build {
-    dependsOn(':ibm.ibmmq-ballerina:build')
-    dependsOn(':ibm.ibmmq-native:build')
+if (tasks.names.contains('build')) {
+    tasks.named('build') {
+        dependsOn(':ibm.ibmmq-ballerina:build')
+        dependsOn(':ibm.ibmmq-native:build')
+    }
+} else {
+    tasks.register('build') {
+        dependsOn(':ibm.ibmmq-ballerina:build')
+        dependsOn(':ibm.ibmmq-native:build')
+    }
 }
