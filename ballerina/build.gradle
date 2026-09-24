@@ -15,6 +15,13 @@
 // under the License.
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.process.ExecOperations
+
+import javax.inject.Inject
+
+abstract class BallerinaExecHelper {
+    @Inject abstract ExecOperations getExecOperations()
+}
 
 plugins {
     id 'io.ballerina.plugin'
@@ -90,8 +97,9 @@ task updateTomlFiles {
 }
 
 task commitTomlFiles {
+    def execHelper = project.objects.newInstance(BallerinaExecHelper)
     doLast {
-        project.exec {
+        execHelper.execOperations.exec {
             ignoreExitValue true
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "git commit -m \"[Automated] Update the native jar versions\" Ballerina.toml Dependencies.toml"
@@ -103,16 +111,17 @@ task commitTomlFiles {
 }
 
  task startIBMMQServer() {
+    def execHelper = project.objects.newInstance(BallerinaExecHelper)
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
-            exec {
+            execHelper.execOperations.exec {
                 commandLine 'sh', '-c', "docker ps --filter name=ibmmq-test"
                 standardOutput = stdOut
             }
             if (!stdOut.toString().contains("ibmmq-test")) {
                 println "Starting IBMMQ server and waiting for it to be healthy..."
-                exec {
+                execHelper.execOperations.exec {
                     commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml up --wait"
                     standardOutput = stdOut
                 }
@@ -125,16 +134,17 @@ task commitTomlFiles {
  }
 
  task stopIBMMQServer() {
+    def execHelper = project.objects.newInstance(BallerinaExecHelper)
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
-            exec {
+            execHelper.execOperations.exec {
                 commandLine 'sh', '-c', "docker ps --filter name=ibmmq-test"
                 standardOutput = stdOut
             }
             if (stdOut.toString().contains("ibmmq-test")) {
                 println "Stopping IBMMQ server."
-                exec {
+                execHelper.execOperations.exec {
                     commandLine 'sh', '-c', "docker compose -f tests/resources/docker-compose.yaml down"
                     standardOutput = stdOut
                 }
