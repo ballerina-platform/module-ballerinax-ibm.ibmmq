@@ -65,7 +65,7 @@ isolated function testQueueService() returns error? {
                 Property? customer = properties["customer"];
                 test:assertTrue(customer is Property);
                 if customer is Property {
-                    test:assertEquals(customer.value, "Air Caraibes");
+                    test:assertEquals(customer.value, "Sample Customer");
                 }
                 Property? count = properties["count"];
                 test:assertTrue(count is Property);
@@ -85,7 +85,7 @@ isolated function testQueueService() returns error? {
                 boolean customerFound = false;
                 foreach var [key, property] in properties.entries() {
                     if key == "customer" {
-                        test:assertEquals(property.value, "Air Caraibes");
+                        test:assertEquals(property.value, "Sample Customer");
                         customerFound = true;
                     }
                 }
@@ -107,7 +107,7 @@ isolated function testQueueService() returns error? {
         expiry: 600,
         persistence: 1,
         properties: {
-            "customer": {value: "Air Caraibes"},
+            "customer": {value: "Sample Customer"},
             "count": {value: countValue},
             "enabled": {value: true},
             "amount": {value: 1.5f}
@@ -119,7 +119,7 @@ isolated function testQueueService() returns error? {
         expiry: -1,
         persistence: 0,
         properties: {
-            "customer": {value: "Air Caraibes"},
+            "customer": {value: "Sample Customer"},
             "count": {value: countValue},
             "enabled": {value: true},
             "amount": {value: 1.5f}
