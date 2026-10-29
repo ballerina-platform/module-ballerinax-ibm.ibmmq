@@ -14,7 +14,7 @@ include = ["metadata/**"]
 groupId = "io.ballerina.stdlib"
 artifactId = "ibm.ibmmq-native"
 version = "1.4.6"
-path = "../native/build/libs/ibm.ibmmq-native-1.4.6-SNAPSHOT.jar"
+path = "../native/build/libs/ibm.ibmmq-native-1.4.6.jar"
 
 [[platform.java21.dependency]]
 groupId = "org.json"
