@@ -27,6 +27,7 @@ listener Listener ibmmqListener = check new Listener({
 
 isolated int queueServiceReceivedMessageCount = 0;
 isolated int topicServiceReceivedMessageCount = 0;
+isolated boolean queueServicePropertiesValidated = false;
 
 final QueueManager queueManager = check new (
     name = "QM1", host = "localhost", channel = "DEV.APP.SVRCONN",
@@ -45,6 +46,41 @@ isolated function testQueueService() returns error? {
         receiveTimeout: 1
     } service object {
         remote function onMessage(Message message) returns error? {
+            map<Property>? properties = message.properties;
+            test:assertTrue(properties is map<Property>);
+            if properties is map<Property> {
+                Property? customer = properties["customer"];
+                test:assertTrue(customer is Property);
+                if customer is Property {
+                    test:assertEquals(customer.value, "Air Caraibes");
+                }
+                Property? count = properties["count"];
+                test:assertTrue(count is Property);
+                if count is Property {
+                    test:assertEquals(count.value, 42);
+                }
+                Property? enabled = properties["enabled"];
+                test:assertTrue(enabled is Property);
+                if enabled is Property {
+                    test:assertEquals(enabled.value, true);
+                }
+                Property? amount = properties["amount"];
+                test:assertTrue(amount is Property);
+                if amount is Property {
+                    test:assertEquals(amount.value, 1.5f);
+                }
+                boolean customerFound = false;
+                foreach var [key, property] in properties.entries() {
+                    if key == "customer" {
+                        test:assertEquals(property.value, "Air Caraibes");
+                        customerFound = true;
+                    }
+                }
+                test:assertTrue(customerFound);
+                lock {
+                    queueServicePropertiesValidated = true;
+                }
+            }
             lock {
                 queueServiceReceivedMessageCount += 1;
             }
@@ -52,11 +88,20 @@ isolated function testQueueService() returns error? {
     };
     check ibmmqListener.attach(consumerSvc, "dev-queue-3-service");
     check queueProducer->put({
-        payload: "Hello World from queue".toBytes()
+        payload: "Hello World from queue".toBytes(),
+        properties: {
+            "customer": {value: "Air Caraibes"},
+            "count": {value: 42},
+            "enabled": {value: true},
+            "amount": {value: 1.5f}
+        }
     });
     runtime:sleep(2);
     lock {
         test:assertEquals(queueServiceReceivedMessageCount, 1, "'DEV.QUEUE.3' did not received the expected number of messages");
+    }
+    lock {
+        test:assertTrue(queueServicePropertiesValidated, "Listener properties were not validated");
     }
 }
 

@@ -19,6 +19,7 @@
 package io.ballerina.lib.ibm.ibmmq.listener;
 
 import io.ballerina.lib.ibm.ibmmq.Constants;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
@@ -33,6 +34,7 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 
 import static io.ballerina.lib.ibm.ibmmq.CommonUtils.createError;
+import static io.ballerina.lib.ibm.ibmmq.Constants.BPROPERTY;
 import static io.ballerina.lib.ibm.ibmmq.Constants.CORRELATION_ID_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.EXPIRY_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.FORMAT_FIELD;
@@ -43,6 +45,7 @@ import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_PROPERTIES;
 import static io.ballerina.lib.ibm.ibmmq.Constants.MESSAGE_USERID;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PERSISTENCE_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.Constants.PRIORITY_FIELD;
+import static io.ballerina.lib.ibm.ibmmq.Constants.PROPERTY_VALUE;
 import static io.ballerina.lib.ibm.ibmmq.Constants.REPLY_TO_QUEUE_NAME_FIELD;
 import static io.ballerina.lib.ibm.ibmmq.ModuleUtils.getModule;
 import static io.ballerina.lib.ibm.ibmmq.listener.Caller.NATIVE_MESSAGE;
@@ -71,12 +74,15 @@ public class MessageMapper {
         // You may need to pass them via custom properties or switch to MQMessage for that
 
         // Custom Properties
-        BMap<BString, Object> props = ValueCreator.createMapValue();
+        BMap<BString, Object> props = ValueCreator.createMapValue(TypeCreator
+                .createMapType(ValueCreator.createRecordValue(getModule(), BPROPERTY).getType()));
         Enumeration<?> propNames = message.getPropertyNames();
         while (propNames.hasMoreElements()) {
             String name = (String) propNames.nextElement();
             Object value = message.getObjectProperty(name);
-            props.put(StringUtils.fromString(name), value);
+            BMap<BString, Object> property = ValueCreator.createRecordValue(getModule(), BPROPERTY);
+            property.put(PROPERTY_VALUE, toBallerinaPropertyValue(name, value));
+            props.put(StringUtils.fromString(name), property);
         }
         result.put(MESSAGE_PROPERTIES, props);
 
@@ -110,6 +116,26 @@ public class MessageMapper {
         }
         result.addNativeData(NATIVE_MESSAGE, message);
         return result;
+    }
+
+    private static Object toBallerinaPropertyValue(String name, Object value) throws JMSException {
+        if (value instanceof String stringValue) {
+            return StringUtils.fromString(stringValue);
+        }
+        if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long) {
+            return ((Number) value).longValue();
+        }
+        if (value instanceof Float || value instanceof Double) {
+            return ((Number) value).doubleValue();
+        }
+        if (value instanceof Boolean) {
+            return value;
+        }
+        if (value instanceof byte[] bytesValue) {
+            return ValueCreator.createArrayValue(bytesValue);
+        }
+        throw new JMSException("Unsupported value for message property '" + name + "': "
+                + (value == null ? "null" : value.getClass().getName()));
     }
 
     private static byte[] safeBytes(String value) {
