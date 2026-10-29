@@ -46,6 +46,19 @@ isolated function testQueueService() returns error? {
         receiveTimeout: 1
     } service object {
         remote function onMessage(Message message) returns error? {
+            test:assertEquals(message.priority, 7);
+            string payload = check string:fromBytes(message.payload);
+            if payload == "Unlimited expiry" {
+                test:assertEquals(message.expiry, -1);
+                test:assertEquals(message.persistence, 0);
+            } else {
+                int? expiry = message.expiry;
+                test:assertTrue(expiry is int);
+                if expiry is int {
+                    test:assertTrue(expiry > 0 && expiry <= 600, "Invalid remaining MQ expiry");
+                }
+                test:assertEquals(message.persistence, 1);
+            }
             map<Property>? properties = message.properties;
             test:assertTrue(properties is map<Property>);
             if properties is map<Property> {
@@ -87,18 +100,34 @@ isolated function testQueueService() returns error? {
         }
     };
     check ibmmqListener.attach(consumerSvc, "dev-queue-3-service");
+    int countValue = 42;
     check queueProducer->put({
         payload: "Hello World from queue".toBytes(),
+        priority: 7,
+        expiry: 600,
+        persistence: 1,
         properties: {
             "customer": {value: "Air Caraibes"},
-            "count": {value: 42},
+            "count": {value: countValue},
+            "enabled": {value: true},
+            "amount": {value: 1.5f}
+        }
+    });
+    check queueProducer->put({
+        payload: "Unlimited expiry".toBytes(),
+        priority: 7,
+        expiry: -1,
+        persistence: 0,
+        properties: {
+            "customer": {value: "Air Caraibes"},
+            "count": {value: countValue},
             "enabled": {value: true},
             "amount": {value: 1.5f}
         }
     });
     runtime:sleep(2);
     lock {
-        test:assertEquals(queueServiceReceivedMessageCount, 1, "'DEV.QUEUE.3' did not received the expected number of messages");
+        test:assertEquals(queueServiceReceivedMessageCount, 2, "'DEV.QUEUE.3' did not received the expected number of messages");
     }
     lock {
         test:assertTrue(queueServicePropertiesValidated, "Listener properties were not validated");

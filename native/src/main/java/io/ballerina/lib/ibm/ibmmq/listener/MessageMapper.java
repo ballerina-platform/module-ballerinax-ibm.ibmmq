@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.ibm.ibmmq.listener;
 
+import com.ibm.mq.constants.MQConstants;
 import io.ballerina.lib.ibm.ibmmq.Constants;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -29,6 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 
 import javax.jms.BytesMessage;
+import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
@@ -61,9 +63,10 @@ public class MessageMapper {
         // Common properties - convert byte arrays to Ballerina arrays
         result.put(MESSAGE_ID_FIELD, ValueCreator.createArrayValue(safeBytes(message.getJMSMessageID())));
         result.put(CORRELATION_ID_FIELD, ValueCreator.createArrayValue(safeBytes(message.getJMSCorrelationID())));
-        result.put(PRIORITY_FIELD, message.getJMSPriority());
-        result.put(EXPIRY_FIELD, (int) message.getJMSExpiration()); // or TTL
-        result.put(PERSISTENCE_FIELD, message.getJMSDeliveryMode());
+        result.put(PRIORITY_FIELD, (long) message.getJMSPriority());
+        result.put(EXPIRY_FIELD, toMqExpiry(message.getJMSExpiration(), System.currentTimeMillis()));
+        result.put(PERSISTENCE_FIELD, message.getJMSDeliveryMode() == DeliveryMode.PERSISTENT
+                ? (long) MQConstants.MQPER_PERSISTENT : (long) MQConstants.MQPER_NOT_PERSISTENT);
 
         result.put(REPLY_TO_QUEUE_NAME_FIELD, (message.getJMSReplyTo() != null)
                 ? StringUtils.fromString(message.getJMSReplyTo().toString()) : null);
@@ -116,6 +119,16 @@ public class MessageMapper {
         }
         result.addNativeData(NATIVE_MESSAGE, message);
         return result;
+    }
+
+    private static long toMqExpiry(long expiration, long currentTimeMillis) {
+        if (expiration == 0) {
+            return MQConstants.MQEI_UNLIMITED;
+        }
+        // JMS stores an absolute timestamp in milliseconds; MQ uses remaining tenths of a second.
+        long remainingMillis = Math.max(0, expiration - currentTimeMillis);
+        long expiry = remainingMillis / 100 + (remainingMillis % 100 == 0 ? 0 : 1);
+        return Math.min(expiry, Integer.MAX_VALUE);
     }
 
     private static Object toBallerinaPropertyValue(String name, Object value) throws JMSException {
