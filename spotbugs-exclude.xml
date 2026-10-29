@@ -68,4 +68,25 @@
         <Class name="io.ballerina.lib.ibm.ibmmq.headers.MQRFH2Header"/>
         <Bug pattern="IL_INFINITE_RECURSIVE_LOOP"/>
     </Match>
+    <!-- handleMessagePropertyValues wraps javax.jms.Message property setters, which all declare
+         "throws JMSException"; it uses the broader java.lang.Exception so the single throws clause
+         covers every setX Property call without a per-call try/catch. Not an interface override. -->
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.CommonUtils"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <!-- getTrustManagerFactory/getKeyManagerFactory/getKeyStore each combine several distinct
+         java.security/javax.net.ssl checked exceptions (NoSuchAlgorithmException, KeyStoreException,
+         CertificateException, IOException) plus a custom Exception thrown on a decode failure, under
+         one broad throws clause instead of declaring each individually. Not an interface override. -->
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.SslUtils"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <!-- stop() wraps javax.jms.MessageConsumer#close()/Session#close(), which both declare
+         "throws JMSException", under java.lang.Exception. Not an interface override. -->
+    <Match>
+        <Class name="io.ballerina.lib.ibm.ibmmq.listener.MessageReceiver"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
 </FindBugsFilter>
