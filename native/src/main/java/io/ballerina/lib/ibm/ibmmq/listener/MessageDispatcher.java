@@ -76,6 +76,7 @@ public class MessageDispatcher {
                 onMsgCallback.notifyFailure(e);
                 onError(e);
             } catch (JMSException e) {
+                onMsgCallback.notifyFailure(createError(IBMMQ_ERROR, "Failed to map the message", e));
                 onError(e);
             }
         });
