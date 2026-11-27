@@ -19,8 +19,8 @@ path = "../native/build/libs/ibm.ibmmq-native-1.4.5.jar"
 [[platform.java21.dependency]]
 groupId = "org.json"
 artifactId = "json"
-version = "20231013"
-path = "./lib/json-20231013.jar"
+version = "20260719"
+path = "./lib/json-20260719.jar"
 
 [[platform.java21.dependency]]
 groupId = "com.ibm.mq"

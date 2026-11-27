@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- [Update json to 20260719 to fix known vulnerabilities](https://github.com/ballerina-platform/ballerina-library/issues/9645)
 - [Improve IBM MQ listener-service based message consumption model to reflect JMS connector](https://github.com/ballerina-platform/ballerina-library/issues/8123)
 
 ## [1.3.0] - 2025-06-16
